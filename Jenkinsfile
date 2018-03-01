@@ -13,7 +13,7 @@ node('coreosnode') {  //this node label must match jenkins slave with nodejs ins
 //        sh "./gradlew --no-daemon clean build buildImage pushVersion pushLatest"
 
         stage "archive"
-        step([$class: 'JUnitResultArchiver', testResults: 'build/**/TEST-*.xml'])
+        step([$class: 'JUnitResultArchiver', testResults: 'target/**/TEST-*.xml'])
 
         println "flow complete!"
     }
