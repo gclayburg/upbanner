@@ -79,12 +79,7 @@ public class UpBanner implements ApplicationListener<EmbeddedServletContainerIni
     private String deduceAppNameVersion() {
         String name = getEnvProperty("spring.application.name");
         if (name == null){
-            name = getEnvProperty("sun.java.command");
-            if (name != null){
-                name = ClassUtils.getShortName(name);
-            } else{
-                name = "Application";
-            }
+            name = "Application";
         }
         String version = getEnvProperty("info.app.version");
         if (version != null ){
