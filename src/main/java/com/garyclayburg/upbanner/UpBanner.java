@@ -59,11 +59,12 @@ public class UpBanner implements ApplicationListener<EmbeddedServletContainerIni
     }
 
     public void printVersion(String hostAddress,String hostName,int localPort) {
+        String proto = deduceProtocol();
         String banner = "\n----------------------------------------------------------------------------------------------------\n";
         String c1r1 = String.format("%s is UP!", deduceAppNameVersion() );
-        String c1r2 = String.format("Local:     http://localhost:%s", localPort);
-        String c1r3 = String.format("External:  http://%s:%s ", hostAddress, localPort);
-        String c1r4 = String.format("Host:      http://%s:%s ", hostName, localPort);
+        String c1r2 = String.format("Local:     %s://localhost:%s", proto,localPort);
+        String c1r3 = String.format("External:  %s://%s:%s ", proto, hostAddress, localPort);
+        String c1r4 = String.format("Host:      %s://%s:%s ", proto, hostName, localPort);
         String c2r1 = String.format("build-date: %s", getBuildProp("org.label-schema.build-date"));
         String c2r2 = String.format("vcs-ref: %s", getBuildProp("org.label-schema.vcs-ref"));
         String c2r3 = String.format("vcs-url: %s", getBuildProp("org.label-schema.vcs-url"));
@@ -74,6 +75,15 @@ public class UpBanner implements ApplicationListener<EmbeddedServletContainerIni
         banner += String.format("    %-45s %s\n", c1r4, c2r4);
         banner += "----------------------------------------------------------------------------------------------------";
         log.info(banner);
+    }
+
+    private String deduceProtocol() {
+        String retval = "http";
+        String secure = getEnvProperty("security.require-ssl");
+        if (secure != null && secure.equals("true")){
+            retval = "https";
+        }
+        return retval;
     }
 
     private String deduceAppNameVersion() {
