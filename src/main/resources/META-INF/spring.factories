@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.garyclayburg.upbanner.BuildPropertiesStub,com.garyclayburg.upbanner.PortListenerSpringBoot2,com.garyclayburg.upbanner.WhatsUp
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.garyclayburg.upbanner.BuildPropertiesStub,com.garyclayburg.upbanner.PortListenerSpringBoot2,com.garyclayburg.upbanner.WhatsUp,com.garyclayburg.upbanner.WarningVersion
