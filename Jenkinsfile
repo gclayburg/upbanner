@@ -15,7 +15,7 @@ node('coreosnode') {  //this node label must match jenkins slave with nodejs ins
         } catch (ex) {
             throw ex
         } finally {
-            step([$class: 'JUnitResultArchiver', testResults: 'target/**/TEST-*.xml'])
+            step([$class: 'JUnitResultArchiver', testResults: '**/target/**/TEST-*.xml'])
         }
         stage "archive"
 
