@@ -9,11 +9,15 @@ node('coreosnode') {  //this node label must match jenkins slave with nodejs ins
         whereami()
 
         stage "build/test"
-        sh "mvn clean install"
+        try {
+            sh "mvn clean install"
 //        sh "./gradlew --no-daemon clean build buildImage pushVersion pushLatest"
-
+        } catch (ex) {
+            throw ex
+        } finally {
+            step([$class: 'JUnitResultArchiver', testResults: 'target/**/TEST-*.xml'])
+        }
         stage "archive"
-        step([$class: 'JUnitResultArchiver', testResults: 'target/**/TEST-*.xml'])
 
         println "flow complete!"
     }
