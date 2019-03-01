@@ -138,5 +138,14 @@
             </url>
         </repository>
     </distributionManagement>
-
+    <developers>
+        <developer>
+            <id>gary</id>
+            <name>Gary Clayburg</name>
+            <email>gclaybur@comcast.net</email>
+            <organization>gclayburg</organization>
+            <organizationUrl>https://github.com/gclayburg</organizationUrl>
+            <url>https://github.com/gclayburg</url>
+        </developer>
+    </developers>
 </project>
