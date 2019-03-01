@@ -12,7 +12,6 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 /**
  * {@link SpringBootCondition} that only matches when the specific resource {@code META-INF/build-info.properties} is not found in the classpath.
  *
- * @see org.springframework.boot.autoconfigure.condition.OnResourceCondition
  * @author Gary Clayburg
  */
 public class ConditionalOnMissingBuildInfo extends SpringBootCondition {

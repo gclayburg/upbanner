@@ -24,7 +24,6 @@ public class BuildPropertiesStub {
      * <p>
      *     If {@code boot-info.properties} <b>is</b> on the classpath, then we expect Spring Boot will create a fully populated {@link BuildProperties} bean
      * @return minimal {@link BuildProperties}
-     * @see org.springframework.boot.autoconfigure.condition.OnResourceCondition
      */
     @Conditional(ConditionalOnMissingBuildInfo.class)
     @Bean
