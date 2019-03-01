@@ -4,46 +4,18 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.garyclayburg</groupId>
-	<artifactId>upbanner</artifactId>
-	<version>2.0.0</version>
-	<packaging>jar</packaging>
+	<artifactId>whatsupbanner</artifactId>
+	<version>2.0.5</version>
 
-	<name>upbanner</name>
+	<modules>
+		<module>banner</module>
+		<module>legacybanner</module>
+	</modules>
+	<packaging>pom</packaging>
+
+	<name>whatsupbanner</name>
 	<description>Show UP banner for your spring boot app</description>
-
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.0.0.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<!--<modules>-->
-		<!--<module>legacybanner-->
-
-		<!--</module>-->
-	<!--</modules>-->
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
+		<banner.version>2.0.5</banner.version>
 	</properties>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
 </project>
