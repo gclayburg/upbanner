@@ -1,8 +1,11 @@
+# upbanner
 
-This project adds a startup banner to any Spring Boot application to answer questions like:
+upbanner adds a startup banner to any Spring Boot application to answer questions like:
 - what app is running here?
 - what URL?
 - what version is it?
+
+*Note*: upbanner is not to be confused with the [standard spring boot banner](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-spring-application.html).  upbanner executes only after the app has completely started and is listing on a TCP port.
 
 # Compatibility
 - Works with any Spring Boot 1.x or 2.x application
