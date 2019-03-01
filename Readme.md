@@ -22,7 +22,7 @@ Add this to pom.xml:
 Or to build.gradle:
 
 ```groovy
-    compile group: 'com.garyclayburg', name:'upbanner', version: '2.0.5'
+    compile group: 'com.garyclayburg', name:'upbanner', version: '2.0.7'
 ```
 # example output:
 
