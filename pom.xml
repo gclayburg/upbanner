@@ -21,7 +21,6 @@
         <connection>scm:git:git://github.com/gclayburg/upbanner.git</connection>
         <developerConnection>scm:git:git@github.com:gclayburg/upbanner.git</developerConnection>
         <url>https://github.com/gclayburg/upbanner</url>
-        <tag>whatsupbanner-2.0.6</tag>
     </scm>
     <build>
         <plugins>
