@@ -16,7 +16,7 @@ Add this to pom.xml:
         <dependency>
             <groupId>com.garyclayburg</groupId>
             <artifactId>upbanner</artifactId>
-            <version>2.0.5</version>
+            <version>2.0.6</version>
         </dependency>
 ```
 Or to build.gradle:
@@ -75,6 +75,7 @@ plugins {
     External:  https://127.0.1.1:8443             git.commit.id:     cb1de93bfbc12a14bed6a7ba33dffe9656b0e1e1
     Host:      https://gary-XPS-13-9360:8443      git.remote.origin: ssh://git@scranton2:2233/home/git/memuser.git
 ----------------------------------------------------------------------------------------------------
+2019-03-01 10:00:03.143  INFO 16529 --- [           main] c.g.memuser.MemuserApplication           : Started MemuserApplication in 6.357 seconds (JVM running for 7.438)
 
 ``` 
 
