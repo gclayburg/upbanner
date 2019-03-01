@@ -10,13 +10,13 @@
 
     <groupId>com.garyclayburg</groupId>
     <artifactId>upbanner</artifactId>
-    <version>2.0.7</version>
+    <version>2.0.8-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <banner.version>2.0.7</banner.version>
+        <banner.version>2.0.8-SNAPSHOT</banner.version>
     </properties>
 
     <dependencies>
@@ -69,6 +69,6 @@
 
 
   <scm>
-    <tag>whatsupbanner-2.0.7</tag>
+    <tag>HEAD</tag>
   </scm>
 </project>
