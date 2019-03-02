@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 /**
  * Prints UP banner to stdout on Spring Boot application startup.  Build properties from
  * {@code META-INF/boot-info.properties} are used to show relevant info about this app.
- * <p>Example output:<p>
+ * <p>Example output:</p>
  * <pre>
  * 2019-03-01 09:10:55.485  INFO 14437 --- [           main] com.garyclayburg.upbanner.WhatsUp        :
  * ----------------------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
  * ----------------------------------------------------------------------------------------------------
  * </pre>
  *
- * Example output with git.properties present in classpath:<p>
+ * <p>Example output with git.properties present in classpath:</p>
  *
  * <pre>
  * 2019-03-01 09:54:41.688  INFO 15686 --- [           main] com.garyclayburg.upbanner.WhatsUp        :

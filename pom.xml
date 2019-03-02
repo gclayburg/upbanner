@@ -14,6 +14,25 @@
 
     <name>whatsupbanner</name>
     <description>Show UP banner for your spring boot app</description>
+    <url>https://github.com/gclayburg/upbanner</url>
+    <developers>
+        <developer>
+            <id>gclayburg</id>
+            <name>Gary Clayburg</name>
+            <email>@garyclayburg</email>
+            <organization>Clayburg</organization>
+            <organizationUrl>https://github.com/gclayburg</organizationUrl>
+            <url>https://github.com/gclayburg</url>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
     <properties>
         <banner.version>2.0.7-SNAPSHOT</banner.version>
     </properties>
