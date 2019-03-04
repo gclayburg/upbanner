@@ -1,11 +1,13 @@
-# upbanner
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.garyclayburg/upbanner-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.garyclayburg/upbanner-starter)
 
-upbanner adds a startup banner to any Spring Boot application to answer questions like:
+# upbanner-starter
+
+upbanner-starter adds a startup banner to any Spring Boot application to answer questions like:
 - what app is running here?
 - what URL?
 - what version is it?
 
-*Note*: upbanner is not to be confused with the [standard spring boot banner](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-spring-application.html).  upbanner executes only after the app has completely started and is listing on a TCP port.
+*Note*: upbanner-starter is not to be confused with the [standard spring boot banner](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-spring-application.html).  upbanner-starter executes only after the app has completely started and is listing on a TCP port.
 
 # Compatibility
 - Works with any Spring Boot 1.x or 2.x application
@@ -15,14 +17,14 @@ Add this to pom.xml:
 ```xml
         <dependency>
             <groupId>com.garyclayburg</groupId>
-            <artifactId>upbanner</artifactId>
-            <version>2.0.6</version>
+            <artifactId>upbanner-starter</artifactId>
+            <version>2.0.13</version>
         </dependency>
 ```
 Or to build.gradle:
 
 ```groovy
-    compile group: 'com.garyclayburg', name:'upbanner', version: '2.0.7'
+    compile group: 'com.garyclayburg', name:'upbanner-starter', version: '2.0.13'
 ```
 # example output:
 
