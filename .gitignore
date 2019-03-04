@@ -28,3 +28,4 @@ nbdist/
 ## maven publishing
 pom.xml.releaseBackup
 release.properties
+notes.txt
