@@ -10,7 +10,7 @@ upbanner-starter adds a startup banner to any Spring Boot application to answer 
 *Note*: upbanner-starter is not to be confused with the [standard spring boot banner](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-spring-application.html).  upbanner-starter executes only after the app has completely started and is listing on a TCP port.
 
 # Compatibility
-- Works with any Spring Boot 1.x or 2.x application
+This project is designed to work with any Spring Boot 1.x or 2.x web application. It won't do anything until your project has started and is listening for requests on a HTTP(S) port.
 
 # Using
 Add this to pom.xml:
@@ -81,3 +81,8 @@ plugins {
 
 ``` 
 
+# Contributing
+
+There are many other properties available at runtime from the runtime environment, spring build properties, spring externalized properties and more.  Maybe we need a  template mechanism for overriding the default layout?
+
+Pull requests are welcome
