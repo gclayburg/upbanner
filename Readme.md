@@ -1,4 +1,5 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.garyclayburg/upbanner-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.garyclayburg/upbanner-starter)
+[![Build Status](https://travis-ci.org/gclayburg/upbanner.svg?branch=master)](https://travis-ci.org/gclayburg/upbanner)
 
 # upbanner-starter
 
