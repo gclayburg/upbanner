@@ -63,9 +63,16 @@ This git.properties is generated with a build plugin like this in maven builds:
 or if using gradle:
 ```
 plugins {
-    id 'com.gorylenko.gradle-git-properties' version '2.0.0'
+    id 'com.gorylenko.gradle-git-properties' version '2.x.x'
+}
+
+gitProperties {
+    failOnNoGitDirectory = false
+    keys = ["git.branch", "git.commit.id.abbrev", "git.commit.id.describe", "git.build.time", "git.commit.time","git.commit.id", "git.remote.origin", "git.build.version"]
 }
 ```
+
+
 
 ## an https application with existing spring properties info.app.name and info.app.version:
 [Spring Boot Actuator](https://www.baeldung.com/spring-boot-actuators)
@@ -101,7 +108,6 @@ If you want to override the banner produced with your own, simple create a Abstr
 @Component
 public class WhatIsUp extends AbstractWhatsUp {
 
-    @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(WhatIsUp.class);
 
     public WhatIsUp(Environment environment, BuildProperties buildProperties) {
@@ -109,11 +115,11 @@ public class WhatIsUp extends AbstractWhatsUp {
     }
 
     @Override
-    public void printVersion(int i) {
+    public void printVersion(int port) {
         log.info("\n----" +
         "\n   running at {}://localhost:{}" +
         "\n   git id:{}"+
-        "\n----",deduceProtocol(),i, this.environment.getProperty("git.commit.id"));
+        "\n----",deduceProtocol(),port, this.environment.getProperty("git.commit.id"));
     }
 }
 

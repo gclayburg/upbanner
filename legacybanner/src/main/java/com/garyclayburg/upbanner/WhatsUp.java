@@ -70,7 +70,7 @@ public class WhatsUp extends AbstractWhatsUp {
         String c1r2 = String.format("Local:     %s://localhost:%s", proto, localPort);
         String c1r3 = String.format("External:  %s://%s:%s ", proto, hostAddress, localPort);
         String c1r4 = String.format("Host:      %s://%s:%s ", proto, hostName, localPort);
-        String c2r1 = String.format("git.build.time:    %s", gitProperties.getProperty("git.build.time"));
+        String c2r1 = String.format("git.commit.time:   %s", gitProperties.getProperty("git.commit.time"));
         String c2r2 = String.format("git.build.version: %s", gitProperties.getProperty("git.build.version"));
         String c2r3 = String.format("git.commit.id:     %s", gitProperties.getProperty("git.commit.id"));
         String c2r4 = String.format("git.remote.origin: %s", gitProperties.getProperty("git.remote.origin.url"));

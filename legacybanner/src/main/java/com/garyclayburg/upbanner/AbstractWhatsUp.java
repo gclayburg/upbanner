@@ -66,6 +66,11 @@ public abstract class AbstractWhatsUp {
         String version = getEnvProperty("info.app.version");
         if (version != null) {
             name += ":" + version;
+        } else {
+            version = getEnvProperty("git.build.version");
+            if (version != null) {
+                name += ":" + version;
+            }
         }
         return name;
     }
