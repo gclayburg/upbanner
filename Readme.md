@@ -1,5 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.garyclayburg/upbanner-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.garyclayburg/upbanner-starter)
 [![Build Status](https://travis-ci.org/gclayburg/upbanner.svg?branch=master)](https://travis-ci.org/gclayburg/upbanner)
+[![javadoc](https://javadoc.io/badge2/com.garyclayburg/upbanner-starter/javadoc.svg)](https://javadoc.io/doc/com.garyclayburg/upbanner-starter)
 # upbanner-starter
 
 upbanner-starter adds a startup banner to any Spring Boot application to answer questions like:
@@ -18,23 +19,23 @@ Add this to pom.xml:
         <dependency>
             <groupId>com.garyclayburg</groupId>
             <artifactId>upbanner-starter</artifactId>
-            <version>2.0.13</version>
+            <version>2.1.0</version>
         </dependency>
 ```
 Or to build.gradle:
 
 ```groovy
-    compile group: 'com.garyclayburg', name:'upbanner-starter', version: '2.0.13'
+    compile group: 'com.garyclayburg', name:'upbanner-starter', version: '2.1.0'
 ```
 # example output:
 
 ```
 2019-03-01 09:56:02.797  INFO 16029 --- [           main] com.garyclayburg.upbanner.WhatsUp        : 
 ----------------------------------------------------------------------------------------------------
-    Application is UP!                            git.build.time:    null
-    Local:     http://localhost:8070              git.build.version: null
-    External:  http://127.0.1.1:8070              git.commit.id:     null
-    Host:      http://gary-XPS-13-9360:8070       git.remote.origin: null
+    Application:1.0 is UP!                        
+    Local:     http://localhost:8070              
+    External:  http://127.0.1.1:8070              
+    Host:      http://gary-XPS-13-9360:8070       
 ----------------------------------------------------------------------------------------------------
 ```
 
@@ -43,7 +44,7 @@ Or to build.gradle:
 ```
 2019-03-01 09:54:41.688  INFO 15686 --- [           main] com.garyclayburg.upbanner.WhatsUp        : 
 ----------------------------------------------------------------------------------------------------
-    Application is UP!                            git.build.time:    2019-03-01T09:52:34-0700
+    Application:1.0 is UP!                        git.build.time:    2019-03-01T09:52:34-0700
     Local:     http://localhost:8070              git.build.version: 0.0.2-SNAPSHOT
     External:  http://127.0.1.1:8070              git.commit.id:     10db5b227f40569993c99ac8b6b5fd48860f6496
     Host:      http://gary-XPS-13-9360:8070       git.remote.origin: Unknown
@@ -81,6 +82,52 @@ plugins {
 
 ``` 
 
+#Properties
+```
+upbanner.show-env=true
+```
+When true, show a complete dump of the environment in which this application is running
+```
+upbanner.show-banner=true
+```
+When true, show the banner on startup
+
+#Customizing
+
+If you want to override the banner produced with your own, simple create a AbstractWhatsUp Spring @Component.  For example:
+
+
+```
+@Component
+public class WhatIsUp extends AbstractWhatsUp {
+
+    @SuppressWarnings("UnusedDeclaration")
+    private static final Logger log = LoggerFactory.getLogger(WhatIsUp.class);
+
+    public WhatIsUp(Environment environment, BuildProperties buildProperties) {
+        super(environment, buildProperties);
+    }
+
+    @Override
+    public void printVersion(int i) {
+        log.info("\n----" +
+        "\n   running at {}://localhost:{}" +
+        "\n   git id:{}"+
+        "\n----",deduceProtocol(),i, this.environment.getProperty("git.commit.id"));
+    }
+}
+
+```
+which would show at startup:
+
+```
+2020-06-10 20:07:55.965  INFO 7877 --- [  restartedMain] com.garyclayburg.rungroovy.WhatIsUp      : 
+----
+   running at http://localhost:8080
+   git id:8066b418ebde58a781b6cec61bfe3967af7e5ab3
+----
+
+```
 # Contributing
 
 There are many other properties available at runtime from the runtime environment, spring build properties, spring externalized properties and more.  Maybe we need a  template mechanism for overriding the default layout?
