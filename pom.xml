@@ -34,7 +34,7 @@
         </license>
     </licenses>
     <properties>
-        <banner.version>2.1.1-SNAPSHOT</banner.version>
+        <banner.version>2.1.2-SNAPSHOT</banner.version>
     </properties>
     <scm>
         <connection>scm:git:git://github.com/gclayburg/upbanner.git</connection>

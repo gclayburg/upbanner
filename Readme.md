@@ -19,13 +19,13 @@ Add this to pom.xml:
         <dependency>
             <groupId>com.garyclayburg</groupId>
             <artifactId>upbanner-starter</artifactId>
-            <version>2.1.1-SNAPSHOT</version>
+            <version>x.x.x</version>
         </dependency>
 ```
 Or to build.gradle:
 
 ```groovy
-    compile group: 'com.garyclayburg', name:'upbanner-starter', version: '2.1.1-SNAPSHOT'
+    compile group: 'com.garyclayburg', name:'upbanner-starter', version: 'x.x.x'
 ```
 # example output:
 
