@@ -20,7 +20,7 @@ public class UpbannerSettings {
     /**
     print entire Environment to the console on successful startup
      */
-    private boolean showEnv = false;
+    private boolean debug = false;
     /**
      * print defined banner on successful startup.
      *
@@ -37,12 +37,12 @@ public class UpbannerSettings {
      */
     private boolean showBanner = true;
 
-    public boolean isShowEnv() {
-        return showEnv;
+    public boolean isDebug() {
+        return debug;
     }
 
-    public UpbannerSettings setShowEnv(boolean showEnv) {
-        this.showEnv = showEnv;
+    public UpbannerSettings setDebug(boolean debug) {
+        this.debug = debug;
         return this;
     }
 

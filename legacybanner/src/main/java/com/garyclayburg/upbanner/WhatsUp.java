@@ -100,8 +100,8 @@ public class WhatsUp extends AbstractWhatsUp {
             banner += String.format("    %-45s %-60s %s\n", c1r4, c2r4, c3r4);
         }
         banner += "----------------------------------------------------------------------------------------------------";
-        if (upbannerSettings.isShowEnv()) {
-            dumpSystemProperties();
+        if (upbannerSettings.isDebug()) {
+            dumpAll();
         }
         if (upbannerSettings.isShowBanner()) {
             log.info(banner);

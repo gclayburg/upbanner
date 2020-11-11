@@ -2,9 +2,8 @@ package com.garyclayburg.upbanner;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.lang.management.ManagementFactory;
 import java.util.Properties;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +17,7 @@ import org.springframework.core.env.Environment;
  * @author Gary Clayburg
  */
 public abstract class AbstractWhatsUp {
+
     protected Environment environment;
     protected BuildProperties buildProperties;
 
@@ -39,7 +39,6 @@ public abstract class AbstractWhatsUp {
             try {
                 gitProperties.load(resourceAsStream);
                 String gitId = gitProperties.getProperty("git.commit.id");
-                log.info("git.commit.id={}", gitId);
             } catch (IOException e) {
                 log.warn("Cannot load git.properties " + e.getMessage());
             }
@@ -91,20 +90,30 @@ public abstract class AbstractWhatsUp {
         }
     }
 
-    protected void dumpSystemProperties() {
-        log.info("system properties dump");
-        Properties systemProperties = System.getProperties();
-        TreeMap tm = new TreeMap(systemProperties);
-        for (Object o : tm.keySet()) {
-            String key = (String) o;
-            log.info(key + ": " + tm.get(o));
-        }
-        Map<String, String> getenv = new TreeMap<>(System.getenv());
-        log.info("system environment dump");
-        for (String key : getenv.keySet()) {
-            log.info("env " + key + ": " + getenv.get(key));
-        }
+    protected void dumpAll() {
+        dumpGitProperties();
+        dumpSystemProperties();
+        dumpENV();
+        dumpJVMargs();
     }
 
+    private void dumpGitProperties() {
+        log.info("  git.properties dump");
+        loadGitProperties().forEach((k, v) -> log.info("gitprop " + k + ": " + v));
+    }
 
+    protected void dumpSystemProperties() {
+        log.info("  system properties dump");
+        System.getProperties().forEach((k, v) -> log.info("prop " + k + ": " + v));
+    }
+
+    protected void dumpENV() {
+        log.info("  system environment dump");
+        System.getenv().forEach((key, val) -> log.info("env " + key + ": " + val));
+    }
+
+    protected void dumpJVMargs() {
+        log.info("  showing JVM args");
+        ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arg -> log.info("JVM arg: " + arg));
+    }
 }
