@@ -91,13 +91,19 @@ public abstract class AbstractWhatsUp {
     }
 
     protected void dumpAll() {
-        dumpGitProperties();
         dumpSystemProperties();
         dumpENV();
+        dumpBuildProperties();
+        dumpGitProperties();
         dumpJVMargs();
     }
 
-    private void dumpGitProperties() {
+    protected void dumpBuildProperties() {
+        log.info("  build properties");
+        buildProperties.forEach(prop -> log.info("buildprop "+ prop.getKey() +": "+prop.getValue()));
+    }
+
+    protected void dumpGitProperties() {
         log.info("  git.properties dump");
         loadGitProperties().forEach((k, v) -> log.info("gitprop " + k + ": " + v));
     }

@@ -34,7 +34,7 @@ public class WhatsUpConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public AbstractWhatsUp whatsUp(){
-        return new WhatsUp(environment, buildProperties,upbannerSettings);
+    public AbstractWhatsUp whatsUp() {
+        return new WhatsUp(environment, buildProperties, upbannerSettings);
     }
 }

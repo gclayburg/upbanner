@@ -1,7 +1,11 @@
 package com.garyclayburg.upbanner;
 
+import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -44,10 +48,22 @@ public class WhatsUp extends AbstractWhatsUp {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(WhatsUp.class);
     private final UpbannerSettings upbannerSettings;
+    public static final String CGROUP_FILE = "/proc/self/cgroup";
 
     public WhatsUp(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings) {
         super(environment, buildProperties);
         this.upbannerSettings = upbannerSettings;
+    }
+
+    /**
+     * Prints the environment in which this app is running to the log system (console)
+     * We attempt to print this information as soon as possible during application startup
+     */
+    @PostConstruct
+    public void printDebugOnStartup() {
+        if (upbannerSettings.isDebug()) {
+            dumpAll();
+        }
     }
 
     @Override
@@ -67,9 +83,14 @@ public class WhatsUp extends AbstractWhatsUp {
         String proto = deduceProtocol();
         String banner = "\n----------------------------------------------------------------------------------------------------\n";
         String c1r1 = String.format("%s is UP!", deduceAppNameVersion());
-        String c1r2 = String.format("Local:     %s://localhost:%s", proto, localPort);
-        String c1r3 = String.format("External:  %s://%s:%s ", proto, hostAddress, localPort);
-        String c1r4 = String.format("Host:      %s://%s:%s ", proto, hostName, localPort);
+        String c1r2 = String.format("Local:      %s://localhost:%s", proto, localPort);
+        String c1r3 = String.format("External:   %s://%s:%s ", proto, hostAddress, localPort);
+        String c1r4 = String.format("Host:       %s://%s:%s ", proto, hostName, localPort);
+        if (isDocker()) {
+               c1r4 = String.format("Docker:     %s://%s:%s ", proto, hostName, localPort);
+        } else if (isKubernetes()) {
+               c1r4 = String.format("Kubernetes: %s://%s:%s ", proto, hostName, localPort);
+        }
         String c2r1 = String.format("git.commit.time:   %s", gitProperties.getProperty("git.commit.time"));
         String c2r2 = String.format("git.build.version: %s", gitProperties.getProperty("git.build.version"));
         String c2r3 = String.format("git.commit.id:     %s", gitProperties.getProperty("git.commit.id"));
@@ -100,11 +121,30 @@ public class WhatsUp extends AbstractWhatsUp {
             banner += String.format("    %-45s %-60s %s\n", c1r4, c2r4, c3r4);
         }
         banner += "----------------------------------------------------------------------------------------------------";
-        if (upbannerSettings.isDebug()) {
-            dumpAll();
-        }
         if (upbannerSettings.isShowBanner()) {
             log.info(banner);
         }
+    }
+
+    private boolean isDocker() {
+        boolean isDocker = false;
+        try {
+            isDocker = Files.lines(Paths.get(CGROUP_FILE)).map(line ->
+                    line.matches(".*/docker.*")).reduce(false, (first, found) -> found || first);
+        } catch (IOException e) {
+            // not linux?
+        }
+        return isDocker;
+    }
+
+    private boolean isKubernetes() {
+        boolean isKubernetes = false;
+        try {
+            isKubernetes = Files.lines(Paths.get(CGROUP_FILE)).map(line ->
+                    line.matches(".*/kubepod.*")).reduce(false, (first, found) -> found || first);
+        } catch (IOException e) {
+            // not linux?
+        }
+        return isKubernetes;
     }
 }
