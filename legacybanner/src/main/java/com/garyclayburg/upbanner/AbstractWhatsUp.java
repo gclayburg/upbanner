@@ -3,6 +3,10 @@ package com.garyclayburg.upbanner;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -101,8 +105,19 @@ public abstract class AbstractWhatsUp {
         dumpGitProperties();
         dumpJVMargs();
         dumpMemory();
+//        dumpOshiCpu();
     }
 
+    /*
+        private void dumpOshiCpu() {
+            SystemInfo si = new SystemInfo();
+            HardwareAbstractionLayer hal = si.getHardware();
+            CentralProcessor cpu = hal.getProcessor();
+            int physicalProcessorCount = cpu.getPhysicalProcessorCount();
+            log.info("banner cpus: " + physicalProcessorCount);
+            log.info("banner logical cpus: " + cpu.getLogicalProcessorCount());
+        }
+    */
     protected void dumpMemory() {
         String message = String.format("JVM heap free memory:  %15s (%sm)", Runtime.getRuntime().freeMemory(), Runtime.getRuntime().freeMemory() / 1024 / 1024);
         log.info(message);
@@ -155,9 +170,51 @@ public abstract class AbstractWhatsUp {
         }
     }
 
-    protected void dumpBuildProperties() {
-        log.info("  build properties");
+    /**
+     * convert stored time to Instant<br>
+     * We don't rely on {@link BuildProperties} class to convert this because
+     * BuildProperties has a different API dealing with Date and Time
+     * between Spring Boot version 1.x and 2.x.  We want upbanner
+     * to work with either.
+     *
+     * @param key name of key that holds a time value in milliseconds
+     * @return Instant
+     */
+    public Instant getInstant(String key) {
+        String time = buildProperties.get(key);
+        if (time != null) {
+            try {
+                return Instant.ofEpochMilli(Long.parseLong(time));
+            } catch (NumberFormatException ignored) {
+                // Not valid epoch time
+            } catch (DateTimeException ignored) {
+            }
+        }
+        return null;
+    }
+
+    public void dumpBuildProperties() {
+        log.info("  build-info.properties dump");
+        formatBuildTime();
         buildProperties.forEach(prop -> log.info("buildprop " + prop.getKey() + ": " + prop.getValue()));
+    }
+
+    private void formatBuildTime() {
+        //"time" will be stored differently when running under spring boot 1.x, compared to spring boot 2.x
+        // The Spring Boot 1.x BuildProperties has a bug where it does not store time as millis,
+        // even though it tries.  The result is that time is stored as a human readable form.
+        // Spring Boot 2.x does parse the time correctly into millis, so this value must be formatted
+        // to be human readable.
+        Instant time = getInstant("time");
+        if (time != null) {
+            try {
+                Date date = Date.from(time);
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+                log.info("build time: " + formatter.format(date));
+            } catch (IllegalArgumentException ignored) {
+                // this is not the build time you were looking for anyway.
+            }
+        }
     }
 
     protected void dumpGitProperties() {
@@ -176,7 +233,7 @@ public abstract class AbstractWhatsUp {
     }
 
     protected void dumpJVMargs() {
-        log.info("  showing JVM args");
+        log.info("  JVM args");
         ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arg -> log.info("JVM arg: " + arg));
     }
 }
