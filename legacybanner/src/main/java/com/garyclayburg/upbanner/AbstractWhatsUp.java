@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
@@ -26,15 +27,17 @@ public abstract class AbstractWhatsUp {
 
     public static final String MEM_TOTAL_REGEX = "^MemTotal:\\s*(\\d+)\\s*kB.*$";
     public static final Pattern MEM_TOTAL_REGEX_PATTERN = Pattern.compile(MEM_TOTAL_REGEX);
+    private final OshiProbe oshiProbe;
     protected Environment environment;
     protected BuildProperties buildProperties;
 
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AbstractWhatsUp.class);
 
-    public AbstractWhatsUp(Environment environment, BuildProperties buildProperties) {
+    public AbstractWhatsUp(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe) {
         this.environment = environment;
         this.buildProperties = buildProperties;
+        this.oshiProbe = oshiProbe;
     }
 
     abstract public void printVersion(int localPort);
@@ -99,30 +102,41 @@ public abstract class AbstractWhatsUp {
     }
 
     protected void dumpAll() {
-        dumpSystemProperties();
-        dumpENV();
-        dumpBuildProperties();
-        dumpGitProperties();
-        dumpJVMargs();
-        dumpMemory();
-//        dumpOshiCpu();
+        StringBuilder probeOut = new StringBuilder();
+        oshiProbe.createReport(probeOut);
+        dumpSystemProperties(probeOut);
+        dumpENV(probeOut);
+        dumpBuildProperties(probeOut);
+        dumpGitProperties(probeOut);
+        dumpJVMargs(probeOut);
+        dumpMemory(probeOut);
+        if (log.isInfoEnabled()) {
+            log.info("OSHI probe" + System.lineSeparator() + probeOut.toString());
+        } else {
+            log.warn("INFO logging is disabled. showing requested debug info as WARN instead");
+            log.warn("OSHI probe" + System.lineSeparator() + probeOut.toString());
+        }
     }
 
-    /*
-        private void dumpOshiCpu() {
-            SystemInfo si = new SystemInfo();
-            HardwareAbstractionLayer hal = si.getHardware();
-            CentralProcessor cpu = hal.getProcessor();
-            int physicalProcessorCount = cpu.getPhysicalProcessorCount();
-            log.info("banner cpus: " + physicalProcessorCount);
-            log.info("banner logical cpus: " + cpu.getLogicalProcessorCount());
-        }
-    */
-    protected void dumpMemory() {
-        String message = String.format("JVM heap free memory:  %15s (%sm)", Runtime.getRuntime().freeMemory(), Runtime.getRuntime().freeMemory() / 1024 / 1024);
-        log.info(message);
-        log.info(String.format("JVM heap total memory: %15s (%sm)", Runtime.getRuntime().totalMemory(), Runtime.getRuntime().totalMemory() / 1024 / 1024));
-        log.info(String.format("JVM heap max memory:   %15s (%sm)", Runtime.getRuntime().maxMemory(), Runtime.getRuntime().maxMemory() / 1024 / 1024));
+    protected void dumpMemory(StringBuilder probeOut) {
+        probeOut.append("=============").append(System.lineSeparator());
+        probeOut.append("  JVM memory").append(System.lineSeparator());
+        probeOut.append(String.format("JVM heap free memory:  %15s (%sm)",
+                Runtime.getRuntime().freeMemory(),
+                Runtime.getRuntime().freeMemory() / 1024 / 1024))
+                .append(System.lineSeparator());
+        probeOut.append(String.format("JVM heap total memory: %15s (%sm)",
+                Runtime.getRuntime().totalMemory(),
+                Runtime.getRuntime().totalMemory() / 1024 / 1024))
+                .append(System.lineSeparator());
+        probeOut.append(String.format("JVM heap max memory:   %15s (%sm)",
+                Runtime.getRuntime().maxMemory(),
+                Runtime.getRuntime().maxMemory() / 1024 / 1024))
+                .append(System.lineSeparator());
+        probeOut.append(String.format("JVM heap max memory:   %15s (%sm)",
+                Runtime.getRuntime().maxMemory(),
+                Runtime.getRuntime().maxMemory() / 1024 / 1024))
+                .append(System.lineSeparator());
         long jvmMaxMemoryKb = Runtime.getRuntime().maxMemory() / 1024;
         File file = Paths.get("/sys/fs/cgroup/memory/memory.limit_in_bytes").toFile();
         String memoryLimitInBytes = "unknown";
@@ -154,18 +168,23 @@ public abstract class AbstractWhatsUp {
                         })
                         .reduce("", (a, b) -> b);
                 memTotalKbLong = Long.parseLong(memTotalKb);
-                log.info(String.format("OS Total Memory avail: %15s (%sm)", memTotalKbLong * 1024, memTotalKbLong / 1024));
+                probeOut.append(String.format("OS Memory installed: %17s (%sm)",
+                        memTotalKbLong * 1024,
+                        memTotalKbLong / 1024)).append(System.lineSeparator());
             }
         } catch (IOException ignored) {
         }
         if (cgroupsMemLimitKb >= memTotalKbLong) { //no mem limit imposed on our cgroup
-            log.info("cgroups memory limit:        unlimited");
+            probeOut.append("cgroups memory limit:        unlimited").append(System.lineSeparator());
         } else { // our container was started with limited memory
             if (cgroupsMemLimitKb < jvmMaxMemoryKb) {
                 log.warn(String.format("cgroups memory limit:  %15s (%sm)", memoryLimitInBytes, memoryLimitMB));
-                log.warn("JVM max heap size is too big for our cgroup." + System.lineSeparator() + "  This JVM will likely become unstable under memory pressure, i.e.," + System.lineSeparator() + "  the kernel could rudely kill the JVM if it requests too much memory. ");
+                log.warn("JVM max heap size is too big for our cgroup." + System.lineSeparator() +
+                         "  This JVM will likely become unstable under memory pressure, i.e.," + System.lineSeparator() +
+                         "  the kernel could rudely kill the JVM if it requests too much memory. ");
             } else {
-                log.info(String.format("cgroups memory limit:  %15s (%sm)", memoryLimitInBytes, memoryLimitMB));
+                probeOut.append(String.format("cgroups memory limit:  %15s (%sm)",
+                        memoryLimitInBytes, memoryLimitMB)).append(System.lineSeparator());
             }
         }
     }
@@ -193,13 +212,14 @@ public abstract class AbstractWhatsUp {
         return null;
     }
 
-    public void dumpBuildProperties() {
-        log.info("  build-info.properties dump");
-        formatBuildTime();
-        buildProperties.forEach(prop -> log.info("buildprop " + prop.getKey() + ": " + prop.getValue()));
+    public void dumpBuildProperties(StringBuilder probeOut) {
+        probeOut.append("=============").append(System.lineSeparator());
+        probeOut.append("  build-info.properties dump").append(System.lineSeparator());
+        formatBuildTime(probeOut);
+        buildProperties.forEach(prop -> probeOut.append("buildprop ").append(prop.getKey()).append(": ").append(prop.getValue()).append(System.lineSeparator()));
     }
 
-    private void formatBuildTime() {
+    private void formatBuildTime(StringBuilder probeOut) {
         //"time" will be stored differently when running under spring boot 1.x, compared to spring boot 2.x
         // The Spring Boot 1.x BuildProperties has a bug where it does not store time as millis,
         // even though it tries.  The result is that time is stored as a human readable form.
@@ -210,30 +230,36 @@ public abstract class AbstractWhatsUp {
             try {
                 Date date = Date.from(time);
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
-                log.info("build time: " + formatter.format(date));
+
+                probeOut.append("build time: ").append(formatter.format(date)).append(System.lineSeparator());
             } catch (IllegalArgumentException ignored) {
                 // this is not the build time you were looking for anyway.
             }
         }
     }
 
-    protected void dumpGitProperties() {
-        log.info("  git.properties dump");
-        loadGitProperties().forEach((k, v) -> log.info("gitprop " + k + ": " + v));
+    protected void dumpGitProperties(StringBuilder probeOut) {
+        probeOut.append("=============").append(System.lineSeparator());
+        probeOut.append("  git.properties dump").append(System.lineSeparator());
+        loadGitProperties().forEach((k, v) -> probeOut.append("gitprop ").append(k).append(": ").append(v).append(System.lineSeparator()));
     }
 
-    protected void dumpSystemProperties() {
-        log.info("  system properties dump");
-        System.getProperties().forEach((k, v) -> log.info("prop " + k + ": " + v));
+    protected void dumpSystemProperties(StringBuilder probeOut) {
+        probeOut.append("=============").append(System.lineSeparator());
+        probeOut.append("  system properties dump").append(System.lineSeparator());
+        System.getProperties().forEach((k, v) -> probeOut.append("prop ").append(k).append(": ").append(v).append(System.lineSeparator()));
     }
 
-    protected void dumpENV() {
-        log.info("  system environment dump");
-        System.getenv().forEach((key, val) -> log.info("env " + key + ": " + val));
+    protected void dumpENV(StringBuilder probeOut) {
+        probeOut.append("=============").append(System.lineSeparator());
+        probeOut.append("  system environment dump").append(System.lineSeparator());
+        System.getenv().forEach((key, val) -> probeOut.append("env ").append(key).append(": ").append(val).append(System.lineSeparator()));
     }
 
-    protected void dumpJVMargs() {
-        log.info("  JVM args");
-        ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arg -> log.info("JVM arg: " + arg));
+    protected void dumpJVMargs(StringBuilder probeOut) {
+        probeOut.append("=============").append(System.lineSeparator());
+        probeOut.append("  JVM args").append(System.lineSeparator());
+        ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arg ->
+                probeOut.append("JVM arg: ").append(arg).append(System.lineSeparator()));
     }
 }

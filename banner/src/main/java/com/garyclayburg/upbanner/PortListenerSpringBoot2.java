@@ -21,6 +21,7 @@ we can't necessarily rely on how the user of this library has configured @Compon
  */
 @Import(value = {
         WhatsUpConfig.class,
+        ContainerVMEnvProbe.class,
         UpbannerSettings.class})
 @ConditionalOnMissingClass({"org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent"})
 public class PortListenerSpringBoot2 implements ApplicationListener<ServletWebServerInitializedEvent> {

@@ -21,6 +21,7 @@ we can't necessarily rely on how the user of this library has configured @Compon
  */
 @Import(value = {
         WhatsUpConfig.class,
+        ContainerVMEnvProbe.class,
         UpbannerSettings.class})
 /*If this class exists, we are running under spring boot version > 2.0.
 This means that EmbeddedServletContainerInitializedEvent will

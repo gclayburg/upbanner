@@ -35,7 +35,9 @@ public class UpbannerApplicationTests {
         Properties p = new Properties();
         p.setProperty("time", timespec);
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null);
-        whatsUp.dumpBuildProperties();
+        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null,null);
+        StringBuilder probeOut = new StringBuilder();
+        whatsUp.dumpBuildProperties(probeOut);
+        log.info(probeOut.toString());
     }
 }

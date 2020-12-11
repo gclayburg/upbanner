@@ -1,5 +1,6 @@
 package com.garyclayburg.upbanner;
 
+import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +25,19 @@ public class WhatsUpConfig {
     private final Environment environment;
     private final BuildProperties buildProperties;
     private final UpbannerSettings upbannerSettings;
+    private OshiProbe oshiProbe;
 
     @Autowired
-    public WhatsUpConfig(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings) {
+    public WhatsUpConfig(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe) {
         this.environment = environment;
         this.buildProperties = buildProperties;
         this.upbannerSettings = upbannerSettings;
+        this.oshiProbe = oshiProbe;
     }
 
     @Bean
     @ConditionalOnMissingBean
     public AbstractWhatsUp whatsUp() {
-        return new WhatsUp(environment, buildProperties, upbannerSettings);
+        return new WhatsUp(environment, buildProperties, upbannerSettings, oshiProbe);
     }
 }

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -50,8 +51,8 @@ public class WhatsUp extends AbstractWhatsUp {
     private final UpbannerSettings upbannerSettings;
     public static final String CGROUP_FILE = "/proc/self/cgroup";
 
-    public WhatsUp(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings) {
-        super(environment, buildProperties);
+    public WhatsUp(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe) {
+        super(environment, buildProperties, oshiProbe);
         this.upbannerSettings = upbannerSettings;
     }
 
@@ -87,9 +88,9 @@ public class WhatsUp extends AbstractWhatsUp {
         String c1r3 = String.format("External:   %s://%s:%s ", proto, hostAddress, localPort);
         String c1r4 = String.format("Host:       %s://%s:%s ", proto, hostName, localPort);
         if (isDocker()) {
-               c1r4 = String.format("Docker:     %s://%s:%s ", proto, hostName, localPort);
+            c1r4 = String.format("Docker:     %s://%s:%s ", proto, hostName, localPort);
         } else if (isKubernetes()) {
-               c1r4 = String.format("Kubernetes: %s://%s:%s ", proto, hostName, localPort);
+            c1r4 = String.format("Kubernetes: %s://%s:%s ", proto, hostName, localPort);
         }
         String c2r1 = String.format("git.commit.time:   %s", gitProperties.getProperty("git.commit.time"));
         String c2r2 = String.format("git.build.version: %s", gitProperties.getProperty("git.build.version"));
