@@ -15,6 +15,10 @@
     <name>whatsupbanner</name>
     <description>Show UP banner for your spring boot app</description>
     <url>https://github.com/gclayburg/upbanner</url>
+    <organization>
+        <name>com.garyclayburg</name>
+        <url>https://github.com/gclayburg</url>
+    </organization>
     <developers>
         <developer>
             <id>gclayburg</id>

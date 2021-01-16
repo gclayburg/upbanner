@@ -5,7 +5,11 @@
     <groupId>com.garyclayburg</groupId>
     <artifactId>legacybanner</artifactId>
     <version>2.1.2-SNAPSHOT</version>
-
+    <url>https://github.com/gclayburg/upbanner</url>
+    <organization>
+        <name>com.garyclayburg</name>
+        <url>https://github.com/gclayburg</url>
+    </organization>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
