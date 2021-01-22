@@ -2,15 +2,18 @@ package com.garyclayburg.upbanner;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
+import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.garyclayburg.upbanner.jarprobe.JarProbe;
 import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +30,21 @@ public abstract class AbstractWhatsUp {
 
     public static final String MEM_TOTAL_REGEX = "^MemTotal:\\s*(\\d+)\\s*kB.*$";
     public static final Pattern MEM_TOTAL_REGEX_PATTERN = Pattern.compile(MEM_TOTAL_REGEX);
+    public static final int DEFAULT_VALUE = -42;
+    public static final String DEFAULT_VALUE_STRING = "";
     private final OshiProbe oshiProbe;
+    private final JarProbe jarProbe;
     protected Environment environment;
     protected BuildProperties buildProperties;
 
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AbstractWhatsUp.class);
 
-    public AbstractWhatsUp(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe) {
+    public AbstractWhatsUp(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe) {
         this.environment = environment;
         this.buildProperties = buildProperties;
         this.oshiProbe = oshiProbe;
+        this.jarProbe = jarProbe;
     }
 
     abstract public void printVersion(int localPort);
@@ -102,25 +109,145 @@ public abstract class AbstractWhatsUp {
     }
 
     protected void dumpAll() {
-        StringBuilder probeOut = new StringBuilder();
-        oshiProbe.createReport(probeOut);
-        dumpSystemProperties(probeOut);
-        dumpENV(probeOut);
-        dumpBuildProperties(probeOut);
-        dumpGitProperties(probeOut);
-        dumpJVMargs(probeOut);
-        dumpMemory(probeOut);
+        StringBuilder probe = new StringBuilder();
+        //What OS and hardware are we running on?
+        section(probe,"\n===== What OS and hardware are we running on =====");
+        oshiProbe.createReport(probe);
+        section(probe,"\n===== What OS resources are limited ==============");
+        dumpCPUlimits(probe);
+        dumpMemoryLimits(probe);
+        section(probe,"\n===== What environment are we running with =======");
+        dumpSystemProperties(probe);
+        dumpENV(probe);
+        section(probe,"\n===== How was it built ===========================");
+        dumpBuildProperties(probe);
+        section(probe,"\n===== How was it started =========================");
+        dumpStartupCommandJVMargs(probe);
+        //todo show start-class from manifest or sun.java.command
+        // AND propagate probed value to banner instead of just saying "Application is up"
+        section(probe,"\n===== What is running ============================");
+        dumpGitProperties(probe);
+        jarProbe.createSnapshotJarReport(probe);
         if (log.isInfoEnabled()) {
-            log.info("OSHI probe" + System.lineSeparator() + probeOut.toString());
-        } else {
+            log.info("Environment probe:" + System.lineSeparator() + probe.toString());
+        } else { // the operator wants to show the information.  Lets not also force them to enable INFO
             log.warn("INFO logging is disabled. showing requested debug info as WARN instead");
-            log.warn("OSHI probe" + System.lineSeparator() + probeOut.toString());
+            log.warn("Environment probe:" + System.lineSeparator() + probe.toString());
         }
     }
 
-    protected void dumpMemory(StringBuilder probeOut) {
-        probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("  JVM memory").append(System.lineSeparator());
+    private void section(StringBuilder probeOut,String header) {
+        probeOut.append(header).append(System.lineSeparator());
+    }
+
+    public void dumpCPUlimits(StringBuilder probeOut) {
+        probeOut.append("  CPU limits").append(System.lineSeparator());
+        probeOut.append("available logical processors: ").append(Runtime.getRuntime().availableProcessors())
+                .append(System.lineSeparator());
+        CgroupCpuStats cgroupCpuStats = new CgroupCpuStats();
+        cgroupCpuStats.setCfs_period_us(readLong(DEFAULT_VALUE, "/sys/fs/cgroup/cpu/cpu.cfs_period_us"));
+        if (cgroupCpuStats.getCfs_period_us() != DEFAULT_VALUE) {
+            probeOut.append("cfs_period_us: ").append(cgroupCpuStats.getCfs_period_us())
+                    .append(System.lineSeparator());
+        }
+        cgroupCpuStats.setCfs_quota_us(readLong(DEFAULT_VALUE, "/sys/fs/cgroup/cpu/cpu.cfs_quota_us"));
+        if (cgroupCpuStats.getCfs_quota_us() != DEFAULT_VALUE) {
+            probeOut.append("cpu.cfs_quota_us: ").append(cgroupCpuStats.getCfs_quota_us())
+                    .append(System.lineSeparator());
+        }
+        cgroupCpuStats.setCpu_shares(readLong(DEFAULT_VALUE, "/sys/fs/cgroup/cpu,cpuacct/cpu.cpu_shares"));
+        if (cgroupCpuStats.getCpu_shares() != DEFAULT_VALUE) {
+            probeOut.append("cpu.shares: ").append(cgroupCpuStats.getCpu_shares())
+                    .append(System.lineSeparator());
+        }
+        cgroupCpuStats.setCpuacct_usage(readLong(DEFAULT_VALUE, "/sys/fs/cgroup/cpu,cpuacct/cpuacct.usage"));
+        if (cgroupCpuStats.getCpuacct_usage() != DEFAULT_VALUE) {
+            probeOut.append("cpuacct.usage: ").append(cgroupCpuStats.getCpuacct_usage() / 1000.0 / 1000.0 / 1000.0)
+                    .append(System.lineSeparator());
+        }
+        cgroupCpuStats.setCpuacct_usage_percpu(readString(DEFAULT_VALUE_STRING, "/sys/fs/cgroup/cpu,cpuacct/cpuacct.usage_percpu"));
+        if (!cgroupCpuStats.getCpuacct_usage_percpu().equals(DEFAULT_VALUE_STRING)) {
+            probeOut.append("cpuacct.usage_percpu: ").append(cgroupCpuStats.getCpuacct_usage_percpu())
+                    .append(System.lineSeparator());
+        }
+        cgroupCpuStats.setCpuset(readString(DEFAULT_VALUE_STRING, "/sys/fs/cgroup/cpuset/cpuset.cpus"));
+        if (!cgroupCpuStats.getCpuset().equals(DEFAULT_VALUE_STRING)) {
+            probeOut.append("cpuset: ").append(cgroupCpuStats.getCpuset())
+                    .append(System.lineSeparator());
+        }
+
+        File cpustat = new File("/sys/fs/cgroup/cpu/cpu.stat");
+        if (cpustat.canRead()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(cpustat))) {
+                String line = br.readLine();
+                while (line != null) {
+                    Pattern NR_PERIODS_P = Pattern.compile("^nr_periods\\s+(\\d+)$");
+                    Matcher m = NR_PERIODS_P.matcher(line);
+                    if (m.find()) {
+                        cgroupCpuStats.setNr_periods(Long.parseLong(m.group(1)));
+                        probeOut.append("nr_periods: ").append(cgroupCpuStats.getNr_periods())
+                                .append(System.lineSeparator());
+                    }
+
+                    Pattern NR_THROTTLDED_P = Pattern.compile("^nr_throttled\\s+(\\d+)$");
+                    Matcher mt = NR_THROTTLDED_P.matcher(line);
+                    if (mt.find()) {
+                        cgroupCpuStats.setNr_throttled(Long.parseLong(mt.group(1)));
+                        probeOut.append("nr_throttled: ").append(cgroupCpuStats.getNr_throttled())
+                                .append(System.lineSeparator());
+                    }
+
+                    Pattern THROTTLED_TIME_P = Pattern.compile("^throttled_time\\s+(\\d+)$");
+                    Matcher mtt = THROTTLED_TIME_P.matcher(line);
+                    if (mtt.find()) {
+                        cgroupCpuStats.setThrottled_time(Long.parseLong(mtt.group(1)));
+                        probeOut.append("throttled_time: ").append(cgroupCpuStats.getThrottled_time())
+                                .append(System.lineSeparator());
+                    }
+
+
+                    line = br.readLine();
+                }
+            } catch (IOException ignored) {
+
+            }
+        }
+
+    }
+
+    private String readString(String defaultValue, String pathname) {
+        File file = new File(pathname);
+        if (file.canRead()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                defaultValue = br.readLine();
+            } catch (IOException ignored) {
+            }
+        }
+        return defaultValue;
+    }
+
+    private long readLong(long defaultValue, String pathname) {
+        try {
+            defaultValue = Long.parseLong(readString("", pathname));
+        } catch (NumberFormatException ignored) {
+        }
+        return defaultValue;
+    }
+
+    protected void dumpMemoryLimits(StringBuilder probeOut) {
+        /*
+        Todo: add additional checks for cgroup cpu limitation
+        https://fabiokung.com/2014/03/13/memory-inside-linux-containers/
+        Are there environment variables CONTAINER_MAX_MEMORY and CONTAINER_MAX_CPU or MAX_CORE_LIMIT available?
+
+Files relevant to container limits:
+cores:
+cpu_period_file="/sys/fs/cgroup/cpu/cpu.cfs_period_us"
+cpu_quota_file="/sys/fs/cgroup/cpu/cpu.cfs_quota_us"
+memory:
+mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
+         */
+        probeOut.append("\n  JVM memory limits").append(System.lineSeparator());
         probeOut.append(String.format("JVM heap free memory:  %15s (%sm)",
                 Runtime.getRuntime().freeMemory(),
                 Runtime.getRuntime().freeMemory() / 1024 / 1024))
@@ -128,10 +255,6 @@ public abstract class AbstractWhatsUp {
         probeOut.append(String.format("JVM heap total memory: %15s (%sm)",
                 Runtime.getRuntime().totalMemory(),
                 Runtime.getRuntime().totalMemory() / 1024 / 1024))
-                .append(System.lineSeparator());
-        probeOut.append(String.format("JVM heap max memory:   %15s (%sm)",
-                Runtime.getRuntime().maxMemory(),
-                Runtime.getRuntime().maxMemory() / 1024 / 1024))
                 .append(System.lineSeparator());
         probeOut.append(String.format("JVM heap max memory:   %15s (%sm)",
                 Runtime.getRuntime().maxMemory(),
@@ -213,10 +336,11 @@ public abstract class AbstractWhatsUp {
     }
 
     public void dumpBuildProperties(StringBuilder probeOut) {
-        probeOut.append("=============").append(System.lineSeparator());
         probeOut.append("  build-info.properties dump").append(System.lineSeparator());
         formatBuildTime(probeOut);
-        buildProperties.forEach(prop -> probeOut.append("buildprop ").append(prop.getKey()).append(": ").append(prop.getValue()).append(System.lineSeparator()));
+        if (buildProperties.getVersion() != null && !buildProperties.getVersion().equals("development build")) {
+            buildProperties.forEach(prop -> probeOut.append("buildprop ").append(prop.getKey()).append(": ").append(prop.getValue()).append(System.lineSeparator()));
+        }
     }
 
     private void formatBuildTime(StringBuilder probeOut) {
@@ -239,27 +363,54 @@ public abstract class AbstractWhatsUp {
     }
 
     protected void dumpGitProperties(StringBuilder probeOut) {
-        probeOut.append("=============").append(System.lineSeparator());
         probeOut.append("  git.properties dump").append(System.lineSeparator());
         loadGitProperties().forEach((k, v) -> probeOut.append("gitprop ").append(k).append(": ").append(v).append(System.lineSeparator()));
     }
 
     protected void dumpSystemProperties(StringBuilder probeOut) {
-        probeOut.append("=============").append(System.lineSeparator());
         probeOut.append("  system properties dump").append(System.lineSeparator());
         System.getProperties().forEach((k, v) -> probeOut.append("prop ").append(k).append(": ").append(v).append(System.lineSeparator()));
     }
 
     protected void dumpENV(StringBuilder probeOut) {
-        probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("  system environment dump").append(System.lineSeparator());
+        probeOut.append("\n  system environment dump").append(System.lineSeparator());
         System.getenv().forEach((key, val) -> probeOut.append("env ").append(key).append(": ").append(val).append(System.lineSeparator()));
     }
 
-    protected void dumpJVMargs(StringBuilder probeOut) {
-        probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("  JVM args").append(System.lineSeparator());
+    protected void dumpStartupCommandJVMargs(StringBuilder probeOut) {
+        probeOut.append("  JVM args/classloader URLs/startup command").append(System.lineSeparator());
         ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arg ->
                 probeOut.append("JVM arg: ").append(arg).append(System.lineSeparator()));
+        if (AbstractWhatsUp.class.getClassLoader() instanceof URLClassLoader) {
+            Arrays.stream(((URLClassLoader) AbstractWhatsUp.class.getClassLoader()).getURLs()).forEach(url -> probeOut.append("classloader.URL: ").append(url).append(System.lineSeparator()));
+        } else {
+            String classpath = System.getProperty("java.class.path");
+            Arrays.stream(classpath.split(":")).forEach( cpEntry ->
+                    probeOut.append("classpath: ").append(cpEntry).append(System.lineSeparator()));
+        }
+
+        String javaCmd = System.getProperty("sun.java.command");
+        probeOut.append("Java command: ").append(javaCmd).append("\n");
+        /*
+        example Java command output
+$ ./gradlew -Dupbanner.debug=true bootRun
+Java command: com.garyclayburg.upbannerdemo.UpbannerdemoApplication
+
+$ java -jar build/libs/upbannerdemo-0.0.1-SNAPSHOT.jar --upbanner.debug=true
+Java command: build/libs/upbannerdemo-0.0.1-SNAPSHOT.jar --upbanner.debug=true
+
+run upbannerdemo from IntelliJ
+Java command: com.garyclayburg.upbannerdemo.UpbannerdemoApplication --server.port=8881
+
+docker image created from preparedocker gradle plugin
+$ docker run registry:5000/upbannerdemo:latest --upbanner.debug=true
+Java command: org.springframework.boot.loader.JarLauncher --upbanner.debug=true
+
+docker image created from jib/jhipster
+$ docker run --rm -v /home/gclaybur/dev/groovyrundemo:/groovy -e GROOVYSCRIPT_HOME=/groovy -e JAVA_OPTS="-Dupbanner.debug=true" -p 10001:8080 rungroovy:latest
+Java command: com.garyclayburg.rungroovy.RungroovyApp
+
+
+         */
     }
 }

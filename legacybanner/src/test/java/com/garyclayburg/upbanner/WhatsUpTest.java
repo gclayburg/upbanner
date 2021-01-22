@@ -2,6 +2,7 @@ package com.garyclayburg.upbanner;
 
 import java.util.Properties;
 
+import com.garyclayburg.upbanner.jarprobe.FileJarDumper;
 import com.garyclayburg.upbanner.oshiprobe.FullOshiProbe;
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
 
-public class AbstractWhatsUpTest {
+public class WhatsUpTest {
 
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(AbstractWhatsUpTest.class);
+    private static final Logger log = LoggerFactory.getLogger(WhatsUpTest.class);
 
     @Rule
     public TestName testName = new TestName();
@@ -27,9 +28,9 @@ public class AbstractWhatsUpTest {
 
     @Test
     public void dumpMemory() {
-        WhatsUp whatsUp = new WhatsUp(null, null, null, null);
+        WhatsUp whatsUp = new WhatsUp(null, null, null, null, null);
         StringBuilder probeOut = new StringBuilder();
-        whatsUp.dumpMemory(probeOut);
+        whatsUp.dumpMemoryLimits(probeOut);
         log.info(probeOut.toString());
     }
 
@@ -46,7 +47,7 @@ public class AbstractWhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, null);
+        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, null,new FileJarDumper());
         StringBuilder probeOut = new StringBuilder();
         whatsUp.dumpBuildProperties(probeOut);
         log.info(probeOut.toString());
@@ -57,7 +58,15 @@ public class AbstractWhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe());
+        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe(),new FileJarDumper());
         whatsUp.dumpAll();
+    }
+
+    @Test
+    public void dumpCP() {
+        FileJarDumper fileJarDumper = new FileJarDumper();
+        StringBuilder out = new StringBuilder("\n");
+        fileJarDumper.createSnapshotJarReport(out);
+        log.info(out.toString());
     }
 }

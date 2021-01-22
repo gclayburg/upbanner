@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+import com.garyclayburg.upbanner.jarprobe.JarProbe;
 import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +52,10 @@ public class WhatsUp extends AbstractWhatsUp {
     private final UpbannerSettings upbannerSettings;
     public static final String CGROUP_FILE = "/proc/self/cgroup";
 
-    public WhatsUp(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe) {
-        super(environment, buildProperties, oshiProbe);
+    public WhatsUp(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe, JarProbe jarProbe) {
+        super(environment, buildProperties, oshiProbe,jarProbe);
         this.upbannerSettings = upbannerSettings;
+
     }
 
     /**

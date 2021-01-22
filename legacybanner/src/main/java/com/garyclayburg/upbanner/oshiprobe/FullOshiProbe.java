@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.SystemInfo;
 import oshi.hardware.*;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
 import oshi.util.FormatUtil;
@@ -24,14 +25,13 @@ public class FullOshiProbe extends OshiProbe {
 
     @Override
     public void createReport(StringBuilder probeOut) {
-        log.info("probing environment");
+        log.debug("OSHI probing environment");
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hal = si.getHardware();
         CentralProcessor cpu = hal.getProcessor();
         int physicalProcessorCount = cpu.getPhysicalProcessorCount();
 
         OperatingSystem operatingSystem = si.getOperatingSystem();
-        probeOut.append("=============").append(System.lineSeparator());
         probeOut.append("  Host System").append(System.lineSeparator());
         ComputerSystem computerSystem = hal.getComputerSystem();
         printComputerSystem(computerSystem, probeOut);
@@ -45,12 +45,41 @@ public class FullOshiProbe extends OshiProbe {
         probeOut.append(hal.getProcessor().toString()).append(System.lineSeparator());
         probeOut.append("=============").append(System.lineSeparator());
         probeOut.append("  Memory").append(System.lineSeparator());
-        printMemory(hal.getMemory(), probeOut);
+        GlobalMemory globalMemory = hal.getMemory();
+        printMemory(globalMemory, probeOut);
         probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("VM or container name: ").append(DetectVM.identifyVM()).append(System.lineSeparator());
+        probeOut.append("  VM or container probe").append(System.lineSeparator());
+        probeOut.append("name: ").append(DetectVM.identifyVM()).append(System.lineSeparator());
         probeOut.append("=============").append(System.lineSeparator());
         probeOut.append("  Operating System").append(System.lineSeparator());
         printOperatingSystem(operatingSystem, probeOut);
+        /*
+        printProcesses(operatingSystem, globalMemory,probeOut);
+
+        requires native library to run
+        NoClassDefFoundError: com/sun/jna/platform/linux/LibC  see oshi-core documentation
+         */
+
+    }
+    private static void printProcesses(OperatingSystem os, GlobalMemory memory, StringBuilder probeOut) {
+        String pid = System.getProperty("PID");
+//        OSProcess myProc = os.getProcess(os.getProcessId());
+        log.info("parsing " + pid);
+        OSProcess myProc = os.getProcess(Integer.parseInt(pid));
+        // current process will never be null. Other code should check for null here
+        probeOut.append(
+                "My PID: " + myProc.getProcessID() + " with affinity " + Long.toBinaryString(myProc.getAffinityMask())).append(System.lineSeparator());
+        probeOut.append("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount()).append(System.lineSeparator());
+        // Sort by highest CPU
+        List<OSProcess> procs = os.getProcesses(5, OperatingSystem.ProcessSort.CPU);
+        probeOut.append("   PID  %CPU %MEM       VSZ       RSS Name").append(System.lineSeparator());
+        for (int i = 0; i < procs.size() && i < 5; i++) {
+            OSProcess p = procs.get(i);
+            probeOut.append(String.format(" %5d %5.1f %4.1f %9s %9s %s", p.getProcessID(),
+                    100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
+                    100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
+                    FormatUtil.formatBytes(p.getResidentSetSize()), p.getName())).append(System.lineSeparator());
+        }
     }
 
     private void printMemory(GlobalMemory memory, StringBuilder probeOut) {

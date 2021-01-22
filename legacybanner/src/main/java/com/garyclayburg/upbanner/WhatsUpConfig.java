@@ -1,5 +1,6 @@
 package com.garyclayburg.upbanner;
 
+import com.garyclayburg.upbanner.jarprobe.JarProbe;
 import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,19 +26,21 @@ public class WhatsUpConfig {
     private final Environment environment;
     private final BuildProperties buildProperties;
     private final UpbannerSettings upbannerSettings;
+    private final JarProbe jarProbe;
     private OshiProbe oshiProbe;
 
     @Autowired
-    public WhatsUpConfig(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe) {
+    public WhatsUpConfig(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe, JarProbe jarProbe) {
         this.environment = environment;
         this.buildProperties = buildProperties;
         this.upbannerSettings = upbannerSettings;
         this.oshiProbe = oshiProbe;
+        this.jarProbe = jarProbe;
     }
 
     @Bean
     @ConditionalOnMissingBean
     public AbstractWhatsUp whatsUp() {
-        return new WhatsUp(environment, buildProperties, upbannerSettings, oshiProbe);
+        return new WhatsUp(environment, buildProperties, upbannerSettings, oshiProbe,jarProbe);
     }
 }
