@@ -105,7 +105,7 @@ public abstract class AbstractWhatsUp {
         String javaCommand = System.getProperty("sun.java.command");
         if (javaCommand != null) {
             name = convertSunJavaCommand(javaCommand);
-            if (javaCommand.contains("JarLauncher") || (name != null && name.equals("jar"))) {
+            if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher") || (name != null && name.equals("jar"))) {
                 // we are running a spring boot jar or expanded jar.
                 // Start-Class attribute from the expanded Manifest file
                 // has the real class that will be executed first

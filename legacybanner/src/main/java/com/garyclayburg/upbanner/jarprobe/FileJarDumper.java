@@ -56,7 +56,7 @@ public class FileJarDumper extends JarProbe {
         String javaCommand = System.getProperty("sun.java.command");
         if (javaCommand != null) {
             String name = convertSunJavaCommand(javaCommand);
-            if (javaCommand.contains("JarLauncher") || (name != null && name.equals("jar"))) {
+            if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher")|| (name != null && name.equals("jar"))) {
                 expandedBootJar = true;
             }
         }
