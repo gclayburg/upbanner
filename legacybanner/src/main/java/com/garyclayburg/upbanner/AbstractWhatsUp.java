@@ -10,6 +10,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,10 +78,8 @@ public abstract class AbstractWhatsUp {
     }
 
     protected String deduceAppNameVersion() {
-        String name = getEnvProperty("spring.application.name");
-        if (name == null) {
-            name = "Application";
-        }
+        String name = getAppName();
+
         String version = getEnvProperty("info.app.version");
         if (version != null) {
             name += ":" + version;
@@ -90,6 +90,55 @@ public abstract class AbstractWhatsUp {
             }
         }
         return name;
+    }
+
+    private String getAppName() {
+        String name = getEnvProperty("spring.application.name");
+        if (name == null) {
+            name = "Application";
+            name = getMain(name);
+        }
+        return name;
+    }
+
+    private String getMain(String name) {
+        String javaCommand = System.getProperty("sun.java.command");
+        if (javaCommand != null) {
+            name = convertSunJavaCommand(javaCommand);
+            if (javaCommand.contains("JarLauncher") || (name != null && name.equals("jar"))) {
+                // we are running a spring boot jar or expanded jar.
+                // Start-Class attribute from the expanded Manifest file
+                // has the real class that will be executed first
+                Manifest manifest = jarProbe.getManifest();
+                if (manifest != null) {
+                    Attributes mainAttributes = manifest.getMainAttributes();
+                    if (log.isDebugEnabled()) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        jarProbe.showManifest(stringBuilder, manifest);
+                        log.debug("root manifest found is: \n" + stringBuilder.toString());
+                    }
+                    String startClassName = mainAttributes.getValue("Start-Class");
+                    log.debug(" start class is " + startClassName);
+                    if (startClassName != null) {
+                        name = convertStartClass(startClassName);
+                    }
+                }
+            }
+        }
+        return name;
+    }
+
+    String convertSunJavaCommand(String javaCommand) {
+        String stripped = javaCommand.replaceFirst(" .*$", "");
+        return convertStartClass(stripped);
+    }
+
+    String convertStartClass(String startClassName) {
+        if (startClassName != null) {
+            String[] split = startClassName.split("\\.");
+            return split[split.length - 1];
+        }
+        return null;
     }
 
     protected String getBuildProp(String key) {
@@ -111,21 +160,22 @@ public abstract class AbstractWhatsUp {
     protected void dumpAll() {
         StringBuilder probe = new StringBuilder();
         //What OS and hardware are we running on?
-        section(probe,"\n===== What OS and hardware are we running on =====");
+        section(probe, "\n===== What OS and hardware are we running on =====");
         oshiProbe.createReport(probe);
-        section(probe,"\n===== What OS resources are limited ==============");
+        section(probe, "\n===== What OS resources are limited ==============");
         dumpCPUlimits(probe);
         dumpMemoryLimits(probe);
-        section(probe,"\n===== What environment are we running with =======");
+        section(probe, "\n===== What environment are we running with =======");
         dumpSystemProperties(probe);
         dumpENV(probe);
-        section(probe,"\n===== How was it built ===========================");
+        section(probe, "\n===== How was it built ===========================");
         dumpBuildProperties(probe);
-        section(probe,"\n===== How was it started =========================");
+        section(probe, "\n===== How was it started =========================");
+        jarProbe.init(probe);
         dumpStartupCommandJVMargs(probe);
         //todo show start-class from manifest or sun.java.command
         // AND propagate probed value to banner instead of just saying "Application is up"
-        section(probe,"\n===== What is running ============================");
+        section(probe, "\n===== What is running ============================");
         dumpGitProperties(probe);
         jarProbe.createSnapshotJarReport(probe);
         if (log.isInfoEnabled()) {
@@ -136,7 +186,7 @@ public abstract class AbstractWhatsUp {
         }
     }
 
-    private void section(StringBuilder probeOut,String header) {
+    private void section(StringBuilder probeOut, String header) {
         probeOut.append(header).append(System.lineSeparator());
     }
 
@@ -205,14 +255,12 @@ public abstract class AbstractWhatsUp {
                                 .append(System.lineSeparator());
                     }
 
-
                     line = br.readLine();
                 }
             } catch (IOException ignored) {
 
             }
         }
-
     }
 
     private String readString(String defaultValue, String pathname) {
@@ -383,33 +431,47 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
                 probeOut.append("JVM arg: ").append(arg).append(System.lineSeparator()));
         if (AbstractWhatsUp.class.getClassLoader() instanceof URLClassLoader) {
             Arrays.stream(((URLClassLoader) AbstractWhatsUp.class.getClassLoader()).getURLs()).forEach(url -> probeOut.append("classloader.URL: ").append(url).append(System.lineSeparator()));
+            // e.g. when running with tomcat:
+            // classloader.URL: file:/home/springboot/app/BOOT-INF/lib/log4j-api-2.13.3.jar
+            // e.g. when running in docker but not a web app:
+            // classloader.URL: jar:file:/home/springboot/app/BOOT-INF/lib/spring-core-4.3.24.RELEASE.jar!/
         } else {
             String classpath = System.getProperty("java.class.path");
-            Arrays.stream(classpath.split(":")).forEach( cpEntry ->
+            Arrays.stream(classpath.split(":")).forEach(cpEntry ->
                     probeOut.append("classpath: ").append(cpEntry).append(System.lineSeparator()));
         }
 
         String javaCmd = System.getProperty("sun.java.command");
-        probeOut.append("Java command: ").append(javaCmd).append("\n");
+        probeOut.append("Java command: ").append(javaCmd).append(System.lineSeparator());
+        probeOut.append("Main: ").append(getMain("unknown")).append(System.lineSeparator());
         /*
         example Java command output
 $ ./gradlew -Dupbanner.debug=true bootRun
 Java command: com.garyclayburg.upbannerdemo.UpbannerdemoApplication
+Main: UpbannerdemoApplication
 
 $ java -jar build/libs/upbannerdemo-0.0.1-SNAPSHOT.jar --upbanner.debug=true
 Java command: build/libs/upbannerdemo-0.0.1-SNAPSHOT.jar --upbanner.debug=true
+Main: UpbannerdemoApplication
 
 run upbannerdemo from IntelliJ
 Java command: com.garyclayburg.upbannerdemo.UpbannerdemoApplication --server.port=8881
+Main: UpbannerdemoApplication
 
 docker image created from preparedocker gradle plugin
 $ docker run registry:5000/upbannerdemo:latest --upbanner.debug=true
 Java command: org.springframework.boot.loader.JarLauncher --upbanner.debug=true
+Main: UpbannerdemoApplication
 
 docker image created from jib/jhipster
 $ docker run --rm -v /home/gclaybur/dev/groovyrundemo:/groovy -e GROOVYSCRIPT_HOME=/groovy -e JAVA_OPTS="-Dupbanner.debug=true" -p 10001:8080 rungroovy:latest
 Java command: com.garyclayburg.rungroovy.RungroovyApp
+Main: RungroovyApp
 
+docker images created from spring boot:
+$ ./gradlew clean build buildImage bootBuildImage && docker run docker.io/library/upbannerdemo:0.0.1-SNAPSHOT  --upbanner.debug=true
+Java command: org.springframework.boot.loader.JarLauncher --upbanner.debug=true
+Main: UpbannerdemoApplication
 
          */
     }

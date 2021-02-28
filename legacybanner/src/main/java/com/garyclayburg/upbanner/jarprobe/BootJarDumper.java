@@ -24,6 +24,8 @@ public class BootJarDumper extends JarProbe {
 
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(BootJarDumper.class);
+    private Manifest manifest;
+    private JarFile jarFile;
 
     public static boolean weAreRunningUnderSpringBootExecutableJar() {
         boolean weAreRunningUnderSpringBootExecutableJar = false;
@@ -41,32 +43,17 @@ public class BootJarDumper extends JarProbe {
     }
 
     @Override
-    public void createSnapshotJarReport(StringBuilder probeOut) {
-        probeOut.append("\n  Manifest dump for SNAPSHOT boot jar dependencies...").append(System.lineSeparator());
-        try {
-            JarFile jarFile = getBootJarFile(probeOut);
-            if (jarFile != null) {
-                Manifest manifest = jarFile.getManifest();
-                showJarName(probeOut, jarFile.getName());
-                showManifest(probeOut, manifest);
-                Enumeration<JarEntry> entries = jarFile.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry jarEntry = entries.nextElement();
+    public Manifest getManifest() {
+        return manifest;
+    }
 
-                    try {
-                        if (jarEntry.getName().endsWith(".jar")) {
-                            if (shouldShowManifest(jarEntry.getName())) {
-                                showJarName(probeOut, jarEntry.getName());
-                                JarFile nestedJarFile = jarFile.getNestedJarFile(jarEntry);
-                                Manifest nestedManifest = nestedJarFile.getManifest();
-                                showManifest(probeOut, nestedManifest);
-                            }
-                        }
-                    } catch (IOException e) {
-                        probeOut.append("  WARN - Cannot open ").append(jarEntry.getName())
-                                .append("\n");
-                    }
-                }
+    @Override
+    public void init(StringBuilder probeOut) {
+        probeOut.append("  init BootJarDumper\n");
+        try {
+            jarFile = getBootJarFile(probeOut);
+            if (jarFile != null) {
+                manifest = jarFile.getManifest();
             } else {
                 probeOut.append("    WARN - Cannot probe boot jar")
                         .append("\n");
@@ -74,6 +61,34 @@ public class BootJarDumper extends JarProbe {
         } catch (IOException e) {
             probeOut.append("  WARN - Cannot open boot jar\n")
                     .append("\n");
+        }
+    }
+
+    @Override
+    public void createSnapshotJarReport(StringBuilder probeOut) {
+        probeOut.append("\n  Manifest dump for SNAPSHOT boot jar dependencies...").append(System.lineSeparator());
+        if (manifest == null) {
+            init(probeOut);
+        }
+        showJarName(probeOut, jarFile.getName());
+        showManifest(probeOut, manifest);
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry jarEntry = entries.nextElement();
+
+            try {
+                if (jarEntry.getName().endsWith(".jar")) {
+                    if (shouldShowManifest(jarEntry.getName())) {
+                        showJarName(probeOut, jarEntry.getName());
+                        JarFile nestedJarFile = jarFile.getNestedJarFile(jarEntry);
+                        Manifest nestedManifest = nestedJarFile.getManifest();
+                        showManifest(probeOut, nestedManifest);
+                    }
+                }
+            } catch (IOException e) {
+                probeOut.append("  WARN - Cannot open ").append(jarEntry.getName())
+                        .append("\n");
+            }
         }
     }
 

@@ -19,7 +19,9 @@ public abstract class JarProbe {
 
     public abstract void createSnapshotJarReport(StringBuilder stringBuilder);
 
-    protected void showManifest(StringBuilder probeOut, Manifest manifest) {
+    public abstract Manifest getManifest();
+
+    public void showManifest(StringBuilder probeOut, Manifest manifest) {
         Attributes mainAttributes = manifest.getMainAttributes();
         formatAttributes(probeOut, mainAttributes);
     }
@@ -29,10 +31,12 @@ public abstract class JarProbe {
     }
 
     protected boolean shouldShowManifest(String entry) {
-        return entry.matches(".*SNAPSHOT.jar");
+        return entry != null && entry.matches(".*SNAPSHOT.jar");
     }
 
     protected void showJarName(StringBuilder probeOut, String name) {
         probeOut.append(name).append("\n");
     }
+
+    public abstract void init(StringBuilder probe);
 }

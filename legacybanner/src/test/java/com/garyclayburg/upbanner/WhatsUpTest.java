@@ -1,5 +1,7 @@
 package com.garyclayburg.upbanner;
 
+import static org.junit.Assert.*;
+
 import java.util.Properties;
 
 import com.garyclayburg.upbanner.jarprobe.FileJarDumper;
@@ -47,7 +49,7 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, null,new FileJarDumper());
+        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, null, new FileJarDumper());
         StringBuilder probeOut = new StringBuilder();
         whatsUp.dumpBuildProperties(probeOut);
         log.info(probeOut.toString());
@@ -58,8 +60,32 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe(),new FileJarDumper());
+        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe(), new FileJarDumper());
         whatsUp.dumpAll();
+    }
+
+    @Test
+    public void showName() {
+        Properties p = new Properties();
+        p.setProperty("time", "2020-12-08T00:52:19Z");
+        BuildProperties buildProperties = new BuildProperties(p);
+        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe(), new FileJarDumper());
+        assertEquals("MyMain", whatsUp.convertStartClass("com.something.MyMain"));
+        assertEquals("MyMain", whatsUp.convertStartClass("something.MyMain"));
+        assertEquals("MyMain", whatsUp.convertStartClass("MyMain"));
+        assertEquals("", whatsUp.convertStartClass(""));
+        assertNull(whatsUp.convertStartClass(null));
+    }
+
+    @Test
+    public void showNameFromSunJavaCommand() {
+        Properties p = new Properties();
+        p.setProperty("time", "2020-12-08T00:52:19Z");
+        BuildProperties buildProperties = new BuildProperties(p);
+        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe(), new FileJarDumper());
+        assertEquals("MyMain", whatsUp.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain --server.port=8881"));
+        assertEquals("MyMain", whatsUp.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain --server.port=8881 --someoption=false"));
+        assertEquals("MyMain", whatsUp.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain"));
     }
 
     @Test
