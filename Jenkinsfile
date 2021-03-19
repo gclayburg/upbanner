@@ -10,7 +10,7 @@ node('coreosnode') {  //this node label must match jenkins slave with nodejs ins
 
         stage "build/test"
         try {
-            sh "mvn clean install"
+            sh "mvn -Pralston clean deploy"
 //        sh "./gradlew --no-daemon clean build buildImage pushVersion pushLatest"
         } catch (ex) {
             throw ex
