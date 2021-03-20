@@ -1,47 +1,65 @@
-#!groovy
-def starttime = System.currentTimeMillis()
-stage "provision build node"
-node('coreosnode') {  //this node label must match jenkins slave with nodejs installed
-    println("begin: build node ready in ${(System.currentTimeMillis() - starttime) / 1000}  seconds")
-    wrap([$class: 'TimestamperBuildWrapper']) {  //wrap each Jenkins job console output line with timestamp
-        stage "build setup"
-        checkout scm
-        whereami()
-
-        stage "build/test"
-        try {
-//            sh "mvn -Pralston clean deploy"
-            sh "mvn -Partifactory clean deploy"
-//        sh "./gradlew --no-daemon clean build buildImage pushVersion pushLatest"
-        } catch (ex) {
-            throw ex
-        } finally {
-            archive '**/target/**/*.dumpstream'
-            step([$class: 'JUnitResultArchiver', testResults: '**/target/**/TEST-*.xml'])
-        }
-        stage "archive"
-
-        println "flow complete!"
+pipeline {
+    agent {
+        label 'dockernode'
     }
-}
-private void whereami() {
-    /**
-     * Runs a bunch of tools that we assume are installed on this node
-     */
-    echo "Build is running with these settings:"
-    sh "pwd"
-    sh "ls -la"
-    sh "echo path is \$PATH"
-    sh """
-uname -a
-java -version
-mvn -v
-docker ps
-docker info
-#docker-compose -f src/main/docker/app.yml ps
-docker-compose version
-npm version
-gulp --version
-bower --version
-"""
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        ansiColor('xterm')
+        timeout(time: 20, unit: 'MINUTES')  //something is really long if it takes 20 minutes
+    }
+    environment {
+        TZ='America/Denver'
+        ARTIFACTORY = credentials('frogbuilder-artifactory')
+    }
+    stages {
+
+        stage ('Artifactory configuration') {
+            steps {
+                rtServer (
+                        id: "ralston-artifactory",
+                        url: 'http://ralston.garyclayburg.com:8081/artifactory',
+                        credentialsId: 'frogbuilder-artifactory'
+                )
+
+                rtMavenDeployer (
+                        id: "MAVEN_DEPLOYER",
+                        serverId: "ralston-artifactory",
+                        releaseRepo: "garyrepo-libs-release-local",
+                        snapshotRepo: "garyrepo-libs-snapshot-local"
+                )
+
+                rtMavenResolver (
+                        id: "MAVEN_RESOLVER",
+                        serverId: "ralston-artifactory",
+                        releaseRepo: "garyrepo-libs-release",
+                        snapshotRepo: "garyrepo-libs-snapshot"
+                )
+            }
+        }
+        stage('main build') {
+            steps {
+                rtMavenRun (
+//                        tool: MAVEN_TOOL,
+                        useWrapper: true,
+                        pom: 'pom.xml',
+                        goals: 'clean install',
+                        deployerId: "MAVEN_DEPLOYER",
+                        resolverId: "MAVEN_RESOLVER"
+                )
+            }
+        }
+        stage('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                        serverId: "ralston-artifactory"
+                )
+            }
+        }
+    }
+    post {
+        always {
+            junit '**/target/**/TEST-*.xml'
+        }
+    }
 }
