@@ -40,8 +40,7 @@ pipeline {
         stage('main build') {
             steps {
                 rtMavenRun (
-//                        tool: MAVEN_TOOL,
-//                        useWrapper: true,
+                        //no tool, assume mvn is found on build agent, i.e. sdkman
                         pom: 'pom.xml',
                         goals: 'clean install',
                         deployerId: "MAVEN_DEPLOYER",
