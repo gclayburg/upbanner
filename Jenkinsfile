@@ -27,7 +27,8 @@ pipeline {
                         serverId: "ralston-artifactory",
                         releaseRepo: "garyrepo-libs-release-local",
                         snapshotRepo: "garyrepo-libs-snapshot-local",
-                        excludePatterns: ["demo*.jar"]
+                        excludePatterns: ["demo-2.1.2-SNAPSHOT.jar"]
+//                        excludePatterns: ["demo*.jar"]
 //                        includePatterns: ["legacybanner/**/*.jar"]
                 )
 
