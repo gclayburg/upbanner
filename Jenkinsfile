@@ -27,7 +27,7 @@ pipeline {
                         serverId: "ralston-artifactory",
                         releaseRepo: "garyrepo-libs-release-local",
                         snapshotRepo: "garyrepo-libs-snapshot-local",
-                        includePatterns: "someshithere"
+                        includePatterns: ["someshithere"]
                 )
 
                 rtMavenResolver (
