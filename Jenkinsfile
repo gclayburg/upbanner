@@ -27,7 +27,8 @@ pipeline {
                         serverId: "ralston-artifactory",
                         releaseRepo: "garyrepo-libs-release-local",
                         snapshotRepo: "garyrepo-libs-snapshot-local",
-                        includePatterns: ["legacybanner/**/*.jar"]
+                        excludePatterns: ["com.example*"]
+//                        includePatterns: ["legacybanner/**/*.jar"]
                 )
 
                 rtMavenResolver (
