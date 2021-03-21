@@ -27,10 +27,7 @@ pipeline {
                         serverId: "ralston-artifactory",
                         releaseRepo: "garyrepo-libs-release-local",
                         snapshotRepo: "garyrepo-libs-snapshot-local",
-                        excludePatterns: ["com/example*"]
-//                        excludePatterns: ["demo-2.1.2-SNAPSHOT.jar"]
-//                        excludePatterns: ["demo*.jar"]
-//                        includePatterns: ["legacybanner/**/*.jar"]
+                        excludePatterns: ["com/example*"] //Keep the integration testing modules out of artifactory.  We want the test results, not the artifacts.
                 )
 
                 rtMavenResolver (
