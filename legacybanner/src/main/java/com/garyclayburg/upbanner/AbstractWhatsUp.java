@@ -105,6 +105,15 @@ public abstract class AbstractWhatsUp {
         String javaCommand = System.getProperty("sun.java.command");
         if (javaCommand != null) {
             name = convertSunJavaCommand(javaCommand);
+            // javaCommand when running testclass via IntelliJ:
+            // com.intellij.rt.junit.JUnitStarter -ideVersion5 -junit5 com.example.demo.DemoApplicationTests
+
+            // javaCommand when running testClass via maven:
+            // /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire/surefirebooter2001082309298668663.jar /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire 2021-03-22T08-45-40_408-jvmRun1 surefire5666214610931227172tmp surefire_04846830553387518722tmp
+
+            // javaCommand when running as standalone jar like this:  java -jar ./webjar244/target/demo-2.1.2-SNAPSHOT.jar
+            // ./webjar244/target/demo-2.1.2-SNAPSHOT.jar
+            log.info("javaCommand is: " + javaCommand);
             if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher") || (name != null && name.equals("jar"))) {
                 // we are running a spring boot jar or expanded jar.
                 // Start-Class attribute from the expanded Manifest file
