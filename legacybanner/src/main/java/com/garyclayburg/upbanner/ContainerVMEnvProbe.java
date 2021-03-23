@@ -58,7 +58,7 @@ java.lang.ArrayStoreException: sun.reflect.annotation.TypeNotPresentExceptionPro
     @ConditionalOnMissingBean(name = "oshiProbe")
     @Bean({"oshiProbe"})
     public OshiProbe oshiBeanEmpty() {
-        log.info("com.github.oshi:oshi-core dependency not present.  Advanced probes disabled.");
+        log.debug("com.github.oshi:oshi-core dependency not present.  Advanced probes disabled.");
         return new EmptyOshiProbe();
     }
 
@@ -74,7 +74,7 @@ java.lang.ArrayStoreException: sun.reflect.annotation.TypeNotPresentExceptionPro
     @Bean({"jarProbe"})
     @ConditionalOnMissingClass({"org.springframework.boot.loader.jar.JarFile"})
     public JarProbe jarDumperMissing() {
-        log.info("JarFile is not in classpath!");
+        log.debug("JarFile is not in classpath!");
         return new FileJarDumper();
     }
 

@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class DemoApplicationTests {
+class WebJar244Tests {
 
-    private static final Logger log = LoggerFactory.getLogger(DemoApplicationTests.class);
+    private static final Logger log = LoggerFactory.getLogger(WebJar244Tests.class);
 
     private static ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private static PrintStream originalOutputStream = System.out;
@@ -45,6 +45,7 @@ class DemoApplicationTests {
 
     @Test
     void upbannerisup() {
-        assertTrue(outContent.toString().contains(" is UP!"));
+//        assertTrue(outContent.toString().contains("WebJar244Tests is UP!"));
+        assertTrue(outContent.toString().contains("Application is UP!"));
     }
 }

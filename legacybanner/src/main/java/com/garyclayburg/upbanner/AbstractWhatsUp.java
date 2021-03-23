@@ -15,7 +15,9 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.garyclayburg.upbanner.jarprobe.FileJarDumper;
 import com.garyclayburg.upbanner.jarprobe.JarProbe;
+import com.garyclayburg.upbanner.oshiprobe.EmptyOshiProbe;
 import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,12 @@ public abstract class AbstractWhatsUp {
 
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AbstractWhatsUp.class);
+
+    public AbstractWhatsUp() {
+        //todo move the probes to their own class to be injected to standard banner or into a custom banner
+        oshiProbe = new EmptyOshiProbe();
+        jarProbe = new FileJarDumper();
+    }
 
     public AbstractWhatsUp(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe) {
         this.environment = environment;
