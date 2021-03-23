@@ -104,40 +104,61 @@ public abstract class AbstractWhatsUp {
     private String getMain(String name) {
         String javaCommand = System.getProperty("sun.java.command");
         if (javaCommand != null) {
-            name = convertSunJavaCommand(javaCommand);
-            // javaCommand when running testclass via IntelliJ:
-            // com.intellij.rt.junit.JUnitStarter -ideVersion5 -junit5 com.example.demo.DemoApplicationTests
-
-            // javaCommand when running testClass via maven:
-            // /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire/surefirebooter2001082309298668663.jar /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire 2021-03-22T08-45-40_408-jvmRun1 surefire5666214610931227172tmp surefire_04846830553387518722tmp
-
-            // javaCommand when running as standalone jar like this:  java -jar ./webjar244/target/demo-2.1.2-SNAPSHOT.jar
-            // ./webjar244/target/demo-2.1.2-SNAPSHOT.jar
-            log.info("javaCommand is: " + javaCommand);
-            if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher") || (name != null && name.equals("jar"))) {
-                // we are running a spring boot jar or expanded jar.
-                // Start-Class attribute from the expanded Manifest file
-                // has the real class that will be executed first
-                Manifest manifest = jarProbe.getManifest();
-                if (manifest != null) {
-                    Attributes mainAttributes = manifest.getMainAttributes();
-                    if (log.isDebugEnabled()) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        jarProbe.showManifest(stringBuilder, manifest);
-                        log.debug("root manifest found is: \n" + stringBuilder.toString());
-                    }
-                    String startClassName = mainAttributes.getValue("Start-Class");
-                    log.debug(" start class is " + startClassName);
-                    if (startClassName != null) {
-                        name = convertStartClass(startClassName);
-                    }
-                }
-            }
+            name = getMainStart(javaCommand);
         }
         return name;
     }
 
+    String getMainStart(String javaCommand) {
+        String name = "Application";
+        String mainName = convertSunJavaCommand(javaCommand);
+        if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher")) {
+            // we are running a spring boot jar or expanded jar.
+            // Start-Class attribute from the expanded Manifest file
+            // has the real class that will be executed first
+            name = extractStartClassName(name);
+        } else if (mainName != null && mainName.equals("jar")) {
+            //we could be running a spring boot bundled jar OR something more
+            // opaque like surefire test runner
+            name = extractStartClassName(name);
+        }
+        return name;
+    }
+
+    private String extractStartClassName(String mainName) {
+        Manifest manifest = jarProbe.getManifest();
+        if (manifest != null) {
+            Attributes mainAttributes = manifest.getMainAttributes();
+            if (log.isDebugEnabled()) {
+                StringBuilder stringBuilder = new StringBuilder();
+                jarProbe.showManifest(stringBuilder, manifest);
+                log.debug("root manifest found is: \n" + stringBuilder.toString());
+            }
+            String startClassName = mainAttributes.getValue("Start-Class");
+            log.debug(" start class is " + startClassName);
+            if (startClassName != null) {
+                mainName = convertStartClass(startClassName);
+            }
+        }
+        return mainName;
+    }
+
     String convertSunJavaCommand(String javaCommand) {
+        // javaCommand when running specified java main in IntelliJ:
+        // com.garyclayburg.BootUp
+
+        // javaCommand when running testClass via IntelliJ:
+        // com.intellij.rt.junit.JUnitStarter -ideVersion5 -junit5 com.example.demo.DemoApplicationTests
+
+        // javaCommand when running testClass via maven:
+        // /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire/surefirebooter2001082309298668663.jar /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire 2021-03-22T08-45-40_408-jvmRun1 surefire5666214610931227172tmp surefire_04846830553387518722tmp
+
+        // javaCommand when running testClass via gradle:
+        // worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 2'
+
+        // javaCommand when running as standalone jar like this:  java -jar ./webjar244/target/demo-2.1.2-SNAPSHOT.jar
+        // ./webjar244/target/demo-2.1.2-SNAPSHOT.jar
+        log.debug("javaCommand is: " + javaCommand);
         String stripped = javaCommand.replaceFirst(" .*$", "");
         return convertStartClass(stripped);
     }
