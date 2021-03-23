@@ -12,6 +12,7 @@
         <module>legacybanner</module>
         <module>webjar244</module>
         <module>weboshiwar244</module>
+        <module>webjar1519</module>
     </modules>
     <packaging>pom</packaging>
 
