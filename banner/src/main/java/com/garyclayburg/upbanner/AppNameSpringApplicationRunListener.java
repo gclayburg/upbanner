@@ -6,7 +6,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.stereotype.Component;
 
 /**
  * <br><br>
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
  *
  * @author Gary Clayburg
  */
-@Component
 public class AppNameSpringApplicationRunListener implements SpringApplicationRunListener {
 
     @SuppressWarnings("UnusedDeclaration")

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
 
 /**
  * <br><br>
@@ -47,9 +48,11 @@ public abstract class AbstractWhatsUp {
     protected int listeningPort;
 
     public AbstractWhatsUp() {
-        //todo move the probes to their own class to be injected to standard banner or into a custom banner
+        //todo move the probes to their own class to be injected to standard banner or into a custom banner?
         oshiProbe = new EmptyOshiProbe();
         jarProbe = new FileJarDumper();
+        environment = new StandardEnvironment();
+        this.buildProperties = new BuildProperties(new Properties());
     }
 
     public AbstractWhatsUp(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe) {
@@ -228,7 +231,7 @@ public abstract class AbstractWhatsUp {
         }
     }
 
-    private void section(StringBuilder probeOut, String header) {
+    protected void section(StringBuilder probeOut, String header) {
         probeOut.append(header).append(System.lineSeparator());
     }
 
