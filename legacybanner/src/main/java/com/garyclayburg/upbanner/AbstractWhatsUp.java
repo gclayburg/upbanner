@@ -43,6 +43,8 @@ public abstract class AbstractWhatsUp {
 
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AbstractWhatsUp.class);
+    private String applicationName;
+    protected int listeningPort;
 
     public AbstractWhatsUp() {
         //todo move the probes to their own class to be injected to standard banner or into a custom banner
@@ -57,7 +59,7 @@ public abstract class AbstractWhatsUp {
         this.jarProbe = jarProbe;
     }
 
-    abstract public void printVersion(int localPort);
+    abstract public void printBanner();
 
     protected Properties loadGitProperties() {
         Properties gitProperties = new Properties();
@@ -71,7 +73,7 @@ public abstract class AbstractWhatsUp {
                 log.warn("Cannot load git.properties " + e.getMessage());
             }
         } else {
-            log.info("Cannot display git status - git.properties not found in classpath");
+            log.debug("Cannot display git status - git.properties not found in classpath");
         }
         return gitProperties;
     }
@@ -103,8 +105,10 @@ public abstract class AbstractWhatsUp {
     private String getAppName() {
         String name = getEnvProperty("spring.application.name");
         if (name == null) {
-            name = "Application";
-            name = getMain(name);
+            name = applicationName;
+            if (applicationName == null) {
+                name = getMain("Application");
+            }
         }
         return name;
     }
@@ -512,5 +516,21 @@ Java command: org.springframework.boot.loader.JarLauncher --upbanner.debug=true
 Main: UpbannerdemoApplication
 
          */
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = convertStartClass(applicationName);
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setListeningPort(int listeningPort) {
+        this.listeningPort = listeningPort;
+    }
+
+    public int getListeningPort() {
+        return listeningPort;
     }
 }

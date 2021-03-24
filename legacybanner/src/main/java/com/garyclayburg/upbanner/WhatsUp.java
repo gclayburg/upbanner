@@ -70,7 +70,10 @@ public class WhatsUp extends AbstractWhatsUp {
     }
 
     @Override
-    public void printVersion(int localPort) {
+    public void printBanner() {
+        if (listeningPort == 0) {
+            return; //todo print a banner when we are not listening on a port? i.e. non-webapp
+        }
         String hostAddress;
         String hostName;
         try {
@@ -86,13 +89,13 @@ public class WhatsUp extends AbstractWhatsUp {
         String proto = deduceProtocol();
         String banner = "\n----------------------------------------------------------------------------------------------------\n";
         String c1r1 = String.format("%s is UP!", deduceAppNameVersion());
-        String c1r2 = String.format("Local:      %s://localhost:%s", proto, localPort);
-        String c1r3 = String.format("External:   %s://%s:%s ", proto, hostAddress, localPort);
-        String c1r4 = String.format("Host:       %s://%s:%s ", proto, hostName, localPort);
+        String c1r2 = String.format("Local:      %s://localhost:%s", proto, listeningPort);
+        String c1r3 = String.format("External:   %s://%s:%s ", proto, hostAddress, listeningPort);
+        String c1r4 = String.format("Host:       %s://%s:%s ", proto, hostName, listeningPort);
         if (isDocker()) {
-            c1r4 = String.format("Docker:     %s://%s:%s ", proto, hostName, localPort);
+            c1r4 = String.format("Docker:     %s://%s:%s ", proto, hostName, listeningPort);
         } else if (isKubernetes()) {
-            c1r4 = String.format("Kubernetes: %s://%s:%s ", proto, hostName, localPort);
+            c1r4 = String.format("Kubernetes: %s://%s:%s ", proto, hostName, listeningPort);
         }
         String c2r1 = String.format("git.commit.time:   %s", gitProperties.getProperty("git.commit.time"));
         String c2r2 = String.format("git.build.version: %s", gitProperties.getProperty("git.build.version"));

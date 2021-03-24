@@ -37,7 +37,7 @@ public class PortListenerSpringBoot2 implements ApplicationListener<ServletWebSe
 
     @Override
     public void onApplicationEvent(ServletWebServerInitializedEvent event) {
-        whatsUp.printVersion(event.getWebServer().getPort());
+        whatsUp.setListeningPort(event.getWebServer().getPort());
     }
 }
 

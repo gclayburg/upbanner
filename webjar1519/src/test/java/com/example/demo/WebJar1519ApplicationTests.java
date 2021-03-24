@@ -56,6 +56,6 @@ public class WebJar1519ApplicationTests {
     @Test
     public void upbannerApplicationIsUP() {
         log.info("port is " + randomServerPort);
-        assertTrue(outContent.toString().contains("Application is UP!"));
+        assertTrue(outContent.toString().contains("WebJar1519ApplicationTests is UP!"));
     }
 }

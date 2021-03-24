@@ -42,6 +42,6 @@ public class PortListenerSpringBoot1 implements ApplicationListener<EmbeddedServ
     @Override
     public void onApplicationEvent(final EmbeddedServletContainerInitializedEvent event) {
         int localPort = event.getEmbeddedServletContainer().getPort();
-        whatsUp.printVersion(localPort);
+        whatsUp.setListeningPort(localPort);
     }
 }

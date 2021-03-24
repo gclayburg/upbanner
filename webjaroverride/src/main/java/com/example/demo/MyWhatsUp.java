@@ -18,7 +18,7 @@ public class MyWhatsUp extends AbstractWhatsUp {
     private static final Logger log = LoggerFactory.getLogger(MyWhatsUp.class);
 
     @Override
-    public void printVersion(int localPort) {
-        log.info("\n\napp is ready on port " + localPort+"\n");
+    public void printBanner() {
+        log.info("\n\napp is ready on port " + listeningPort+"\n");
     }
 }
