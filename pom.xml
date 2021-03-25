@@ -15,6 +15,7 @@
         <module>weboshiwar244</module>
         <module>webjar1519</module>
         <module>jaronly15</module>
+        <module>jaronly244</module>
     </modules>
     <packaging>pom</packaging>
 

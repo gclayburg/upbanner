@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {WebJar1519Application.class})
+@SpringBootTest(classes = {FooConfig.class}) //very minimal context initialization, i.e. no spring.factories bean processing
 public class JarOnly15applicationTests {
 
     public static final Logger log = LoggerFactory.getLogger(JarOnly15applicationTests.class);
