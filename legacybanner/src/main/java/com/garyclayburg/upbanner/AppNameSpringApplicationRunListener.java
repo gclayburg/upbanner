@@ -2,6 +2,7 @@ package com.garyclayburg.upbanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -47,9 +48,13 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
 
 //    @Override
     public void started(ConfigurableApplicationContext context) {
-        AbstractWhatsUp whatsUp = context.getBean(AbstractWhatsUp.class);
-        whatsUp.setApplicationName(mainApplicationClassName);
-        whatsUp.printBanner();
+        try {
+            AbstractWhatsUp whatsUp = context.getBean(AbstractWhatsUp.class);
+            whatsUp.setApplicationName(mainApplicationClassName);
+            whatsUp.printBanner();
+        } catch (BeansException e) {
+            log.warn("cannot find WhatsUp Bean", e);
+        }
     }
 
 //    @Override
