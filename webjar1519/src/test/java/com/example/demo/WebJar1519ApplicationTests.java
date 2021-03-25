@@ -34,7 +34,7 @@ public class WebJar1519ApplicationTests {
 
     @BeforeClass
     public static void beforeClass() {
-        log.debug("running Webwar244ApplicationTests beforeClass");
+        log.debug("running WebJar1519ApplicationTests beforeClass");
         System.setOut(new PrintStream(outContent));
         capturingOutput = true;
     }
@@ -55,7 +55,6 @@ public class WebJar1519ApplicationTests {
 
     @Test
     public void upbannerApplicationIsUP() {
-        log.info("port is " + randomServerPort);
         assertTrue(outContent.toString().contains("WebJar1519ApplicationTests is UP!"));
     }
 }

@@ -45,18 +45,18 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
     public void contextLoaded(ConfigurableApplicationContext context) {
     }
 
-    @Override
+//    @Override
     public void started(ConfigurableApplicationContext context) {
         AbstractWhatsUp whatsUp = context.getBean(AbstractWhatsUp.class);
         whatsUp.setApplicationName(mainApplicationClassName);
         whatsUp.printBanner();
     }
 
-    @Override
+//    @Override
     public void running(ConfigurableApplicationContext context) {
     }
 
-    @Override
+//    @Override
     public void failed(ConfigurableApplicationContext context, Throwable exception) {
 
     }

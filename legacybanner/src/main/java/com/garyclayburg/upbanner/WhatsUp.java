@@ -55,7 +55,7 @@ public class WhatsUp extends AbstractWhatsUp {
     public WhatsUp(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe, JarProbe jarProbe) {
         super(environment, buildProperties, oshiProbe,jarProbe);
         this.upbannerSettings = upbannerSettings;
-
+        log.debug("created WhatsUp");
     }
 
     /**
