@@ -119,25 +119,23 @@ java -jar blah.war:
                     log.info("not URL classloader.");
                 }
             }
-            return constructBootJarWarFile(probeOut, path);
+            return createJarFile(probeOut, createTrimmedPath(probeOut,path));
         } catch (URISyntaxException | MalformedURLException e) {
             probeOut.append("WARN - CodeSource is not valid: ").append(codeSource != null ? codeSource.getLocation(): "null");
             return null;
         }
     }
 
-    static JarFile constructBootJarWarFile(StringBuilder probeOut, String path) throws IOException {
+    static String createTrimmedPath(StringBuilder probeOut, String path) {
         if (path == null) {
             probeOut.append("WARN - Cannot determine CodeSource location\n");
             return null;
         }
         if (path.lastIndexOf("!/BOOT-INF") > 0) { //we are running from boot jar
-            path = path.substring(0, path.lastIndexOf("!/BOOT-INF"));
-            return createJarFile(probeOut, path);
+            return path.substring(0, path.lastIndexOf("!/BOOT-INF"));
         }
         if (path.lastIndexOf("!/WEB-INF") >0) { //we are running from boot war
-            path = path.substring(0, path.lastIndexOf("!/WEB-INF"));
-            return createJarFile(probeOut,path);
+            return path.substring(0, path.lastIndexOf("!/WEB-INF"));
         }
         log.debug("neither !/BOOT-INF nor !/WEB-INF found in path.  We are not running from a spring boot jar/war");
         probeOut.append("WARN - neither !/BOOT-INF nor !/WEB-INF found in path ").append(path)
@@ -150,8 +148,8 @@ java -jar blah.war:
 
         File root = new File(path);
         if (root.isDirectory()) {
-            log.debug("WARN - root is not a directory.  Is this a valid spring boot jar?\n");
-            probeOut.append("WARN - root is not a directory.  Is this a valid spring boot jar?\n");
+            log.debug("WARN - root is a directory.  Is this a valid spring boot jar?\n");
+            probeOut.append("WARN - root is a directory.  Is this a valid spring boot jar?\n");
             return null;
         }
         if (!root.exists()) {

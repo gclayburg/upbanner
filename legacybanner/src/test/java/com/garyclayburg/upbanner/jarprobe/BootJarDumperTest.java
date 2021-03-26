@@ -25,12 +25,12 @@ public class BootJarDumperTest {
     }
 
     @Test
-    public void constructBootJarWar() throws IOException {
-        assertNotNull(BootJarDumper.constructBootJarWarFile(new StringBuilder(), "file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/"));
+    public void constructBootJarWar() {
+        assertNotNull(BootJarDumper.createTrimmedPath(new StringBuilder(), "file:/doesnotexist/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/"));
     }
 
     @Test
-    public void constructBootWar() throws Exception {
-        assertNotNull(BootJarDumper.constructBootJarWarFile(new StringBuilder(), "file:/home/gclaybur/dev/gvsync/upbanner/weboshiwar244/target/weboshiwar244-2.1.2-SNAPSHOT.war!/WEB-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/"));
+    public void constructBootWar() {
+        assertNotNull(BootJarDumper.createTrimmedPath(new StringBuilder(), "file:/doesnotexist/gclaybur/dev/gvsync/upbanner/weboshiwar244/target/weboshiwar244-2.1.2-SNAPSHOT.war!/WEB-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/"));
     }
 }
