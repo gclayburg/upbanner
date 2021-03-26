@@ -101,36 +101,64 @@ public class BootJarDumper extends JarProbe {
             if (log.isDebugEnabled()) {
                 log.debug("checking codesource path: " + path);
                 if (BootJarDumper.class.getClassLoader() instanceof URLClassLoader) {
-                    Arrays.stream(((URLClassLoader) BootJarDumper.class.getClassLoader()).getURLs()).forEach(url -> log.info("URL "+url));
+                    Arrays.stream(((URLClassLoader) BootJarDumper.class.getClassLoader()).getURLs()).forEach(url -> log.debug("URL "+url));
+/* java-jar blah.jar:
+codesource path: file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/
+2021-03-26 08:48:48,392 [           main] DEBUG c.g.upbanner.jarprobe.BootJarDumper  - URL jar:file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/classes!/
+2021-03-26 08:48:48,392 [           main] DEBUG c.g.upbanner.jarprobe.BootJarDumper  - URL jar:file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/lib/spring-boot-starter-web-1.5.19.RELEASE.jar!/
+*/
+/*
+java -jar blah.war:
+2021-03-26 08:52:56,040 [           main] DEBUG c.g.upbanner.jarprobe.BootJarDumper  - checking codesource path: file:/home/gclaybur/dev/gvsync/upbanner/weboshiwar244/target/weboshiwar244-2.1.2-SNAPSHOT.war!/WEB-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/
+2021-03-26 08:52:56,041 [           main] DEBUG c.g.upbanner.jarprobe.BootJarDumper  - URL jar:file:/home/gclaybur/dev/gvsync/upbanner/weboshiwar244/target/weboshiwar244-2.1.2-SNAPSHOT.war!/WEB-INF/classes!/
+2021-03-26 08:52:56,041 [           main] DEBUG c.g.upbanner.jarprobe.BootJarDumper  - URL jar:file:/home/gclaybur/dev/gvsync/upbanner/weboshiwar244/target/weboshiwar244-2.1.2-SNAPSHOT.war!/WEB-INF/lib/jackson-core-2.11.4.jar!/
+2
+ */
+
                 } else {
                     log.info("not URL classloader.");
                 }
             }
-            if (path == null) {
-                probeOut.append("WARN - Cannot determine CodeSource location\n");
-                return null;
-            }
-            if (path.lastIndexOf("!/BOOT-INF") <= 0) {
-                probeOut.append("WARN - !/BOOT-INF not found in path ").append(path)
-                        .append("  Is this not a spring boot executable jar?\n");
-                return null;
-            }
-            path = path.substring(0, path.lastIndexOf("!/BOOT-INF"));
-            path = path.replace("file:", "");
-
-            File root = new File(path);
-            if (root.isDirectory()) {
-                probeOut.append("WARN - root is not a directory.  Is this a valid spring boot jar?\n");
-                return null;
-            }
-            if (!root.exists()) {
-                probeOut.append("WARN - root does not exist.  Is this a valid spring boot jar?\n");
-                return null;
-            }
-            return new JarFile(root);
+            return constructBootJarWarFile(probeOut, path);
         } catch (URISyntaxException | MalformedURLException e) {
-            probeOut.append("WARN - CodeSource is not valid: ").append(codeSource.getLocation());
+            probeOut.append("WARN - CodeSource is not valid: ").append(codeSource != null ? codeSource.getLocation(): "null");
             return null;
         }
+    }
+
+    static JarFile constructBootJarWarFile(StringBuilder probeOut, String path) throws IOException {
+        if (path == null) {
+            probeOut.append("WARN - Cannot determine CodeSource location\n");
+            return null;
+        }
+        if (path.lastIndexOf("!/BOOT-INF") > 0) { //we are running from boot jar
+            path = path.substring(0, path.lastIndexOf("!/BOOT-INF"));
+            return createJarFile(probeOut, path);
+        }
+        if (path.lastIndexOf("!/WEB-INF") >0) { //we are running from boot war
+            path = path.substring(0, path.lastIndexOf("!/WEB-INF"));
+            return createJarFile(probeOut,path);
+        }
+        log.debug("neither !/BOOT-INF nor !/WEB-INF found in path.  We are not running from a spring boot jar/war");
+        probeOut.append("WARN - neither !/BOOT-INF nor !/WEB-INF found in path ").append(path)
+                .append("  Is this not a spring boot executable jar?\n");
+        return null;
+    }
+
+    private static JarFile createJarFile(StringBuilder probeOut, String path) throws IOException {
+        path = path.replace("file:", "");
+
+        File root = new File(path);
+        if (root.isDirectory()) {
+            log.debug("WARN - root is not a directory.  Is this a valid spring boot jar?\n");
+            probeOut.append("WARN - root is not a directory.  Is this a valid spring boot jar?\n");
+            return null;
+        }
+        if (!root.exists()) {
+            log.debug("WARN - root does not exist.  Is this a valid spring boot jar?\n");
+            probeOut.append("WARN - root does not exist.  Is this a valid spring boot jar?\n");
+            return null;
+        }
+        return new JarFile(root);
     }
 }

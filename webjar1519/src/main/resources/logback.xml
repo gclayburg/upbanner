@@ -1,0 +1,24 @@
+<!--<configuration debug="true">-->
+<configuration packagingData = "true">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{ISO8601} [%15.15thread] %-5level %-36logger{36} - %msg%n</pattern>
+            <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger{36} - %msg%n</pattern>-->
+            <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger - %msg%n</pattern>-->
+            <!--<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %file:%line - %msg%n%caller{8, CALLER_EVAL}</Pattern>-->
+
+        </encoder>
+
+    </appender>
+    <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %green(%-15X{userName}) %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <!-- this spring include creates CONSOLE appender -->
+    <!--<include resource="org/springframework/boot/logging/logback/base.xml"/>-->
+
+    <logger name="com.example" level="DEBUG"/>
+    <logger name="com.garyclayburg.upbanner" level="DEBUG" />
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+        <!--<appender-ref ref="CONSOLE" />-->
+    </root>
+</configuration>
