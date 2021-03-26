@@ -128,6 +128,7 @@ java -jar blah.war:
 
     static String createTrimmedPath(StringBuilder probeOut, String path) {
         if (path == null) {
+            log.debug("Cannot determine CodeSource location");
             probeOut.append("WARN - Cannot determine CodeSource location\n");
             return null;
         }
@@ -144,6 +145,9 @@ java -jar blah.war:
     }
 
     private static JarFile createJarFile(StringBuilder probeOut, String path) throws IOException {
+        if (path == null) {
+            return null;
+        }
         path = path.replace("file:", "");
 
         File root = new File(path);
