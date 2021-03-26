@@ -222,6 +222,7 @@ public abstract class AbstractWhatsUp {
         // AND propagate probed value to banner instead of just saying "Application is up"
         section(probe, "\n===== What is running ============================");
         dumpGitProperties(probe);
+        jarProbe.createRootManifestReport(probe);
         jarProbe.createSnapshotJarReport(probe);
         if (log.isInfoEnabled()) {
             log.info("Environment probe:" + System.lineSeparator() + probe.toString());

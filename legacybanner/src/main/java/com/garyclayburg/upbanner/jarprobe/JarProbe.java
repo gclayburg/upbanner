@@ -39,4 +39,6 @@ public abstract class JarProbe {
     }
 
     public abstract void init(StringBuilder probe);
+
+    public abstract void createRootManifestReport(StringBuilder probe);
 }

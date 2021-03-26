@@ -51,6 +51,18 @@ public class FileJarDumper extends JarProbe {
         }
     }
 
+    @Override
+    public void createRootManifestReport(StringBuilder probeOut) {
+        probeOut.append("\n  Root Manifest:").append(System.lineSeparator());
+        if (manifest == null) {
+            init(probeOut);
+        }
+        if (manifest != null) {
+            probeOut.append("META-INF/MANIFEST.MF").append(System.lineSeparator());
+            showManifest(probeOut, manifest);
+        }
+    }
+
     private boolean isExpandedBootJar() {
         boolean expandedBootJar = false;
         String javaCommand = System.getProperty("sun.java.command");
