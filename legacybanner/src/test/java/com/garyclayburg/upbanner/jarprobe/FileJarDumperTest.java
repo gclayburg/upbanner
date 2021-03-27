@@ -58,4 +58,14 @@ public class FileJarDumperTest {
         log.info(probeOut.toString());
         assertTrue(probeOut.toString().contains("WARN"));
     }
+
+    @Test
+    public void snapshotJar() {
+        FileJarDumper fileJarDumper = new FileJarDumper();
+        assertTrue(fileJarDumper.shouldShowManifest("/home/gclaybur/.gradle/caches/modules-2/files-2.1/com.garyclayburg/upbanner-starter/2.1.2-SNAPSHOT/9b356f3d0228e37db85d38f64a585f2f9fb5b6c5/upbanner-starter-2.1.2-SNAPSHOT.jar"));
+        assertTrue(fileJarDumper.shouldShowManifest("/home/gclaybur/.m2/repository/com/garyclayburg/upbanner-starter/2.1.2-SNAPSHOT/upbanner-starter-2.1.2-20210326.185920-25.jar"));
+        assertFalse(fileJarDumper.shouldShowManifest(""));
+        assertFalse(fileJarDumper.shouldShowManifest(null));
+        assertFalse(fileJarDumper.shouldShowManifest("/home/gclaybur/.m2/repository/org/springframework/spring-jcl/5.3.5/spring-jcl-5.3.5.jar"));
+    }
 }

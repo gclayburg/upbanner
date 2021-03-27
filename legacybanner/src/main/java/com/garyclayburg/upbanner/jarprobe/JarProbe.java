@@ -31,7 +31,14 @@ public abstract class JarProbe {
     }
 
     protected boolean shouldShowManifest(String entry) {
-        return entry != null && entry.matches(".*SNAPSHOT.jar");
+        /*
+        ex of jar loaded from gradle cache:
+        classloader.URL: file:/home/gclaybur/.gradle/caches/modules-2/files-2.1/com.garyclayburg/upbanner-starter/2.1.2-SNAPSHOT/9b356f3d0228e37db85d38f64a585f2f9fb5b6c5/upbanner-starter-2.1.2-SNAPSHOT.jar
+
+        ex of jar loaded from local maven repo
+        classpath: /home/gclaybur/.m2/repository/com/garyclayburg/upbanner-starter/2.1.2-SNAPSHOT/upbanner-starter-2.1.2-20210326.185920-25.jar
+         */
+        return entry != null && entry.matches(".*-SNAPSHOT/.*");
     }
 
     protected void showJarName(StringBuilder probeOut, String name) {
