@@ -18,15 +18,13 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.garyclayburg.upbanner.jarprobe.FileJarDumper;
 import com.garyclayburg.upbanner.jarprobe.JarProbe;
-import com.garyclayburg.upbanner.oshiprobe.EmptyOshiProbe;
 import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.StandardEnvironment;
+import org.springframework.stereotype.Component;
 
 /**
  * <br><br>
@@ -34,7 +32,8 @@ import org.springframework.core.env.StandardEnvironment;
  *
  * @author Gary Clayburg
  */
-public abstract class AbstractWhatsUp {
+@Component
+public class WhatsUpProbes {
 
     public static final String MEM_TOTAL_REGEX = "^MemTotal:\\s*(\\d+)\\s*kB.*$";
     public static final Pattern MEM_TOTAL_REGEX_PATTERN = Pattern.compile(MEM_TOTAL_REGEX);
@@ -48,28 +47,17 @@ public abstract class AbstractWhatsUp {
     protected BuildProperties buildProperties;
 
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(AbstractWhatsUp.class);
+    private static final Logger log = LoggerFactory.getLogger(WhatsUpProbes.class);
     private String applicationName;
     protected int listeningPort;
 
-    public AbstractWhatsUp() {
-        //todo move the probes to their own class to be injected to standard banner or into a custom banner?
-        oshiProbe = new EmptyOshiProbe();
-        jarProbe = new FileJarDumper();
-        environment = new StandardEnvironment();
-        this.buildProperties = new BuildProperties(new Properties());
-        this.upbannerSettings = new UpbannerSettings();
-    }
-
-    public AbstractWhatsUp(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings) {
+    public WhatsUpProbes(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings) {
         this.environment = environment;
         this.buildProperties = buildProperties;
         this.oshiProbe = oshiProbe;
         this.jarProbe = jarProbe;
         this.upbannerSettings = upbannerSettings;
     }
-
-    abstract public void printBanner();
 
     protected Properties loadGitProperties() {
         Properties gitProperties = new Properties();
@@ -88,7 +76,7 @@ public abstract class AbstractWhatsUp {
         return gitProperties;
     }
 
-    protected String deduceProtocol() {
+    public String deduceProtocol() {
         String retval = "http";
         String secure = getEnvProperty("security.require-ssl");
         if (secure != null && secure.equals("true")) {
@@ -97,7 +85,7 @@ public abstract class AbstractWhatsUp {
         return retval;
     }
 
-    protected String deduceAppNameVersion() {
+    public String deduceAppNameVersion() {
         String name = getAppName();
 
         String version = getEnvProperty("info.app.version");
@@ -112,7 +100,7 @@ public abstract class AbstractWhatsUp {
         return name;
     }
 
-    private String getAppName() {
+    public String getAppName() {
         String name = getEnvProperty("spring.application.name");
         if (name == null) {
             name = applicationName;
@@ -123,7 +111,7 @@ public abstract class AbstractWhatsUp {
         return name;
     }
 
-    private String getMain(String name) {
+    public String getMain(String name) {
         String javaCommand = System.getProperty("sun.java.command");
         if (javaCommand != null) {
             name = getMainStart(javaCommand);
@@ -131,7 +119,7 @@ public abstract class AbstractWhatsUp {
         return name;
     }
 
-    String getMainStart(String javaCommand) {
+    public String getMainStart(String javaCommand) {
         String name = "Application";
         String mainName = convertSunJavaCommand(javaCommand);
         if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher")) {
@@ -209,9 +197,8 @@ public abstract class AbstractWhatsUp {
         }
     }
 
-    protected void dumpAll() {
+    public void dumpAll() {
         StringBuilder probe = new StringBuilder();
-        //What OS and hardware are we running on?
         section(probe, "\n===== What OS and hardware are we running on =====");
         oshiProbe.createReport(probe);
         section(probe, "\n===== What OS resources are limited ==============");
@@ -225,8 +212,6 @@ public abstract class AbstractWhatsUp {
         section(probe, "\n===== How was it started =========================");
         jarProbe.init(probe);
         dumpStartupCommandJVMargs(probe);
-        //todo show start-class from manifest or sun.java.command
-        // AND propagate probed value to banner instead of just saying "Application is up"
         section(probe, "\n===== What is running ============================");
         dumpGitProperties(probe);
         jarProbe.createRootManifestReport(probe);
@@ -335,7 +320,7 @@ public abstract class AbstractWhatsUp {
         return defaultValue;
     }
 
-    protected void dumpMemoryLimits(StringBuilder probeOut) {
+    public void dumpMemoryLimits(StringBuilder probeOut) {
         /*
         Todo: add additional checks for cgroup cpu limitation
         https://fabiokung.com/2014/03/13/memory-inside-linux-containers/
@@ -463,27 +448,27 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
         }
     }
 
-    protected void dumpGitProperties(StringBuilder probeOut) {
+    public void dumpGitProperties(StringBuilder probeOut) {
         probeOut.append("  git.properties dump").append(System.lineSeparator());
         loadGitProperties().forEach((k, v) -> probeOut.append("gitprop ").append(k).append(": ").append(v).append(System.lineSeparator()));
     }
 
-    protected void dumpSystemProperties(StringBuilder probeOut) {
+    public void dumpSystemProperties(StringBuilder probeOut) {
         probeOut.append("  system properties dump").append(System.lineSeparator());
         System.getProperties().forEach((k, v) -> probeOut.append("prop ").append(k).append(": ").append(v).append(System.lineSeparator()));
     }
 
-    protected void dumpENV(StringBuilder probeOut) {
+    public void dumpENV(StringBuilder probeOut) {
         probeOut.append("\n  system environment dump").append(System.lineSeparator());
         System.getenv().forEach((key, val) -> probeOut.append("env ").append(key).append(": ").append(val).append(System.lineSeparator()));
     }
 
-    protected void dumpStartupCommandJVMargs(StringBuilder probeOut) {
+    public void dumpStartupCommandJVMargs(StringBuilder probeOut) {
         probeOut.append("  JVM args/classloader URLs/startup command").append(System.lineSeparator());
         ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arg ->
                 probeOut.append("JVM arg: ").append(arg).append(System.lineSeparator()));
-        if (AbstractWhatsUp.class.getClassLoader() instanceof URLClassLoader) {
-            Arrays.stream(((URLClassLoader) AbstractWhatsUp.class.getClassLoader()).getURLs()).forEach(url -> probeOut.append("classloader.URL: ").append(url).append(System.lineSeparator()));
+        if (WhatsUpProbes.class.getClassLoader() instanceof URLClassLoader) {
+            Arrays.stream(((URLClassLoader) WhatsUpProbes.class.getClassLoader()).getURLs()).forEach(url -> probeOut.append("classloader.URL: ").append(url).append(System.lineSeparator()));
             // e.g. when running with tomcat:
             // classloader.URL: file:/home/springboot/app/BOOT-INF/lib/log4j-api-2.13.3.jar
             // e.g. when running in docker but not a web app:
@@ -545,7 +530,7 @@ Main: UpbannerdemoApplication
         return listeningPort;
     }
 
-    protected void printHostPortVersionGitBanner() {
+    public void printHostPortVersionGitBanner() {
         if (listeningPort == 0) {
             return;
         }
@@ -607,7 +592,7 @@ Main: UpbannerdemoApplication
         }
     }
 
-    private boolean isDocker() {
+    public boolean isDocker() {
         boolean isDocker = false;
         try {
             isDocker = Files.lines(Paths.get(CGROUP_FILE)).map(line ->
@@ -618,7 +603,7 @@ Main: UpbannerdemoApplication
         return isDocker;
     }
 
-    private boolean isKubernetes() {
+    public boolean isKubernetes() {
         boolean isKubernetes = false;
         try {
             isKubernetes = Files.lines(Paths.get(CGROUP_FILE)).map(line ->

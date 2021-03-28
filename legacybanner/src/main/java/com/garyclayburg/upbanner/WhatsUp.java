@@ -2,13 +2,8 @@ package com.garyclayburg.upbanner;
 
 import javax.annotation.PostConstruct;
 
-import com.garyclayburg.upbanner.jarprobe.JarProbe;
-import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.info.BuildProperties;
-import org.springframework.core.env.Environment;
 
 /**
  * Prints UP banner to stdout on Spring Boot application startup.  Build properties from
@@ -38,17 +33,14 @@ import org.springframework.core.env.Environment;
  *
  * @author Gary Clayburg
  */
-@EnableConfigurationProperties(UpbannerSettings.class)
-public class WhatsUp extends AbstractWhatsUp {
+public class WhatsUp implements WhatsUpBanner {
 
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(WhatsUp.class);
-    private final UpbannerSettings upbannerSettings;
+    private final WhatsUpProbes whatsUpProbes;
 
-    public WhatsUp(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe, JarProbe jarProbe) {
-        super(environment, buildProperties, oshiProbe,jarProbe,upbannerSettings);
-        this.upbannerSettings = upbannerSettings;
-        log.debug("created WhatsUp");
+    public WhatsUp(WhatsUpProbes whatsUpProbes) {
+        this.whatsUpProbes = whatsUpProbes;
     }
 
     /**
@@ -57,14 +49,11 @@ public class WhatsUp extends AbstractWhatsUp {
      */
     @PostConstruct
     public void printDebugOnStartup() {
-        if (upbannerSettings.isDebug()) {
-            super.dumpAll();
-            dumpAll();
-        }
+        whatsUpProbes.dumpAll();
     }
 
     @Override
     public void printBanner() {
-        printHostPortVersionGitBanner();
+        whatsUpProbes.printHostPortVersionGitBanner();
     }
 }

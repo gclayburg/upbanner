@@ -39,8 +39,13 @@ public class WhatsUpConfig {
     }
 
     @Bean
+    public WhatsUpProbes whatsUpProbes() {
+        return new WhatsUpProbes(environment, buildProperties, oshiProbe, jarProbe, upbannerSettings);
+    }
+
+    @Bean
     @ConditionalOnMissingBean
-    public AbstractWhatsUp whatsUp() {
-        return new WhatsUp(environment, buildProperties, upbannerSettings, oshiProbe,jarProbe);
+    public WhatsUpBanner whatsUpBanner() {
+        return new WhatsUp(whatsUpProbes());
     }
 }

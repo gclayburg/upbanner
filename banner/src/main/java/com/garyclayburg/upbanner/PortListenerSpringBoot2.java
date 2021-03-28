@@ -29,9 +29,9 @@ public class PortListenerSpringBoot2 implements ApplicationListener<ServletWebSe
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(PortListenerSpringBoot2.class);
 
-    private final AbstractWhatsUp whatsUp;
+    private final WhatsUpProbes whatsUp;
 
-    public PortListenerSpringBoot2(AbstractWhatsUp whatsUp) {
+    public PortListenerSpringBoot2(WhatsUpProbes whatsUp) {
         this.whatsUp = whatsUp;
     }
 

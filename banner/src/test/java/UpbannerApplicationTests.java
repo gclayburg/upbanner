@@ -2,7 +2,8 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
-import com.garyclayburg.upbanner.WhatsUp;
+import com.garyclayburg.upbanner.UpbannerSettings;
+import com.garyclayburg.upbanner.WhatsUpProbes;
 import com.garyclayburg.upbanner.jarprobe.FileJarDumper;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -36,17 +37,17 @@ public class UpbannerApplicationTests {
         Properties p = new Properties();
         p.setProperty("time", timespec);
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null,null, new FileJarDumper());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, buildProperties, null, new FileJarDumper(), new UpbannerSettings());
         StringBuilder probeOut = new StringBuilder();
-        whatsUp.dumpBuildProperties(probeOut);
+        whatsUpProbes.dumpBuildProperties(probeOut);
         log.info(probeOut.toString());
     }
 
     @Test
     public void dumpCPU() {
-        WhatsUp whatsUp = new WhatsUp(null, null, null,null,new FileJarDumper());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, null, null, new FileJarDumper(), new UpbannerSettings());
         StringBuilder probeOut = new StringBuilder();
-        whatsUp.dumpCPUlimits(probeOut);
-        log.info("\n" +probeOut.toString());
+        whatsUpProbes.dumpCPUlimits(probeOut);
+        log.info("\n" + probeOut.toString());
     }
 }
