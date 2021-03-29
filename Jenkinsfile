@@ -43,7 +43,7 @@ pipeline {
                 rtMavenRun (
                         //no tool, assume mvn is found on build agent, i.e. sdkman
                         pom: 'pom.xml',
-                        goals: 'clean install',
+                        goals: 'clean install javadoc:jar source:jar',
                         deployerId: "MAVEN_DEPLOYER",
                         resolverId: "MAVEN_RESOLVER"
                 )
