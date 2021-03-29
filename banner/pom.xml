@@ -11,7 +11,7 @@
 
     <groupId>com.garyclayburg</groupId>
     <artifactId>upbanner-starter</artifactId>
-    <version>2.1.2</version>
+    <version>2.2.0-SNAPSHOT</version>
     <url>https://github.com/gclayburg/upbanner</url>
     <organization>
         <name>com.garyclayburg</name>
@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <banner.version>2.1.2</banner.version>
+        <banner.version>2.2.0-SNAPSHOT</banner.version>
     </properties>
 
     <dependencies>
