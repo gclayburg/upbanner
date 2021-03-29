@@ -32,10 +32,13 @@ public class MyWhatsUp implements WhatsUpBanner {
 
     @Override
     public void printBanner() {
-        String gitCommitId = whatsUpProbes.getGitProperty("git.commit.id");
-        log.info("\n\n{} is UP at {} "+
-                 (whatsUpProbes.isDocker() ? " in docker": "") +
-                 (gitCommitId != null ? " git: " + gitCommitId : ""),
-                whatsUpProbes.getAppNameVersion(),whatsUpProbes.getExternalURL() );
+        if (whatsUpProbes.isShowBanner()) {
+
+            String gitCommitId = whatsUpProbes.getGitProperty("git.commit.id");
+            log.info("\n\n{} is UP at {} " +
+                     (whatsUpProbes.isDocker() ? " in docker" : "") +
+                     (gitCommitId != null ? " git: " + gitCommitId : ""),
+                    whatsUpProbes.getAppNameVersion(), whatsUpProbes.getExternalURL());
+        }
     }
 }
