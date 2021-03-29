@@ -32,6 +32,10 @@ public class MyWhatsUp implements WhatsUpBanner {
 
     @Override
     public void printBanner() {
-        log.info("\n\napp is ready on port " + whatsUpProbes.getListeningPort() + "\n");
+        String gitCommitId = whatsUpProbes.getGitProperty("git.commit.id");
+        log.info("\n\n{} is UP at {} "+
+                 (whatsUpProbes.isDocker() ? " in docker": "") +
+                 (gitCommitId != null ? " git: " + gitCommitId : ""),
+                whatsUpProbes.getAppNameVersion(),whatsUpProbes.getExternalURL() );
     }
 }

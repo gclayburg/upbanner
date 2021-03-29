@@ -47,6 +47,6 @@ class WebJarOverrideTests {
     void upbannerisup() {
 //        assertTrue(outContent.toString().contains("WebJar244Tests is UP!"));
 //        assertTrue(outContent.toString().contains("Application is UP!"));
-        assertTrue(outContent.toString().contains("app is ready"));
+        assertTrue(outContent.toString().contains(" is UP at"));
     }
 }

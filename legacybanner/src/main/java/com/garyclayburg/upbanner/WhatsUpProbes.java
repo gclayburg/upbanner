@@ -50,6 +50,7 @@ public class WhatsUpProbes {
     private static final Logger log = LoggerFactory.getLogger(WhatsUpProbes.class);
     private String applicationName;
     protected int listeningPort;
+    private Properties gitProperties;
 
     public WhatsUpProbes(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings) {
         this.environment = environment;
@@ -57,26 +58,28 @@ public class WhatsUpProbes {
         this.oshiProbe = oshiProbe;
         this.jarProbe = jarProbe;
         this.upbannerSettings = upbannerSettings;
+        this.gitProperties = null;
     }
 
     protected Properties loadGitProperties() {
-        Properties gitProperties = new Properties();
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        InputStream resourceAsStream = contextClassLoader.getResourceAsStream("git.properties");
-        if (resourceAsStream != null) {
-            try {
-                gitProperties.load(resourceAsStream);
-                String gitId = gitProperties.getProperty("git.commit.id");
-            } catch (IOException e) {
-                log.warn("Cannot load git.properties " + e.getMessage());
+        if (this.gitProperties == null) {
+            this.gitProperties = new Properties();
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            InputStream resourceAsStream = contextClassLoader.getResourceAsStream("git.properties");
+            if (resourceAsStream != null) {
+                try {
+                    gitProperties.load(resourceAsStream);
+                } catch (IOException e) {
+                    log.warn("Cannot load git.properties " + e.getMessage());
+                }
+            } else {
+                log.debug("Cannot display git status - git.properties not found in classpath");
             }
-        } else {
-            log.debug("Cannot display git status - git.properties not found in classpath");
         }
         return gitProperties;
     }
 
-    public String deduceProtocol() {
+    public String getProtocol() {
         String retval = "http";
         String secure = getEnvProperty("security.require-ssl");
         if (secure != null && secure.equals("true")) {
@@ -85,7 +88,7 @@ public class WhatsUpProbes {
         return retval;
     }
 
-    public String deduceAppNameVersion() {
+    public String getAppNameVersion() {
         String name = getAppName();
 
         String version = getEnvProperty("info.app.version");
@@ -95,6 +98,14 @@ public class WhatsUpProbes {
             version = getEnvProperty("git.build.version");
             if (version != null) {
                 name += ":" + version;
+            } else {
+                Manifest manifest = jarProbe.getManifest();
+                if (manifest != null) {
+                    version = manifest.getMainAttributes().getValue("Implementation-Version");
+                    if (version != null) {
+                        name += ":" + version;
+                    }
+                }
             }
         }
         return name;
@@ -198,29 +209,31 @@ public class WhatsUpProbes {
     }
 
     public void dumpAll() {
-        StringBuilder probe = new StringBuilder();
-        section(probe, "\n===== What OS and hardware are we running on =====");
-        oshiProbe.createReport(probe);
-        section(probe, "\n===== What OS resources are limited ==============");
-        dumpCPUlimits(probe);
-        dumpMemoryLimits(probe);
-        section(probe, "\n===== What environment are we running with =======");
-        dumpSystemProperties(probe);
-        dumpENV(probe);
-        section(probe, "\n===== How was it built ===========================");
-        dumpBuildProperties(probe);
-        section(probe, "\n===== How was it started =========================");
-        jarProbe.init(probe);
-        dumpStartupCommandJVMargs(probe);
-        section(probe, "\n===== What is running ============================");
-        dumpGitProperties(probe);
-        jarProbe.createRootManifestReport(probe);
-        jarProbe.createSnapshotJarReport(probe);
-        if (log.isInfoEnabled()) {
-            log.info("Environment probe:" + System.lineSeparator() + probe.toString());
-        } else { // the operator wants to show the information.  Lets not also force them to enable INFO
-            log.warn("INFO logging is disabled. showing requested debug info as WARN instead");
-            log.warn("Environment probe:" + System.lineSeparator() + probe.toString());
+        if (upbannerSettings.isDebug()) {
+            StringBuilder probe = new StringBuilder();
+            section(probe, "\n===== What OS and hardware are we running on =====");
+            oshiProbe.createReport(probe);
+            section(probe, "\n===== What OS resources are limited ==============");
+            dumpCPUlimits(probe);
+            dumpMemoryLimits(probe);
+            section(probe, "\n===== What environment are we running with =======");
+            dumpSystemProperties(probe);
+            dumpENV(probe);
+            section(probe, "\n===== How was it built ===========================");
+            dumpBuildProperties(probe);
+            section(probe, "\n===== How was it started =========================");
+            jarProbe.init(probe);
+            dumpStartupCommandJVMargs(probe);
+            section(probe, "\n===== What is running ============================");
+            dumpGitProperties(probe);
+            jarProbe.createRootManifestReport(probe);
+            jarProbe.createSnapshotJarReport(probe);
+            if (log.isInfoEnabled()) {
+                log.info("Environment probe:" + System.lineSeparator() + probe.toString());
+            } else { // the operator wants to show the information.  Lets not also force them to enable INFO
+                log.warn("INFO logging is disabled. showing requested debug info as WARN instead");
+                log.warn("Environment probe:" + System.lineSeparator() + probe.toString());
+            }
         }
     }
 
@@ -546,9 +559,9 @@ Main: UpbannerdemoApplication
 
         Properties gitProperties = loadGitProperties();
 
-        String proto = deduceProtocol();
+        String proto = getProtocol();
         String banner = "\n----------------------------------------------------------------------------------------------------\n";
-        String c1r1 = String.format("%s is UP!", deduceAppNameVersion());
+        String c1r1 = String.format("%s is UP!", getAppNameVersion());
         String c1r2 = String.format("Local:      %s://localhost:%s", proto, listeningPort);
         String c1r3 = String.format("External:   %s://%s:%s ", proto, hostAddress, listeningPort);
         String c1r4 = String.format("Host:       %s://%s:%s ", proto, hostName, listeningPort);
@@ -592,6 +605,16 @@ Main: UpbannerdemoApplication
         }
     }
 
+    public String getExternalURL() {
+
+        String hostAddress = "unknownHost";
+        try {
+            hostAddress = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException ignored) {
+        }
+        return getProtocol() + "://" + hostAddress + ":" + listeningPort;
+    }
+
     public boolean isDocker() {
         boolean isDocker = false;
         try {
@@ -613,4 +636,10 @@ Main: UpbannerdemoApplication
         }
         return isKubernetes;
     }
+
+    public String getGitProperty(String gitPropertyName) {
+        Properties properties = loadGitProperties();
+        return (String) properties.get(gitPropertyName);
+    }
+
 }
