@@ -48,18 +48,22 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
 
     public void started(ConfigurableApplicationContext context) {
         try {
-            String[] beanNamesForType = context.getBeanNamesForType(AbstractWhatsUp.class);
+            String[] beanNamesForType = context.getBeanNamesForType(WhatsUpProbes.class);
                 /*
-                The WhatsUp bean will not be loaded if the application using this starter has not
+                The WhatsUpProbes bean will not be loaded if the application using this starter has not
                 enabled AutoConfiguration.  This would prevent loading ALL of our beans defined in
                 spring.factories org.springframework.boot.autoconfigure.EnableAutoConfiguration key.
                 In this case, we don't want to use this library anyway.  We especially don't
                 want a getBean() to prevent app startup.
                  */
             if (beanNamesForType.length > 0) {
-                AbstractWhatsUp whatsUp = context.getBean(AbstractWhatsUp.class);
-                whatsUp.setApplicationName(mainApplicationClassName);
-                whatsUp.printBanner();
+                WhatsUpProbes whatsUpProb = context.getBean(WhatsUpProbes.class);
+                whatsUpProb.setApplicationName(mainApplicationClassName);
+                String[] whatsUpBeanNames = context.getBeanNamesForType(WhatsUpBanner.class);
+                if (whatsUpBeanNames.length > 0) {
+                    WhatsUpBanner whatsUpBanner = context.getBean(WhatsUpBanner.class);
+                    whatsUpBanner.printBanner();
+                }
             }
         } catch (BeansException e) {
             log.warn("cannot find WhatsUp Bean");

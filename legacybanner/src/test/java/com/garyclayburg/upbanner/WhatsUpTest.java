@@ -30,9 +30,9 @@ public class WhatsUpTest {
 
     @Test
     public void dumpMemory() {
-        WhatsUp whatsUp = new WhatsUp(null, null, null, null, null);
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, null, null, null, null);
         StringBuilder probeOut = new StringBuilder();
-        whatsUp.dumpMemoryLimits(probeOut);
+        whatsUpProbes.dumpMemoryLimits(probeOut);
         log.info(probeOut.toString());
     }
 
@@ -49,9 +49,9 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, null, new FileJarDumper());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
         StringBuilder probeOut = new StringBuilder();
-        whatsUp.dumpBuildProperties(probeOut);
+        whatsUpProbes.dumpBuildProperties(probeOut);
         log.info(probeOut.toString());
     }
 
@@ -60,8 +60,8 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe(), new FileJarDumper());
-        whatsUp.dumpAll();
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
+        whatsUpProbes.dumpAll();
     }
 
     @Test
@@ -69,12 +69,12 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe(), new FileJarDumper());
-        assertEquals("MyMain", whatsUp.convertStartClass("com.something.MyMain"));
-        assertEquals("MyMain", whatsUp.convertStartClass("something.MyMain"));
-        assertEquals("MyMain", whatsUp.convertStartClass("MyMain"));
-        assertEquals("", whatsUp.convertStartClass(""));
-        assertNull(whatsUp.convertStartClass(null));
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
+        assertEquals("MyMain", whatsUpProbes.convertStartClass("com.something.MyMain"));
+        assertEquals("MyMain", whatsUpProbes.convertStartClass("something.MyMain"));
+        assertEquals("MyMain", whatsUpProbes.convertStartClass("MyMain"));
+        assertEquals("", whatsUpProbes.convertStartClass(""));
+        assertNull(whatsUpProbes.convertStartClass(null));
     }
 
     @Test
@@ -82,19 +82,19 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUp whatsUp = new WhatsUp(null, buildProperties, null, new FullOshiProbe(), new FileJarDumper());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
         assertEquals("MyMain",
-                whatsUp.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain --server.port=8881"));
+                whatsUpProbes.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain --server.port=8881"));
         assertEquals("MyMain",
-                whatsUp.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain --server.port=8881 --someoption=false"));
+                whatsUpProbes.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain --server.port=8881 --someoption=false"));
         assertEquals("MyMain",
-                whatsUp.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain"));
+                whatsUpProbes.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain"));
         assertEquals("Application",
-                whatsUp.getMainStart("com.intellij.rt.junit.JUnitStarter -ideVersion5 -junit5 com.example.demo.DemoApplicationTests"));
+                whatsUpProbes.getMainStart("com.intellij.rt.junit.JUnitStarter -ideVersion5 -junit5 com.example.demo.DemoApplicationTests"));
         assertEquals("Application",
-                whatsUp.getMainStart("worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 2'"));
+                whatsUpProbes.getMainStart("worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 2'"));
         assertEquals("Application",
-                whatsUp.getMainStart("/home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire/surefirebooter2001082309298668663.jar /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire 2021-03-22T08-45-40_408-jvmRun1 surefire5666214610931227172tmp surefire_04846830553387518722tmp"));
+                whatsUpProbes.getMainStart("/home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire/surefirebooter2001082309298668663.jar /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire 2021-03-22T08-45-40_408-jvmRun1 surefire5666214610931227172tmp surefire_04846830553387518722tmp"));
     }
 
     @Test

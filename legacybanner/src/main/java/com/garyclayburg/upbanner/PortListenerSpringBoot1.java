@@ -33,9 +33,9 @@ public class PortListenerSpringBoot1 implements ApplicationListener<EmbeddedServ
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(PortListenerSpringBoot1.class);
 
-    private final AbstractWhatsUp whatsUp;
+    private final WhatsUpProbes whatsUp;
 
-    public PortListenerSpringBoot1(AbstractWhatsUp whatsUp) {
+    public PortListenerSpringBoot1(WhatsUpProbes whatsUp) {
         this.whatsUp = whatsUp;
     }
 
