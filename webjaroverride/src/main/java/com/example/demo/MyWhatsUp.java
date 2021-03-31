@@ -27,7 +27,10 @@ public class MyWhatsUp implements WhatsUpBanner {
 
     @PostConstruct
     public void printDebugOnStartup() {
-        whatsUpProbes.dumpAll();
+        whatsUpProbes.dumpAll(stringBuilder -> stringBuilder
+                .append("  working directory: ")
+                .append(whatsUpProbes.getEnvironmentProperty("PWD"))
+                .append(System.lineSeparator()));
     }
 
     @Override
@@ -35,10 +38,12 @@ public class MyWhatsUp implements WhatsUpBanner {
         if (whatsUpProbes.isShowBanner()) {
 
             String gitCommitId = whatsUpProbes.getGitProperty("git.commit.id");
-            log.info("\n\n{} is UP at {} " +
+            log.info("\n\n    {} is UP at {} " +
                      (whatsUpProbes.isDocker() ? " in docker" : "") +
                      (gitCommitId != null ? " git: " + gitCommitId : ""),
                     whatsUpProbes.getAppNameVersion(), whatsUpProbes.getExternalURL());
         }
+        whatsUpProbes.printHostPortVersionGitBanner(stringBuilder -> stringBuilder.append("      using db: ").append(whatsUpProbes.getEnvironmentProperty("server.port")).append(System.lineSeparator()));
+
     }
 }

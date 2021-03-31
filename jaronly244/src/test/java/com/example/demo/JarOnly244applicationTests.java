@@ -50,6 +50,6 @@ public class JarOnly244applicationTests {
     @Test
     public void upbannerApplicationIsUP() {
         assertTrue(outContent.toString().contains("Started "));
-        log.info("log me please");
+        log.info("test finished");
     }
 }

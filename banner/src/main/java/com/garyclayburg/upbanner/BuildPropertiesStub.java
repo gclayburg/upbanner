@@ -29,7 +29,6 @@ public class BuildPropertiesStub {
     @Bean
     public BuildProperties buildProperties() {
         Properties p = new Properties();
-        p.put("version", "development build");
         p.put("org.label-schema.build-date", "development");
         return new BuildProperties(p);
     }
