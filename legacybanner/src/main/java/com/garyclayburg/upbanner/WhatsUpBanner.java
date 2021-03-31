@@ -8,5 +8,9 @@ package com.garyclayburg.upbanner;
  */
 public interface WhatsUpBanner {
 
+    /**
+     * This method is called after a spring boot application has started.  If it is also a web app, it will be already
+     * listening on a port at this time.
+     */
     void printBanner();
 }
