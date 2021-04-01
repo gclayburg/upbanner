@@ -89,12 +89,22 @@ public class WhatsUpTest {
                 whatsUpProbes.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain --server.port=8881 --someoption=false"));
         assertEquals("MyMain",
                 whatsUpProbes.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain"));
-        assertEquals("Application",
+        assertEquals("JUnitStarter",
                 whatsUpProbes.getMainStart("com.intellij.rt.junit.JUnitStarter -ideVersion5 -junit5 com.example.demo.DemoApplicationTests"));
-        assertEquals("Application",
+        assertEquals("GradleWorkerMain",
                 whatsUpProbes.getMainStart("worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 2'"));
         assertEquals("Application",
                 whatsUpProbes.getMainStart("/home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire/surefirebooter2001082309298668663.jar /home/gclaybur/dev/gvsync/upbanner/webjar244/target/surefire 2021-03-22T08-45-40_408-jvmRun1 surefire5666214610931227172tmp surefire_04846830553387518722tmp"));
+    }
+
+    @Test
+    public void Synconsole(){
+        Properties p = new Properties();
+        p.setProperty("time", "2020-12-08T00:52:19Z");
+        BuildProperties buildProperties = new BuildProperties(p);
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
+        assertEquals("SynconsoleApp",
+                whatsUpProbes.getMainStart("com.garyclayburg.synconsole.SynconsoleApp"));
     }
 
     @Test

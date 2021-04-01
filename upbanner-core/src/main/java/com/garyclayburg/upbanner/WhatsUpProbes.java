@@ -197,10 +197,15 @@ public class WhatsUpProbes {
             // Start-Class attribute from the expanded Manifest file
             // has the real class that will be executed first
             name = extractStartClassName(name);
-        } else if (mainName != null && mainName.equals("jar")) {
-            //we could be running a spring boot bundled jar OR something more
-            // opaque like surefire test runner
-            name = extractStartClassName(name);
+        } else if (mainName != null) {
+            if (mainName.equals("jar")) {
+                //we could be running a spring boot bundled jar OR something more
+                // opaque like surefire test runner
+                name = extractStartClassName(name);
+            } else {
+                //e.g. com.garyclayburg.synconsole.SynconsoleApp -> SynconsoleApp
+                name = mainName;
+            }
         }
         return name;
     }
