@@ -37,8 +37,11 @@ public abstract class JarProbe {
 
         ex of jar loaded from local maven repo
         classpath: /home/gclaybur/.m2/repository/com/garyclayburg/upbanner-starter/2.1.2-SNAPSHOT/upbanner-starter-2.1.2-20210326.185920-25.jar
+
+        ex of jar loaded from expanded war inside docker
+        classloader.URL: jar:file:/home/springboot/app/WEB-INF/lib/stepsapi-0.8.1-SNAPSHOT.jar!/
          */
-        return entry != null && entry.matches(".*-SNAPSHOT/.*");
+        return entry != null && (entry.matches(".*-SNAPSHOT/.*") || entry.matches(".*-SNAPSHOT.jar.*"));
     }
 
     protected void showJarName(StringBuilder probeOut, String name) {
