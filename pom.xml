@@ -16,6 +16,7 @@
         <module>webjar1519</module>
         <module>jaronly15</module>
         <module>jaronly244</module>
+        <module>mongo244</module>
     </modules>
     <packaging>pom</packaging>
 

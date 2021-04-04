@@ -29,7 +29,7 @@ public class MyWhatsUp implements WhatsUpBanner {
     public void printDebugOnStartup() {
         whatsUpProbes.dumpAll(stringBuilder -> stringBuilder
                 .append("  working directory: ")
-                .append(whatsUpProbes.getEnvironmentProperty("PWD"))
+                .append(whatsUpProbes.getEnvironmentPropertyPrintable("PWD"))
                 .append(System.lineSeparator()));
     }
 
@@ -43,7 +43,7 @@ public class MyWhatsUp implements WhatsUpBanner {
                      (gitCommitId != null ? " git: " + gitCommitId : ""),
                     whatsUpProbes.getAppNameVersion(), whatsUpProbes.getExternalURL());
         }
-        whatsUpProbes.printHostPortVersionGitBanner(stringBuilder -> stringBuilder.append("      using db: ").append(whatsUpProbes.getEnvironmentProperty("server.port")).append(System.lineSeparator()));
+        whatsUpProbes.printHostPortVersionGitBanner(stringBuilder -> stringBuilder.append("      using db: ").append(whatsUpProbes.getEnvironmentPropertyPrintable("server.port")).append(System.lineSeparator()));
 
     }
 }

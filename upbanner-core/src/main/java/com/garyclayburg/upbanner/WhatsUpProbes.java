@@ -121,7 +121,7 @@ public class WhatsUpProbes {
         String name = getAppName();
 
         String version = getEnvironmentProperty("info.app.version");
-        if (version == null || version.equals("")) {
+        if (version == null) {
             version = buildProperties.getVersion();
             if (version == null) {
                 version = getEnvironmentProperty("git.build.version");
@@ -267,14 +267,34 @@ public class WhatsUpProbes {
     /**
      *
      * @param key the name of the Spring property key, e.g. "server.port" or "spring.application.name"
-     * @return a String value from the Spring environment or null if it does not exist or "" if the value is corrupt
+     * @return a String value from the Spring {@link Environment} or "" if the key does not exist or the value is corrupt
+     * @see #getEnvironmentProperty(String)
+     */
+    public String getEnvironmentPropertyPrintable(String key) {
+        String value = "";
+        try {
+            value = environment.getProperty(key);
+            if (value == null) {
+                value = "";
+            }
+        } catch (IllegalArgumentException ignored) { //i.e. it may need to be filtered first through build.gradle
+        }
+        return value;
+    }
+
+    /**
+     *
+     * @param key the name of the Spring property key, e.g. "server.port" or "spring.application.name"
+     * @return a String value from the Spring {@link Environment} or null if the key does not exist
+     * @see #getEnvironmentPropertyPrintable(String)
      */
     public String getEnvironmentProperty(String key) {
+        String value = null;
         try {
-            return environment.getProperty(key);
-        } catch (IllegalArgumentException ignored) { //i.e. it may need to be filtered first through build.gradle
-            return "";
+            value = environment.getProperty(key);
+        } catch (IllegalArgumentException ignored) {
         }
+        return value;
     }
 
     public void dumpAll() {
