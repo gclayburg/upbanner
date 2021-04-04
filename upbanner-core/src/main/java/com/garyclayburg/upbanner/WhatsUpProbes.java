@@ -647,7 +647,7 @@ Main: UpbannerdemoApplication
         }
     }
 
-    public void printHostPortVersionGitBanner() {
+    public void printDefaultBanner() {
         printHostPortVersionGitBanner(stringBuilder -> {});
     }
 

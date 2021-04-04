@@ -54,6 +54,6 @@ public class WhatsUp implements WhatsUpBanner {
 
     @Override
     public void printBanner() {
-        whatsUpProbes.printHostPortVersionGitBanner();
+        whatsUpProbes.printDefaultBanner();
     }
 }
