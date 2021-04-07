@@ -10,7 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {"upbanner.debug=true"})
 class Webwar244ApplicationTests {
@@ -20,6 +22,9 @@ class Webwar244ApplicationTests {
     private static final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private static final PrintStream originalOutputStream = System.out;
     private static boolean capturingOutput = false;
+
+    @Autowired
+    private ApplicationContext context;
 
     @Test
     void contextLoads() {
@@ -48,5 +53,12 @@ class Webwar244ApplicationTests {
         assertTrue(outContent.toString().contains("CustomAppNameHere is UP!"));
         assertTrue(outContent.toString().contains("Host System"));
         assertTrue(outContent.toString().contains("ProcessorID"));
+    }
+
+    @Test
+    void lookupnonexistantBean() {
+        assertNotNull(context);
+//        context.getBeanNamesForType(MongoClient.class);
+//        context.getBeanNamesForType(MongoClient.class);
     }
 }

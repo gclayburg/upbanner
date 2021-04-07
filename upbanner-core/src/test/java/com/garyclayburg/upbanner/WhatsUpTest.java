@@ -30,7 +30,7 @@ public class WhatsUpTest {
 
     @Test
     public void dumpMemory() {
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, null, null, null, null);
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, null, null, null, null,null);
         StringBuilder probeOut = new StringBuilder();
         whatsUpProbes.dumpMemoryLimits(probeOut);
         log.info(probeOut.toString());
@@ -49,7 +49,7 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings(),null);
         StringBuilder probeOut = new StringBuilder();
         whatsUpProbes.dumpBuildProperties(probeOut);
         log.info(probeOut.toString());
@@ -60,7 +60,7 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings(), null);
         whatsUpProbes.dumpAll();
     }
 
@@ -69,7 +69,7 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings(), null);
         assertEquals("MyMain", whatsUpProbes.convertStartClass("com.something.MyMain"));
         assertEquals("MyMain", whatsUpProbes.convertStartClass("something.MyMain"));
         assertEquals("MyMain", whatsUpProbes.convertStartClass("MyMain"));
@@ -82,7 +82,7 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings(),null);
         assertEquals("MyMain",
                 whatsUpProbes.convertSunJavaCommand("com.garyclayburg.upbannerdemo.MyMain --server.port=8881"));
         assertEquals("MyMain",
@@ -102,7 +102,7 @@ public class WhatsUpTest {
         Properties p = new Properties();
         p.setProperty("time", "2020-12-08T00:52:19Z");
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings(),null);
         assertEquals("SynconsoleApp",
                 whatsUpProbes.getMainStart("com.garyclayburg.synconsole.SynconsoleApp"));
     }

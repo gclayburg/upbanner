@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -27,20 +28,22 @@ public class WhatsUpConfig {
     private final BuildProperties buildProperties;
     private final UpbannerSettings upbannerSettings;
     private final JarProbe jarProbe;
+    private ApplicationContext context;
     private OshiProbe oshiProbe;
 
     @Autowired
-    public WhatsUpConfig(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe, JarProbe jarProbe) {
+    public WhatsUpConfig(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe, JarProbe jarProbe, ApplicationContext context) {
         this.environment = environment;
         this.buildProperties = buildProperties;
         this.upbannerSettings = upbannerSettings;
         this.oshiProbe = oshiProbe;
         this.jarProbe = jarProbe;
+        this.context = context;
     }
 
     @Bean
     public WhatsUpProbes whatsUpProbes() {
-        return new WhatsUpProbes(environment, buildProperties, oshiProbe, jarProbe, upbannerSettings);
+        return new WhatsUpProbes(environment, buildProperties, oshiProbe, jarProbe, upbannerSettings, context);
     }
 
     @Bean

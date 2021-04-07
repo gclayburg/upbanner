@@ -37,6 +37,17 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.4.1</version>
+            <!--
+            why this version? well, we need this module to compile
+            MongoUpContributor.java  We assume the api of this version
+            is close enough to the provided version at runtime.
+            -->
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <!-- we want to use JarFile at runtime when it exists -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-loader</artifactId>

@@ -37,7 +37,7 @@ public class UpbannerApplicationTests {
         Properties p = new Properties();
         p.setProperty("time", timespec);
         BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, buildProperties, null, new FileJarDumper(), new UpbannerSettings());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, buildProperties, null, new FileJarDumper(), new UpbannerSettings(),null);
         StringBuilder probeOut = new StringBuilder();
         whatsUpProbes.dumpBuildProperties(probeOut);
         log.info(probeOut.toString());
@@ -45,7 +45,7 @@ public class UpbannerApplicationTests {
 
     @Test
     public void dumpCPU() {
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, null, null, new FileJarDumper(), new UpbannerSettings());
+        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null, null, null, new FileJarDumper(), new UpbannerSettings(),null);
         StringBuilder probeOut = new StringBuilder();
         whatsUpProbes.dumpCPUlimits(probeOut);
         log.info("\n" + probeOut.toString());

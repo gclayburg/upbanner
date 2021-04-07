@@ -10,9 +10,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Properties;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -23,6 +21,7 @@ import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +42,7 @@ public class WhatsUpProbes {
     private final OshiProbe oshiProbe;
     private final JarProbe jarProbe;
     private final UpbannerSettings upbannerSettings;
+    private ApplicationContext context;
     protected Environment environment;
     protected BuildProperties buildProperties;
 
@@ -52,17 +52,20 @@ public class WhatsUpProbes {
     protected int listeningPort;
     private Properties gitProperties;
     private boolean gitPropertiesLoaded;
+    private final List<ExtraLinePrinter> extraLinePrinterList;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    public WhatsUpProbes(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings) {
+    public WhatsUpProbes(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings, ApplicationContext context) {
         this.environment = environment;
         this.buildProperties = buildProperties;
         this.oshiProbe = oshiProbe;
         this.jarProbe = jarProbe;
         this.upbannerSettings = upbannerSettings;
+        this.context = context;
         this.gitProperties = null;
         this.gitPropertiesLoaded = false;
         this.listeningPort = 0;
+        extraLinePrinterList = new ArrayList<>();
     }
 
     protected Properties loadGitProperties() {
@@ -639,15 +642,26 @@ Main: UpbannerdemoApplication
 
     public void printHostPortVersionGitBanner(ExtraLinePrinter extraLinePrinter) {
         if (upbannerSettings.isShowBanner() && isWebAppUp()) {
-            StringBuilder stringBuilder = new StringBuilder("\n----------------------------------------------------------------------------------------------------\n");
-            fillHostPortVersionGitBanner(stringBuilder);
-            extraLinePrinter.call(stringBuilder);
-            stringBuilder.append("----------------------------------------------------------------------------------------------------");
+            StringBuilder stringBuilder = buildBanner(extraLinePrinter);
             log.info(stringBuilder.toString());
         }
     }
 
+    StringBuilder buildBanner(){
+        return buildBanner(extraLinePrinter -> {});
+    }
+
+    StringBuilder buildBanner(ExtraLinePrinter firstExtraLinePrinter) {
+        StringBuilder stringBuilder = new StringBuilder("\n----------------------------------------------------------------------------------------------------\n");
+        fillHostPortVersionGitBanner(stringBuilder);
+        firstExtraLinePrinter.call(stringBuilder);
+        extraLinePrinterList.forEach(extraLinePrinter -> extraLinePrinter.call(stringBuilder));
+        stringBuilder.append("----------------------------------------------------------------------------------------------------");
+        return stringBuilder;
+    }
+
     public void printDefaultBanner() {
+        registerUpContributor(new MongoUpContributor(this,context));
         printHostPortVersionGitBanner(stringBuilder -> {});
     }
 
@@ -753,5 +767,9 @@ Main: UpbannerdemoApplication
 
     public boolean isDebug() {
         return upbannerSettings.isDebug();
+    }
+
+    public void registerUpContributor(ExtraLinePrinter mongoUpContributor) {
+        extraLinePrinterList.add(mongoUpContributor);
     }
 }
