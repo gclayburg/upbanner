@@ -32,12 +32,61 @@ public class MongoUpContributor implements ExtraLinePrinter {
     @Override
     public void call(StringBuilder stringBuilder) {
         showFullDBuri(stringBuilder);
-        if (context != null) {
+    }
+
+    private void showFullDBuri(StringBuilder stringbuilder) {
+        String mongoDBuri = whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.uri");
+        if (mongoDBuri != null) {
+            stringbuilder
+                    .append("    using mongodb uri: ")
+                    .append(maskSecrets(mongoDBuri))
+                    .append(System.lineSeparator());
+        } else if (whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.host") != null ||
+                   whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.port") != null) {
+            // app is using individual properties to configure mongodb connection, instead of
+            // just a single spring.data.mongodb.uri
+            stringbuilder.append("    using mongodb://");
+            if (whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.username") != null) {
+                stringbuilder.append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.username"))
+                        .append(":xxxx")
+                        .append("@");
+            }
+            stringbuilder.append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.host"))
+                    .append(":")
+                    .append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.port"));
+            if (whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.database") != null) {
+                stringbuilder.append("/")
+                        .append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.database"));
+            }
+            stringbuilder.append(System.lineSeparator());
+        } else if (whatsUpProbes.getEnvironmentProperty("local.mongo.port") != null) {
+            // Spring data has determined it is managing an Embedded mongodb - usually for tests
+            String databaseName = "";
+            databaseName = getDatabaseName(databaseName);
+            stringbuilder.append("    using embedded mongodb://localhost:")
+                    .append(whatsUpProbes.getEnvironmentPropertyPrintable("local.mongo.port"))
+                    .append("/").append(databaseName)
+                    .append(System.lineSeparator());
+        } else if (context != null) {
+            //lets check to see if the app has created its own MongoClient - i.e. Fongo testing
+            //
             //allow for context to be null when running some unit tests
             //todo refactor out some of the concerns in WhatsUpProbes, i.e. areas that need a context
             //     and those that do not
-            probeMongoClient(stringBuilder);
+            probeMongoClient(stringbuilder);
         }
+    }
+
+    private String getDatabaseName(String databaseName) {
+        try {
+            String[] beanNamesForType = context.getBeanNamesForType(MongoProperties.class);
+            if (beanNamesForType.length > 0) {
+                MongoProperties mongoProperties = context.getBean(MongoProperties.class);
+                databaseName = mongoProperties.getMongoClientDatabase();
+            }
+        } catch (BeansException ignored) {
+        }
+        return databaseName;
     }
 
     private void probeMongoClient(StringBuilder stringBuilder) {
@@ -53,7 +102,7 @@ public class MongoUpContributor implements ExtraLinePrinter {
         }
     }
 
-    static void createMongoClientLine(StringBuilder stringBuilder, MongoClient mongoClient) {
+    void createMongoClientLine(StringBuilder stringBuilder, MongoClient mongoClient) {
         ServerAddress mongoClientAddress = mongoClient.getAddress();
         String username = "";
         if (mongoClientAddress != null) {
@@ -65,58 +114,8 @@ public class MongoUpContributor implements ExtraLinePrinter {
                     .append(username)
                     .append(mongoClientAddress.getHost())
                     .append(":").append(mongoClientAddress.getPort())
-                    .append("/").append("somedb");
+                    .append("/").append(getDatabaseName(""));
         }
-    }
-
-    private void showFullDBuri(StringBuilder stringbuilder) {
-        String mongoDBuri = whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.uri");
-        if (mongoDBuri != null) {
-            stringbuilder
-                    .append("    using mongodb uri: ")
-                    .append(maskSecrets(mongoDBuri))
-                    .append(System.lineSeparator());
-        } else {
-            if (whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.host") != null ||
-                whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.port") != null) {
-                // app is using individual properties to configure mongodb connection, instead of
-                // just a single spring.data.mongodb.uri
-                stringbuilder.append("    using mongodb://");
-                if (whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.username") != null) {
-                    stringbuilder.append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.username"))
-                            .append("@");
-                }
-                stringbuilder.append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.host"))
-                        .append(":")
-                        .append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.port"));
-                if (whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.database") != null) {
-                    stringbuilder.append("/")
-                            .append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.database"));
-                }
-                stringbuilder.append(" (inferred from properties)").append(System.lineSeparator());
-            } else {
-                String databaseName = "";
-                databaseName = getDatabaseName(databaseName);
-                if (whatsUpProbes.getEnvironmentProperty("local.mongo.port") != null) {
-                    stringbuilder.append("    using embedded mongodb://localhost:")
-                            .append(whatsUpProbes.getEnvironmentPropertyPrintable("local.mongo.port"))
-                            .append("/").append(databaseName)
-                            .append(System.lineSeparator());
-                }
-            }
-        }
-    }
-
-    private String getDatabaseName(String databaseName) {
-        try {
-            String[] beanNamesForType = context.getBeanNamesForType(MongoProperties.class);
-            if (beanNamesForType.length > 0) {
-                MongoProperties mongoProperties = context.getBean(MongoProperties.class);
-                databaseName = mongoProperties.getMongoClientDatabase();
-            }
-        } catch (BeansException ignored) {
-        }
-        return databaseName;
     }
 
     static String maskSecrets(String environmentProperty) {
