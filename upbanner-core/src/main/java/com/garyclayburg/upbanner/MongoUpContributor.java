@@ -38,14 +38,14 @@ public class MongoUpContributor implements ExtraLinePrinter {
         String mongoDBuri = whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.uri");
         if (mongoDBuri != null) {
             stringbuilder
-                    .append("    using mongodb uri: ")
+                    .append("      using mongodb uri: ")
                     .append(maskSecrets(mongoDBuri))
                     .append(System.lineSeparator());
         } else if (whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.host") != null ||
                    whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.port") != null) {
             // app is using individual properties to configure mongodb connection, instead of
             // just a single spring.data.mongodb.uri
-            stringbuilder.append("    using mongodb://");
+            stringbuilder.append("      using mongodb://");
             if (whatsUpProbes.getEnvironmentProperty("spring.data.mongodb.username") != null) {
                 stringbuilder.append(whatsUpProbes.getEnvironmentPropertyPrintable("spring.data.mongodb.username"))
                         .append(":xxxx")
@@ -63,18 +63,23 @@ public class MongoUpContributor implements ExtraLinePrinter {
             // Spring data has determined it is managing an Embedded mongodb - usually for tests
             String databaseName = "";
             databaseName = getDatabaseName(databaseName);
-            stringbuilder.append("    using embedded mongodb://localhost:")
+            stringbuilder.append("      using embedded mongodb://localhost:")
                     .append(whatsUpProbes.getEnvironmentPropertyPrintable("local.mongo.port"))
                     .append("/").append(databaseName)
                     .append(System.lineSeparator());
         } else if (context != null) {
-            //lets check to see if the app has created its own MongoClient - i.e. Fongo testing
+            //lets check to see if the app has created its own MongoClient - i.e. testing
             //
             //allow for context to be null when running some unit tests
             //todo refactor out some of the concerns in WhatsUpProbes, i.e. areas that need a context
             //     and those that do not
             probeMongoClient(stringbuilder);
         }
+        /*
+        todo these probes don't account for an app that creates a custom  com.mongodb.client.MongoClient Bean,
+        i.e. version 3.7 and higher of Mongo Java Driver.  Create another UpContributor for this case?
+         */
+
     }
 
     private String getDatabaseName(String databaseName) {
@@ -110,11 +115,12 @@ public class MongoUpContributor implements ExtraLinePrinter {
             if (credentialsList.size() > 0) {
                 username = credentialsList.get(0).getUserName() + ":xxxx@";
             }
-            stringBuilder.append("    uses MongoClient: mongodb://")
+            stringBuilder.append("      using MongoClient: mongodb://")
                     .append(username)
                     .append(mongoClientAddress.getHost())
                     .append(":").append(mongoClientAddress.getPort())
-                    .append("/").append(getDatabaseName(""));
+                    .append("/").append(getDatabaseName(""))
+                    .append(System.lineSeparator());
         }
     }
 
