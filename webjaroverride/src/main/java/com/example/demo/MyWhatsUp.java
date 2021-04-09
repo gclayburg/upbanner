@@ -2,12 +2,15 @@ package com.example.demo;
 
 import javax.annotation.PostConstruct;
 
+import java.util.Arrays;
+
 import com.garyclayburg.upbanner.MongoUpContributor;
 import com.garyclayburg.upbanner.WhatsUpBanner;
 import com.garyclayburg.upbanner.WhatsUpProbes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,10 +26,12 @@ public class MyWhatsUp implements WhatsUpBanner {
     private static final Logger log = LoggerFactory.getLogger(MyWhatsUp.class);
     private final WhatsUpProbes whatsUpProbes;
     private ApplicationContext context;
+    private Environment environment;
 
-    public MyWhatsUp(WhatsUpProbes whatsUpProbes, ApplicationContext context) {
+    public MyWhatsUp(WhatsUpProbes whatsUpProbes, ApplicationContext context, Environment environment) {
         this.whatsUpProbes = whatsUpProbes;
         this.context = context;
+        this.environment = environment;
     }
 
     @PostConstruct
@@ -39,17 +44,23 @@ public class MyWhatsUp implements WhatsUpBanner {
 
     @Override
     public void printBanner() {
+        //compact banner
         if (whatsUpProbes.isShowBanner()) {
-
             String gitCommitId = whatsUpProbes.getGitProperty("git.commit.id");
             log.info("\n\n    {} is UP at {} " +
                      (whatsUpProbes.isDocker() ? " in docker" : "") +
                      (gitCommitId != null ? " git: " + gitCommitId : ""),
                     whatsUpProbes.getAppNameVersion(), whatsUpProbes.getExternalURL());
         }
-        whatsUpProbes.registerUpContributor(new MongoUpContributor(whatsUpProbes, context));
-
-        whatsUpProbes.printHostPortVersionGitBanner(stringBuilder -> stringBuilder.append("      using server port: ").append(whatsUpProbes.getEnvironmentPropertyPrintable("server.port")).append(System.lineSeparator()));
+        //2nd banner, with additions
+        whatsUpProbes.registerUpContributor(stringBuilder -> {
+            stringBuilder.append("      using server port: ")
+                    .append(whatsUpProbes.getEnvironmentPropertyPrintable("server.port"))
+                    .append(System.lineSeparator());
+            stringBuilder.append("      profile: ").append(Arrays.toString(environment.getActiveProfiles()))
+                    .append(System.lineSeparator());
+        });
+        whatsUpProbes.printDefaultBanner();
 
     }
 }

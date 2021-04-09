@@ -50,7 +50,7 @@ public class MongoClientSyncUpContributor implements ExtraLinePrinter {
             // The default case of using a spring boot app with spring data mongodb which includes
             // a recent Mongo driver will arrive here.  Spring will create a default, unsecured
             // MongoClient.  This case allows us to print to the console where this client is pointing to
-            stringBuilder.append("      using MongoClient mongodb://")
+            stringBuilder.append("      Using MongoClient mongodb://")
                     .append(serverDescription.getAddress().getHost())
                     .append(":")
                     .append(serverDescription.getAddress().getPort())

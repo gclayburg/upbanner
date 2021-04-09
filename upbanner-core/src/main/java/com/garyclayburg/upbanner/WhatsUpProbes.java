@@ -72,8 +72,8 @@ public class WhatsUpProbes {
         if (!this.gitPropertiesLoaded) {
             this.gitPropertiesLoaded = true;
             this.gitProperties = new Properties();
-            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            InputStream resourceAsStream = contextClassLoader.getResourceAsStream("git.properties");
+            ClassLoader classLoader = this.getClass().getClassLoader();
+            InputStream resourceAsStream = classLoader.getResourceAsStream("git.properties");
             if (resourceAsStream != null) {
                 try {
                     gitProperties.load(resourceAsStream);
@@ -662,6 +662,13 @@ Main: UpbannerdemoApplication
 
     public void printDefaultBanner() {
         registerUpContributor(new MongoUpContributor(this,context));
+        registerUpContributor(stringBuilder -> stringBuilder.append("      Running on JVM: ")
+                .append(getEnvironmentPropertyPrintable("java.vm.vendor"))
+                .append(" ")
+                .append(getEnvironmentPropertyPrintable("java.vm.name"))
+                .append(" ")
+                .append(getEnvironmentPropertyPrintable("java.version"))
+                .append(System.lineSeparator()));
         printHostPortVersionGitBanner(stringBuilder -> {});
     }
 
