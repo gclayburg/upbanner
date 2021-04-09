@@ -76,11 +76,6 @@ public class MongoUpContributor implements ExtraLinePrinter {
             probeMongoClient(stringbuilder);
             probeSyncMongoClient(stringbuilder);
         }
-        /*
-        todo these probes don't account for an app that creates a custom  com.mongodb.client.MongoClient Bean,
-        i.e. version 3.7 and higher of Mongo Java Driver.  Create another UpContributor for this case?
-         */
-
     }
 
     private void probeSyncMongoClient(StringBuilder stringbuilder) {
