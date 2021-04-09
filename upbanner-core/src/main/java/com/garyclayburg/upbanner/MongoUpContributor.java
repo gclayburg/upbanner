@@ -74,12 +74,23 @@ public class MongoUpContributor implements ExtraLinePrinter {
             //todo refactor out some of the concerns in WhatsUpProbes, i.e. areas that need a context
             //     and those that do not
             probeMongoClient(stringbuilder);
+            probeSyncMongoClient(stringbuilder);
         }
         /*
         todo these probes don't account for an app that creates a custom  com.mongodb.client.MongoClient Bean,
         i.e. version 3.7 and higher of Mongo Java Driver.  Create another UpContributor for this case?
          */
 
+    }
+
+    private void probeSyncMongoClient(StringBuilder stringbuilder) {
+        try {
+            Object mongoClientSyncUpContributor = context.getBean("mongoClientSyncUpContributor");
+            ExtraLinePrinter linePrinter = (ExtraLinePrinter) mongoClientSyncUpContributor;
+            linePrinter.call(stringbuilder);
+        } catch (BeansException ignored) {
+            //app is not using a recent mongo java driver client
+        }
     }
 
     private String getDatabaseName(String databaseName) {
@@ -96,7 +107,7 @@ public class MongoUpContributor implements ExtraLinePrinter {
 
     private void probeMongoClient(StringBuilder stringBuilder) {
         try {
-            Class mongoClientExists = this.getClass().getClassLoader().loadClass("com.mongodb.MongoClient");
+            this.getClass().getClassLoader().loadClass("com.mongodb.MongoClient");
             String[] beanNamesForType = context.getBeanNamesForType(MongoClient.class);
             if (beanNamesForType.length > 0) {
                 MongoClient mongoClient = context.getBean(MongoClient.class);

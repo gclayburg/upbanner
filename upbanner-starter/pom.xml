@@ -43,6 +43,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.2.3</version>
+            <!--
+            why this version? well, we need this module to compile
+            MongoClientSyncUpContributor.java  We assume the api of this version
+            is close enough to the provided version at runtime.
+            -->
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.garyclayburg</groupId>
             <artifactId>upbanner-core</artifactId>
             <version>${banner.version}</version>
