@@ -57,9 +57,14 @@ public class FullOshiProbe extends OshiProbe {
 
             printProcesses(operatingSystem, globalMemory,probeOut);
         } catch (NoClassDefFoundError e) {
-            log.warn("Cannot completely probe underlying hardware/OS using OSHI.  \n" +
-                     "JNA dependency conflict? \n" +
-                     "See OSHI documentation to add additional dependencies for this platform: "+ e.getMessage());
+            probeOut.append(System.lineSeparator())
+                    .append("WARN - Cannot completely probe underlying hardware/OS using OSHI.  ")
+                    .append("     NoClassDefFoundError: ").append(e.getMessage())
+                    .append("     JNA dependency conflict?")
+                    .append("     See OSHI documentation to fix dependencies for this application/platform: ")
+                    .append(System.lineSeparator())
+                    .append(System.lineSeparator()
+                    );
         }
 /*
         requires native library to run
@@ -118,17 +123,11 @@ public class FullOshiProbe extends OshiProbe {
         probeOut.append("Uptime: ").append(FormatUtil.formatElapsedSecs(os.getSystemUptime())).append(System.lineSeparator());
         probeOut.append("Running with").append(os.isElevated() ? "" : "out").append(" elevated permissions.").append(System.lineSeparator());
 
-        try {
-            if (os.getSessions().size() > 0) {
-                probeOut.append("  Sessions").append(System.lineSeparator());
-                for (OSSession s : os.getSessions()) {
-                    probeOut.append(s.toString()).append(System.lineSeparator());
-                }
+        if (os.getSessions().size() > 0) {
+            probeOut.append("  Sessions").append(System.lineSeparator());
+            for (OSSession s : os.getSessions()) {
+                probeOut.append(s.toString()).append(System.lineSeparator());
             }
-        } catch (NoClassDefFoundError e) {
-            // Sessions need JNA artifacts
-            // java.lang.NoClassDefFoundError: com/sun/jna/platform/linux/LibC
-            log.warn("NoClassDefFoundError: " + e.getMessage() + "  see oshi-core documentation");
         }
     }
 }
