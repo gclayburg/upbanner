@@ -58,9 +58,13 @@ public class FullOshiProbe extends OshiProbe {
             printProcesses(operatingSystem, globalMemory,probeOut);
         } catch (NoClassDefFoundError e) {
             probeOut.append(System.lineSeparator())
+                    .append(System.lineSeparator())
                     .append("WARN - Cannot completely probe underlying hardware/OS using OSHI.  ")
+                    .append(System.lineSeparator())
                     .append("     NoClassDefFoundError: ").append(e.getMessage())
+                    .append(System.lineSeparator())
                     .append("     JNA dependency conflict?")
+                    .append(System.lineSeparator())
                     .append("     See OSHI documentation to fix dependencies for this application/platform: ")
                     .append(System.lineSeparator())
                     .append(System.lineSeparator()
