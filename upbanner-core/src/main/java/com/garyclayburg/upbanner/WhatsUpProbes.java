@@ -87,6 +87,10 @@ public class WhatsUpProbes {
         return gitProperties;
     }
 
+    /**
+     *
+     * @return "http" if the web app can be access using http, or "https" if the app has been configured to use https protocol
+     */
     public String getProtocol() {
         String retval = "http";
         String secure = getEnvironmentProperty("security.require-ssl");
@@ -184,7 +188,7 @@ public class WhatsUpProbes {
         return name;
     }
 
-    public String getMain(String name) {
+    String getMain(String name) {
         String javaCommand = System.getProperty("sun.java.command");
         if (javaCommand != null) {
             name = getMainStart(javaCommand);
@@ -192,7 +196,7 @@ public class WhatsUpProbes {
         return name;
     }
 
-    public String getMainStart(String javaCommand) {
+    String getMainStart(String javaCommand) {
         String name = "Application";
         String mainName = convertSunJavaCommand(javaCommand);
         if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher")) {
@@ -641,15 +645,31 @@ Main: UpbannerdemoApplication
         this.listeningPort = listeningPort;
     }
 
+    /**
+     *
+     * @return the number of the TCP port the app is listening to, or 0 if the app is not (yet) listening on any port
+     */
     public int getListeningPort() {
         return listeningPort;
     }
 
     /**
      * prints the default up banner to the logging system.  Normally, this is configured
-     * via logback or similar to print the banner to the console.  Some banner examples:
-     *
+     * via logback or similar to print the banner to the console.
+     * <br>Some banner examples:
+     * <br><br>
      * This is a very basic app without a version number:
+     * <pre>
+     * ----------------------------------------------------------------------------------------------------
+     *     WebJar244Application is UP!
+     *     Local:      http://localhost:8080
+     *     External:   http://127.0.1.1:8080
+     *     Host:       http://gary-XPS-13-9360:8080
+     *       Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
+     * ----------------------------------------------------------------------------------------------------
+     * </pre>
+     *
+     * This is another basic app that is also configured to use Spring Data MongoDB
      * <pre>
      * ----------------------------------------------------------------------------------------------------
      *     Mongo244Application is UP!
@@ -669,7 +689,40 @@ Main: UpbannerdemoApplication
      *     External:   http://127.0.1.1:8050             git.commit.id:     3f429cf1cd933897ce1cb3ed6179df371e3ac36b
      *     Host:       http://gary-XPS-13-9360:8050      git.remote.origin: ssh://git@scranton2:2233/home/git/scimedit1.git
      *       Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
-     *       using mongodb uri: mongodb://localhost:27017
+     *       Using mongodb uri: mongodb://localhost:27017
+     * ----------------------------------------------------------------------------------------------------
+     *</pre>
+     * This one is from an app that uses https.  There is no version number since the app is running in an IDE.
+     * <pre>
+     * ----------------------------------------------------------------------------------------------------
+     *     memuser is UP!
+     *     Local:      https://localhost:8443
+     *     External:   https://127.0.1.1:8443
+     *     Host:       https://gary-XPS-13-9360:8443
+     *       Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
+     *       Using mongodb uri: mongodb://patonsynconsoleuser:xxxx@yale.garyclayburg.com:27017/patonsynconsoledb
+     * ----------------------------------------------------------------------------------------------------
+     * </pre>
+     * This one is from running the same app as a spring boot jar file.   but without https support:
+     * <pre>
+     * ----------------------------------------------------------------------------------------------------
+     *     memuser:0.8.1-SNAPSHOT is UP!                 git.commit.time:   2021-03-01T16:44-0700
+     *     Local:      http://localhost:8080             git.build.version: 0.8.1-SNAPSHOT
+     *     External:   http://127.0.1.1:8080             git.commit.id:     5c37e87b9808b38aacf61ea3213df08c30208650
+     *     Host:       http://gary-XPS-13-9360:8080      git.remote.origin: ssh://git@scranton2:2233/home/git/memuser.git
+     *       Running on JVM: Azul Systems, Inc. OpenJDK 64-Bit Server VM 1.8.0_282
+     *       Using mongodb uri: mongodb://patonsynconsoleuser:xxxx@yale.garyclayburg.com:27017/patonsynconsoledb
+     * ----------------------------------------------------------------------------------------------------
+     * </pre>
+     * The same app again, but this time running within a Docker container:
+     * <pre>
+     * ----------------------------------------------------------------------------------------------------
+     *     memuser:0.8.1-SNAPSHOT is UP!                 git.commit.time:   2021-03-01T16:44-0700
+     *     Local:      http://localhost:8080             git.build.version: 0.8.1-SNAPSHOT
+     *     External:   http://172.17.0.2:8080            git.commit.id:     5c37e87b9808b38aacf61ea3213df08c30208650
+     *     Docker:     http://53a3672a80a5:8080          git.remote.origin: ssh://git@scranton2:2233/home/git/memuser.git
+     *       Running on JVM: Oracle Corporation OpenJDK 64-Bit Server VM 1.8.0_151
+     *       Using mongodb uri: mongodb://patonsynconsoleuser:xxxx@yale.garyclayburg.com:27017/patonsynconsoledb
      * ----------------------------------------------------------------------------------------------------
      * </pre>
      */
@@ -766,13 +819,18 @@ Main: UpbannerdemoApplication
     }
 
     /**
-     * This generates a URL of the web app running on localhost.  It determines if the
-     * app is using http or https, the IP address of localhost, and the port number
-     * used by the running application
-     * <br><br>On some systems, such as debian or ubuntu, this URL generated might also be
+     * This generates a URL of the web app running on localhost.  When doing so,
+     * it considers:
+     * <ul>
+     *     <li>if the app is using http or https</li>
+     *     <li>the IP address of localhost</li>
+     *     <li>the port number</li>
+     * </ul>
+     * On some systems, such as debian or ubuntu, this URL generated might also be
      * usable on the host outside of a docker container without needing to explicitly map
      * the TCP ports when launching the docker container.
-     * @return A URL to be used in a browser to access the web app from any host on the network
+     * @return A URL to be used in a browser to access the web app from any host on the
+     * network
      */
     public String getExternalURL() {
         String hostAddress = "unknownHost";

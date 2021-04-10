@@ -26,36 +26,42 @@ public class FullOshiProbe extends OshiProbe {
     @Override
     public void createReport(StringBuilder probeOut) {
         log.debug("OSHI probing environment");
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        CentralProcessor cpu = hal.getProcessor();
-        int physicalProcessorCount = cpu.getPhysicalProcessorCount();
+        try {
+            SystemInfo si = new SystemInfo();
+            HardwareAbstractionLayer hal = si.getHardware();
+            CentralProcessor cpu = hal.getProcessor();
+            int physicalProcessorCount = cpu.getPhysicalProcessorCount();
 
-        OperatingSystem operatingSystem = si.getOperatingSystem();
-        probeOut.append("  Host System").append(System.lineSeparator());
-        ComputerSystem computerSystem = hal.getComputerSystem();
-        printComputerSystem(computerSystem, probeOut);
-        probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("  CPU").append(System.lineSeparator());
-        probeOut.append("physical cpu core count: ").append(physicalProcessorCount).append(System.lineSeparator());
-        probeOut.append("logical cpu count: ").append(cpu.getLogicalProcessorCount()).append(System.lineSeparator());
-        probeOut.append("model: ").append(hal.getComputerSystem().getModel()).append(System.lineSeparator());
-        probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("  Processor").append(System.lineSeparator());
-        probeOut.append(hal.getProcessor().toString()).append(System.lineSeparator());
-        probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("  Memory").append(System.lineSeparator());
-        GlobalMemory globalMemory = hal.getMemory();
-        printMemory(globalMemory, probeOut);
-        probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("  VM or container probe").append(System.lineSeparator());
-        probeOut.append("name: ").append(DetectVM.identifyVM()).append(System.lineSeparator());
-        probeOut.append("=============").append(System.lineSeparator());
-        probeOut.append("  Operating System").append(System.lineSeparator());
-        printOperatingSystem(operatingSystem, probeOut);
-        /*
-        printProcesses(operatingSystem, globalMemory,probeOut);
+            OperatingSystem operatingSystem = si.getOperatingSystem();
+            probeOut.append("  Host System").append(System.lineSeparator());
+            ComputerSystem computerSystem = hal.getComputerSystem();
+            printComputerSystem(computerSystem, probeOut);
+            probeOut.append("=============").append(System.lineSeparator());
+            probeOut.append("  CPU").append(System.lineSeparator());
+            probeOut.append("physical cpu core count: ").append(physicalProcessorCount).append(System.lineSeparator());
+            probeOut.append("logical cpu count: ").append(cpu.getLogicalProcessorCount()).append(System.lineSeparator());
+            probeOut.append("model: ").append(hal.getComputerSystem().getModel()).append(System.lineSeparator());
+            probeOut.append("=============").append(System.lineSeparator());
+            probeOut.append("  Processor").append(System.lineSeparator());
+            probeOut.append(hal.getProcessor().toString()).append(System.lineSeparator());
+            probeOut.append("=============").append(System.lineSeparator());
+            probeOut.append("  Memory").append(System.lineSeparator());
+            GlobalMemory globalMemory = hal.getMemory();
+            printMemory(globalMemory, probeOut);
+            probeOut.append("=============").append(System.lineSeparator());
+            probeOut.append("  VM or container probe").append(System.lineSeparator());
+            probeOut.append("name: ").append(DetectVM.identifyVM()).append(System.lineSeparator());
+            probeOut.append("=============").append(System.lineSeparator());
+            probeOut.append("  Operating System").append(System.lineSeparator());
+            printOperatingSystem(operatingSystem, probeOut);
 
+            printProcesses(operatingSystem, globalMemory,probeOut);
+        } catch (NoClassDefFoundError e) {
+            log.warn("Cannot completely probe underlying hardware/OS using OSHI.  \n" +
+                     "JNA dependency conflict? \n" +
+                     "See OSHI documentation to add additional dependencies for this platform: "+ e.getMessage());
+        }
+/*
         requires native library to run
         NoClassDefFoundError: com/sun/jna/platform/linux/LibC  see oshi-core documentation
          */
@@ -67,9 +73,16 @@ public class FullOshiProbe extends OshiProbe {
         log.info("parsing " + pid);
         OSProcess myProc = os.getProcess(Integer.parseInt(pid));
         // current process will never be null. Other code should check for null here
-        probeOut.append(
-                "My PID: " + myProc.getProcessID() + " with affinity " + Long.toBinaryString(myProc.getAffinityMask())).append(System.lineSeparator());
-        probeOut.append("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount()).append(System.lineSeparator());
+        probeOut.append("My PID: ")
+                .append(myProc.getProcessID())
+                .append(" with affinity ")
+                .append(Long.toBinaryString(myProc.getAffinityMask()))
+                .append(System.lineSeparator());
+        probeOut.append("Processes: ")
+                .append(os.getProcessCount())
+                .append(", Threads: ")
+                .append(os.getThreadCount())
+                .append(System.lineSeparator());
         // Sort by highest CPU
         List<OSProcess> procs = os.getProcesses(5, OperatingSystem.ProcessSort.CPU);
         probeOut.append("   PID  %CPU %MEM       VSZ       RSS Name").append(System.lineSeparator());
