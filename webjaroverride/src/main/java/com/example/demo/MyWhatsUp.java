@@ -25,12 +25,10 @@ public class MyWhatsUp implements WhatsUpBanner {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(MyWhatsUp.class);
     private final WhatsUpProbes whatsUpProbes;
-    private ApplicationContext context;
     private Environment environment;
 
-    public MyWhatsUp(WhatsUpProbes whatsUpProbes, ApplicationContext context, Environment environment) {
+    public MyWhatsUp(WhatsUpProbes whatsUpProbes, Environment environment) {
         this.whatsUpProbes = whatsUpProbes;
-        this.context = context;
         this.environment = environment;
     }
 
@@ -52,7 +50,7 @@ public class MyWhatsUp implements WhatsUpBanner {
                      (gitCommitId != null ? " git: " + gitCommitId : ""),
                     whatsUpProbes.getAppNameVersion(), whatsUpProbes.getExternalURL());
         }
-        //2nd banner, with additions
+        //print the default banner 2 with additional lines
         whatsUpProbes.registerUpContributor(stringBuilder -> {
             stringBuilder.append("      using server port: ")
                     .append(whatsUpProbes.getEnvironmentPropertyPrintable("server.port"))
@@ -61,6 +59,7 @@ public class MyWhatsUp implements WhatsUpBanner {
                     .append(System.lineSeparator());
         });
         whatsUpProbes.printDefaultBanner();
-
+        whatsUpProbes.getGitProperty(null);
+        whatsUpProbes.getBuildProperty(null);
     }
 }

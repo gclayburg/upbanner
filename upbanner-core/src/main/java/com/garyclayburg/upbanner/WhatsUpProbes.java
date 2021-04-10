@@ -518,7 +518,7 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
      * @param key name of key that holds a time value in milliseconds
      * @return Instant
      */
-    public Instant getInstant(String key) {
+    Instant getInstant(String key) {
         String time = buildProperties.get(key);
         if (time != null) {
             try {
@@ -624,20 +624,65 @@ Main: UpbannerdemoApplication
          */
     }
 
-    public void setApplicationName(String applicationName) {
+    void setApplicationName(String applicationName) {
         this.applicationName = convertStartClass(applicationName);
     }
 
+    /**
+     *
+     * @return The name of the running spring boot application.  Normally this is the name of the class passed
+     * to {@link org.springframework.boot.SpringApplication}
+     */
     public String getApplicationName() {
         return applicationName;
     }
 
-    public void setListeningPort(int listeningPort) {
+    void setListeningPort(int listeningPort) {
         this.listeningPort = listeningPort;
     }
 
     public int getListeningPort() {
         return listeningPort;
+    }
+
+    /**
+     * prints the default up banner to the logging system.  Normally, this is configured
+     * via logback or similar to print the banner to the console.  Some banner examples:
+     *
+     * This is a very basic app without a version number:
+     * <pre>
+     * ----------------------------------------------------------------------------------------------------
+     *     Mongo244Application is UP!
+     *     Local:      http://localhost:7349
+     *     External:   http://127.0.1.1:7349
+     *     Host:       http://gary-XPS-13-9360:7349
+     *       Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
+     *       Using MongoClient mongodb://localhost:27017/test
+     * ----------------------------------------------------------------------------------------------------
+     * </pre>
+     *
+     * This one includes git information, a custom mongo uri and a version number
+     * <pre>
+     * ----------------------------------------------------------------------------------------------------
+     *     scimedit1:0.0.1-SNAPSHOT is UP!               git.commit.time:   2020-01-28T10:32:29-0700
+     *     Local:      http://localhost:8050             git.build.version: 0.0.1-SNAPSHOT
+     *     External:   http://127.0.1.1:8050             git.commit.id:     3f429cf1cd933897ce1cb3ed6179df371e3ac36b
+     *     Host:       http://gary-XPS-13-9360:8050      git.remote.origin: ssh://git@scranton2:2233/home/git/scimedit1.git
+     *       Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
+     *       using mongodb uri: mongodb://localhost:27017
+     * ----------------------------------------------------------------------------------------------------
+     * </pre>
+     */
+    public void printDefaultBanner() {
+        extraLinePrinterList.add(0, new MongoUpContributor(this, context));
+        extraLinePrinterList.add(0,stringBuilder -> stringBuilder.append("      Running on JVM: ")
+                .append(getEnvironmentPropertyPrintable("java.vm.vendor"))
+                .append(" ")
+                .append(getEnvironmentPropertyPrintable("java.vm.name"))
+                .append(" ")
+                .append(getEnvironmentPropertyPrintable("java.version"))
+                .append(System.lineSeparator()));
+        printHostPortVersionGitBanner(stringBuilder -> {});
     }
 
     public void printHostPortVersionGitBanner(ExtraLinePrinter extraLinePrinter) {
@@ -651,25 +696,13 @@ Main: UpbannerdemoApplication
         return buildBanner(extraLinePrinter -> {});
     }
 
-    StringBuilder buildBanner(ExtraLinePrinter firstExtraLinePrinter) {
+    StringBuilder buildBanner(ExtraLinePrinter lastExtraLinePrinter) {
         StringBuilder stringBuilder = new StringBuilder("\n----------------------------------------------------------------------------------------------------\n");
         fillHostPortVersionGitBanner(stringBuilder);
-        firstExtraLinePrinter.call(stringBuilder);
         extraLinePrinterList.forEach(extraLinePrinter -> extraLinePrinter.call(stringBuilder));
+        lastExtraLinePrinter.call(stringBuilder);
         stringBuilder.append("----------------------------------------------------------------------------------------------------");
         return stringBuilder;
-    }
-
-    public void printDefaultBanner() {
-        registerUpContributor(new MongoUpContributor(this,context));
-        registerUpContributor(stringBuilder -> stringBuilder.append("      Running on JVM: ")
-                .append(getEnvironmentPropertyPrintable("java.vm.vendor"))
-                .append(" ")
-                .append(getEnvironmentPropertyPrintable("java.vm.name"))
-                .append(" ")
-                .append(getEnvironmentPropertyPrintable("java.version"))
-                .append(System.lineSeparator()));
-        printHostPortVersionGitBanner(stringBuilder -> {});
     }
 
     private void fillHostPortVersionGitBanner(StringBuilder banner) {
@@ -724,10 +757,23 @@ Main: UpbannerdemoApplication
         }
     }
 
+    /**
+     *
+     * @return true, if we are running as a web app AND the lifecycle of the app has reached the point where it is listening on a TCP port
+     */
     public boolean isWebAppUp() {
         return listeningPort != 0;
     }
 
+    /**
+     * This generates a URL of the web app running on localhost.  It determines if the
+     * app is using http or https, the IP address of localhost, and the port number
+     * used by the running application
+     * <br><br>On some systems, such as debian or ubuntu, this URL generated might also be
+     * usable on the host outside of a docker container without needing to explicitly map
+     * the TCP ports when launching the docker container.
+     * @return A URL to be used in a browser to access the web app from any host on the network
+     */
     public String getExternalURL() {
         String hostAddress = "unknownHost";
         try {
@@ -737,15 +783,35 @@ Main: UpbannerdemoApplication
         return getProtocol() + "://" + hostAddress + ":" + listeningPort;
     }
 
+    /**
+     * Returns values from the git.properties file found in the classpath
+     * @param gitPropertyName the name of the property contained in git.properties file
+     * @return The value, or null if the key does not exist
+     */
     public String getGitProperty(String gitPropertyName) {
+        if (gitPropertyName == null) {
+            return null;
+        }
         Properties properties = loadGitProperties();
-        return (String) properties.get(gitPropertyName);
+        return properties.getProperty(gitPropertyName);
     }
 
+    /**
+     *
+     * @param name the name of the property in build-info.properties
+     * @return the property value, or null if it does not exist
+     */
     public String getBuildProperty(String name) {
+        if (name == null) {
+            return null;
+        }
         return buildProperties.get(name);
     }
 
+    /**
+     *
+     * @return true if the app is running within a docker container, false otherwise
+     */
     public boolean isDocker() {
         boolean isDocker = false;
         try {
@@ -757,6 +823,10 @@ Main: UpbannerdemoApplication
         return isDocker;
     }
 
+    /**
+     *
+     * @return true if the app is running within a kubernetes environment, false otherwise
+     */
     public boolean isKubernetes() {
         boolean isKubernetes = false;
         try {
@@ -768,15 +838,33 @@ Main: UpbannerdemoApplication
         return isKubernetes;
     }
 
+    /**
+     * This is the value of the external property "upbanner.show-banner"
+     * @return true if the the banner is enabled, false otherwise
+     */
     public boolean isShowBanner() {
         return upbannerSettings.isShowBanner();
     }
 
+    /**
+     * This is the value of the external property "upbanner.debug"
+     * @return true if the debug banner is to be shown, false otherwise
+     */
     public boolean isDebug() {
         return upbannerSettings.isDebug();
     }
 
-    public void registerUpContributor(ExtraLinePrinter mongoUpContributor) {
-        extraLinePrinterList.add(mongoUpContributor);
+    /**
+     * Registers an implementation of {@link ExtraLinePrinter} to print extra
+     * lines as part of the up banner.  e.g.:
+     *<br>
+     * <pre>{@code
+     * whatsUpProbes.registerUpContributor(stringBuilder -> stringBuilder.append("live long and prosper"));
+     * }
+     * </pre>
+     * @param upContributor an implementation of {@link ExtraLinePrinter}
+     */
+    public void registerUpContributor(ExtraLinePrinter upContributor) {
+        extraLinePrinterList.add(upContributor);
     }
 }
