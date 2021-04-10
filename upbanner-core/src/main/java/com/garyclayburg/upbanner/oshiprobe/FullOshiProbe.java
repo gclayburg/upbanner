@@ -68,10 +68,9 @@ public class FullOshiProbe extends OshiProbe {
 
     }
     private static void printProcesses(OperatingSystem os, GlobalMemory memory, StringBuilder probeOut) {
-        String pid = System.getProperty("PID");
-//        OSProcess myProc = os.getProcess(os.getProcessId());
-        log.info("parsing " + pid);
-        OSProcess myProc = os.getProcess(Integer.parseInt(pid));
+//        String pid = System.getProperty("PID");
+//            OSProcess myProc = os.getProcess(Integer.parseInt(pid));
+        OSProcess myProc = os.getProcess(os.getProcessId());
         // current process will never be null. Other code should check for null here
         probeOut.append("My PID: ")
                 .append(myProc.getProcessID())
