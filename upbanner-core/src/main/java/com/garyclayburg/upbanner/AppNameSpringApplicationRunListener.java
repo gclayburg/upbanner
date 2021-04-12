@@ -32,18 +32,22 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
 
     @Override
     public void starting() {
+        log.debug("starting...");
     }
 
     @Override
     public void environmentPrepared(ConfigurableEnvironment environment) {
+        log.debug("environmentPrepared...");
     }
 
     @Override
     public void contextPrepared(ConfigurableApplicationContext context) {
+        log.debug("contextPrepared...");
     }
 
     @Override
     public void contextLoaded(ConfigurableApplicationContext context) {
+        log.debug("contextLoaded...");
     }
 
     public void started(ConfigurableApplicationContext context) {
