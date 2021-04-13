@@ -17,6 +17,7 @@
 
     <logger name="com.example" level="DEBUG"/>
     <logger name="com.garyclayburg.upbanner" level="DEBUG" />
+<!--    <logger name="com.garyclayburg.upbanner" level="INFO" />-->
     <root level="info">
         <appender-ref ref="STDOUT" />
         <!--<appender-ref ref="CONSOLE" />-->

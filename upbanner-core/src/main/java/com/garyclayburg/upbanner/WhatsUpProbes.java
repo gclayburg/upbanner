@@ -654,11 +654,12 @@ Main: UpbannerdemoApplication
     }
 
     /**
-     * prints the default up banner to the logging system.  Normally, this is configured
+     * Print the default up banner to the logging system.  Normally, this is configured
      * via logback or similar to print the banner to the console.
      * <br>Some banner examples:
      * <br><br>
-     * This is a very basic app without a version number:
+     * This is a very basic web application that listens on standard port 8080.  Any of the URLs shown
+     * can be used to access the app:
      * <pre>
      * ----------------------------------------------------------------------------------------------------
      *     WebJar244Application is UP!
@@ -681,7 +682,7 @@ Main: UpbannerdemoApplication
      * ----------------------------------------------------------------------------------------------------
      * </pre>
      *
-     * This one includes git information, a custom mongo uri and a version number
+     * This app creates a git.properties file during the build, uses a custom mongo uri and a version number
      * <pre>
      * ----------------------------------------------------------------------------------------------------
      *     scimedit1:0.0.1-SNAPSHOT is UP!               git.commit.time:   2020-01-28T10:32:29-0700
@@ -703,7 +704,7 @@ Main: UpbannerdemoApplication
      *       Using mongodb uri: mongodb://patonsynconsoleuser:xxxx@yale.garyclayburg.com:27017/patonsynconsoledb
      * ----------------------------------------------------------------------------------------------------
      * </pre>
-     * This one is from running the same app as a spring boot jar file.   but without https support:
+     * This one is from running the same app as a spring boot jar file - but without https:
      * <pre>
      * ----------------------------------------------------------------------------------------------------
      *     memuser:0.8.1-SNAPSHOT is UP!                 git.commit.time:   2021-03-01T16:44-0700
@@ -725,6 +726,13 @@ Main: UpbannerdemoApplication
      *       Using mongodb uri: mongodb://patonsynconsoleuser:xxxx@yale.garyclayburg.com:27017/patonsynconsoledb
      * ----------------------------------------------------------------------------------------------------
      * </pre>
+     * The hostname of the Docker: URL is the hostname of the docker container and will only be accessible to
+     * other containers running on the same network.  The External: URL may be accessible from the host where
+     * this docker container is being run, depending on your OS.  As with any docker container, you will still
+     * need to map this port to a port available on the host if you want to access this application from another
+     * host.  Since upbanner runs as a dependency of your application, it has no visibility of what or any ports
+     * are mapped this way.
+     * @see <a href="https://docs.docker.com/">docker documentation</a>
      */
     public void printDefaultBanner() {
         extraLinePrinterList.add(0, new MongoUpContributor(this, context));

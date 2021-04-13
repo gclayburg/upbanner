@@ -18,22 +18,12 @@ public class UpbannerSettings {
     private static final Logger log = LoggerFactory.getLogger(UpbannerSettings.class);
 
     /**
-    print entire Environment to the console on successful startup
+     * if true, print entire Environment to the console during application startup.
      */
     private boolean debug = false;
     /**
-     * print defined banner on successful startup.
+     * If true, print defined upbanner to console on successful webapp startup.
      *
-     * The default example might look like this:
-     *
-     * <pre>
-     * ----------------------------------------------------------------------------------------------------
-     *     memuser:1.0 is UP!
-     *     Local:     https://localhost:8443
-     *     External:  https://127.0.1.1:8443
-     *     Host:      https://gary-XPS-13-9360:8443
-     * ----------------------------------------------------------------------------------------------------
-     * </pre>
      */
     private boolean showBanner = true;
 
@@ -41,6 +31,11 @@ public class UpbannerSettings {
         return debug;
     }
 
+    /**
+     * If true, print entire Environment to the console during application startup.
+     * @param debug If true, print entire Environment to the console during application startup.
+     * @return UpbannerSettings
+     */
     public UpbannerSettings setDebug(boolean debug) {
         this.debug = debug;
         return this;
@@ -50,6 +45,14 @@ public class UpbannerSettings {
         return showBanner;
     }
 
+    /**
+     * If true, print defined upbanner to console on successful webapp startup.
+     * <br><br>
+     * If the app is not a web app, or the app never reaches the point at startup where it begins
+     * to listen on a port, nothing will be printed.
+     * @param showBanner If true, print defined upbanner to console on successful webapp startup.
+     * @return UpbannerSettings
+     */
     public UpbannerSettings setShowBanner(boolean showBanner) {
         this.showBanner = showBanner;
         return this;
