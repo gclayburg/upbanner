@@ -4,7 +4,7 @@
 
     <groupId>com.garyclayburg</groupId>
     <artifactId>upbanner-core</artifactId>
-    <version>2.2.3-SNAPSHOT</version>
+    <version>2.2.3</version>
     <url>https://github.com/gclayburg/upbanner</url>
     <organization>
         <name>com.garyclayburg</name>
@@ -132,6 +132,6 @@
         </repository>
     </distributionManagement>
     <scm>
-        <tag>HEAD</tag>
+        <tag>whatsupbanner-2.2.3</tag>
     </scm>
 </project>
