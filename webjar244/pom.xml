@@ -44,4 +44,11 @@
             </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <name>Internal tmp repo</name>
+            <url>file://tmp/devnull.repo</url>
+        </repository>
+    </distributionManagement>
 </project>
