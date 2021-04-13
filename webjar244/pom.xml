@@ -48,7 +48,7 @@
         <repository>
             <id>ossrh</id>
             <name>Internal tmp repo</name>
-            <url>file://tmp/devnull.repo</url>
+            <url>file:///tmp/devnull.repo</url>
         </repository>
     </distributionManagement>
 </project>
