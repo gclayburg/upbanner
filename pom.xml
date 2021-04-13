@@ -161,22 +161,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>ralston</id>
-            <distributionManagement>
-                <repository>
-                    <id>central</id>
-                    <name>0ba20e2f588c-releases</name>
-                    <url>http://ralston.garyclayburg.com:8081/artifactory/garyrepo-libs-release-local</url>
-                </repository>
-                <snapshotRepository>
-                    <id>snapshots</id>
-                    <name>0ba20e2f588c-snapshots</name>
-                    <url>http://ralston.garyclayburg.com:8081/artifactory/garyrepo-libs-snapshot-local</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-
     </profiles>
     <distributionManagement>
         <snapshotRepository>
