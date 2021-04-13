@@ -46,7 +46,7 @@
     </build>
     <distributionManagement>
         <repository>
-            <id>ossrh</id>
+            <id>devnullrepo</id>
             <name>Internal tmp repo</name>
             <url>file:///tmp/devnull.repo</url>
         </repository>
