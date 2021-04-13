@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>weboshiwar244</artifactId>
-	<version>2.2.4-SNAPSHOT</version>
+	<version>2.2.4</version>
 	<packaging>war</packaging>
 	<name>weboshiwar244</name>
 	<description>Demo project for Spring Boot</description>
@@ -60,4 +60,8 @@
 			<url>file:///tmp/devnull.repo</url>
 		</repository>
 	</distributionManagement>
+
+  <scm>
+    <tag>whatsupbanner-2.2.4</tag>
+  </scm>
 </project>
