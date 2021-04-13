@@ -259,6 +259,9 @@ public class CustomWhatsUp implements WhatsUpBanner {
 
 # Design goals
 
+## Simplicity
+This app tries to do things automatically with a minimum of configuration.  Many applications can use upbanner-starter by simply dropping in a dependency into pom.xml or build.gradle.
+
 ## Overhead
 This app is designed to have very little overhead.  It only does its work during application startup and does nothing when it is disabled.  By default upbanner.show-banner is enabled and  upbanner.debug is disabled.  The intention here is that you only need to enable upbanner.debug when there is some question or problem with your application startup.
 
