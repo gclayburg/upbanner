@@ -42,7 +42,7 @@ This is a very basic web application that listens on standard port 8080. Any of 
 ----------------------------------------------------------------------------------------------------
 ```
 
-This is another basic app that is also configured to use Spring Data MongoDB
+This is another basic app that is also configured to use Spring Data MongoDB:
 ```
 ----------------------------------------------------------------------------------------------------
     Mongo244Application is UP!
@@ -54,7 +54,7 @@ This is another basic app that is also configured to use Spring Data MongoDB
 ----------------------------------------------------------------------------------------------------
 ```
 
-This app creates a git.properties file during the build, uses a custom mongo uri and a version number
+This app creates a git.properties file during the build, uses a custom mongo uri and a version number:
 ```
 ----------------------------------------------------------------------------------------------------
     scimedit1:0.0.1-SNAPSHOT is UP!               git.commit.time:   2020-01-28T10:32:29-0700
@@ -65,7 +65,7 @@ This app creates a git.properties file during the build, uses a custom mongo uri
       Using mongodb uri: mongodb://localhost:27017
 ----------------------------------------------------------------------------------------------------
 ```
-This one is from an app that uses https. There is no version number since the app is running in an IDE.
+This one is from an app that uses https. There is no version number since the app is running in an IDE:
 ```
 ----------------------------------------------------------------------------------------------------
     memuser is UP!
@@ -77,8 +77,8 @@ This one is from an app that uses https. There is no version number since the ap
 ----------------------------------------------------------------------------------------------------
 ```
 This one is from running the same app as a spring boot jar file - but without https:
-----------------------------------------------------------------------------------------------------
 ```
+----------------------------------------------------------------------------------------------------
     memuser:0.8.1-SNAPSHOT is UP!                 git.commit.time:   2021-03-01T16:44-0700
     Local:      http://localhost:8080             git.build.version: 0.8.1-SNAPSHOT
     External:   http://127.0.1.1:8080             git.commit.id:     5c37e87b9808b38aacf61ea3213df08c30208650
@@ -124,9 +124,9 @@ gitProperties {
 More information about [generating git.properties in Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto-git-info)
 
 
-## Whats going on here
+## Under the covers
 
-The information shown in the upbanner is gathered without any configuration.  Prior to displaying the banner, it will probe the environment to collect all the meta information it can about .
+The information shown in the upbanner is gathered without any configuration.  Prior to displaying the banner, it will probe the environment to collect all the meta information it needs.
 
 ### How is the application name determined?
 We probe the running application to determine the application name from a few well known places.  The first one that returns a value wins:
