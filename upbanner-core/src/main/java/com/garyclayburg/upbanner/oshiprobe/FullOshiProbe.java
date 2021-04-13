@@ -69,6 +69,19 @@ public class FullOshiProbe extends OshiProbe {
                     .append(System.lineSeparator())
                     .append(System.lineSeparator()
                     );
+        } catch (UnsatisfiedLinkError unsatisfiedLinkError) {
+            probeOut.append(System.lineSeparator())
+                    .append(System.lineSeparator())
+                    .append("WARN - Cannot completely probe underlying hardware/OS using OSHI.  ")
+                    .append(System.lineSeparator())
+                    .append("     UnsatisfiedLinkError: ").append(unsatisfiedLinkError.getMessage())
+                    .append(System.lineSeparator())
+                    .append("     Is the correct native library available on this platform?")
+                    .append(System.lineSeparator())
+                    .append("     See OSHI documentation to fix dependencies for this application/platform: ")
+                    .append(System.lineSeparator())
+                    .append(System.lineSeparator()
+                    );
         }
 /*
         requires native library to run
