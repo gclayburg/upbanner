@@ -61,7 +61,7 @@ This app creates a git.properties file during the build, uses a custom mongo uri
     Local:      http://localhost:8050             git.build.version: 0.0.1-SNAPSHOT
     External:   http://127.0.1.1:8050             git.commit.id:     3f429cf1cd933897ce1cb3ed6179df371e3ac36b
     Host:       http://gary-XPS-13-9360:8050      git.remote.origin: ssh://git@scranton2:2233/home/git/scimedit1.git
-    Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
+      Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
       Using mongodb uri: mongodb://localhost:27017
 ----------------------------------------------------------------------------------------------------
 ```

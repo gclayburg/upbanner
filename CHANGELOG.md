@@ -1,16 +1,24 @@
 # Changelog
 
-## [Unreleased]
+## [2.2.5] - 2021-4-14
+
+Startup fail bug fix release
 
 ### Added
 
 - CHANGELOG.md file
 
-### Changes
+### Changed
 
 - README.md updates
 
+### Fixed
+
+- fix error where application startup would fail if debug was enabled and OSHI was installed and certain OS libraries were not installed, e.g. application packaged in docker image based on alpine linux
+
 ## [2.2.4] - 2021-4-12
+
+Expanded debug probes
 
 ### Added
 - new probe to examine Spring Boot Jar file/ War file
