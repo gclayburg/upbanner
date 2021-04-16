@@ -48,6 +48,8 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
     @Override
     public void contextLoaded(ConfigurableApplicationContext context) {
         log.debug("contextLoaded...");
+        DebugDumper debugDumper = DebugDumper.getInstance(context);
+        debugDumper.dumpAll();
     }
 
     public void started(ConfigurableApplicationContext context) {

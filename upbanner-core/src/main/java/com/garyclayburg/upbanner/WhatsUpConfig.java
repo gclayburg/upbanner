@@ -43,7 +43,8 @@ public class WhatsUpConfig {
 
     @Bean
     public WhatsUpProbes whatsUpProbes() {
-        return new WhatsUpProbes(environment, buildProperties, oshiProbe, jarProbe, upbannerSettings, context);
+        DebugDumper debugDumper = DebugDumper.getInstance();
+        return debugDumper.getWhatsUpProbes();
     }
 
     @Bean
