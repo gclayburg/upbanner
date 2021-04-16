@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component;
  *
  * @author Gary Clayburg
  */
-@Component
 public class WhatsUpProbes {
 
     public static final String MEM_TOTAL_REGEX = "^MemTotal:\\s*(\\d+)\\s*kB.*$";
@@ -54,7 +53,6 @@ public class WhatsUpProbes {
     private boolean gitPropertiesLoaded;
     private final List<ExtraLinePrinter> extraLinePrinterList;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public WhatsUpProbes(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings, ApplicationContext context) {
         this.environment = environment;
         this.buildProperties = buildProperties;
@@ -224,7 +222,7 @@ public class WhatsUpProbes {
             if (log.isDebugEnabled()) {
                 StringBuilder stringBuilder = new StringBuilder();
                 jarProbe.showManifest(stringBuilder, manifest);
-                log.debug("root manifest found is: \n" + stringBuilder.toString());
+                log.debug("root manifest found is: " +System.lineSeparator() + stringBuilder);
             }
             String startClassName = mainAttributes.getValue("Start-Class");
             log.debug(" start class is " + startClassName);
@@ -304,6 +302,10 @@ public class WhatsUpProbes {
         return value;
     }
 
+    /**
+     * Prints the environment in which this app is running to the log system (console)
+     * We attempt to print this information as soon as possible during application startup
+     */
     public void dumpAll() {
         dumpAll(stringBuilder -> {});
     }
@@ -330,10 +332,10 @@ public class WhatsUpProbes {
             jarProbe.createSnapshotJarReport(probe);
             extraLinePrinter.call(probe);
             if (log.isInfoEnabled()) {
-                log.info("Environment probe:" + System.lineSeparator() + probe.toString());
+                log.info("Environment probe:" + System.lineSeparator() + probe);
             } else { // the operator wants to show the information.  Lets not also force them to enable INFO
                 log.warn("INFO logging is disabled. showing requested debug info as WARN instead");
-                log.warn("Environment probe:" + System.lineSeparator() + probe.toString());
+                log.warn("Environment probe:" + System.lineSeparator() + probe);
             }
         }
     }

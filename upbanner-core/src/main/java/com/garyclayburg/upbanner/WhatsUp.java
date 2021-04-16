@@ -43,15 +43,6 @@ public class WhatsUp implements WhatsUpBanner {
         this.whatsUpProbes = whatsUpProbes;
     }
 
-    /**
-     * Prints the environment in which this app is running to the log system (console)
-     * We attempt to print this information as soon as possible during application startup
-     */
-    @PostConstruct
-    public void printDebugOnStartup() {
-        whatsUpProbes.dumpAll();
-    }
-
     @Override
     public void printBanner() {
         whatsUpProbes.printDefaultBanner();
