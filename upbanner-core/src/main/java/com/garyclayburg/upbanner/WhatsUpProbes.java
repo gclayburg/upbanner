@@ -22,7 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,7 +45,7 @@ public class WhatsUpProbes {
     private final JarProbe jarProbe;
     private final UpbannerSettings upbannerSettings;
     private ApplicationContext context;
-    protected Environment environment;
+    protected ConfigurableEnvironment environment;
     protected BuildProperties buildProperties;
 
     @SuppressWarnings("UnusedDeclaration")
@@ -53,7 +56,7 @@ public class WhatsUpProbes {
     private boolean gitPropertiesLoaded;
     private final List<ExtraLinePrinter> extraLinePrinterList;
 
-    public WhatsUpProbes(Environment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings, ApplicationContext context) {
+    public WhatsUpProbes(ConfigurableEnvironment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings, ApplicationContext context) {
         this.environment = environment;
         this.buildProperties = buildProperties;
         this.oshiProbe = oshiProbe;
@@ -321,6 +324,7 @@ public class WhatsUpProbes {
             section(probe, "\n===== What environment are we running with =======");
             dumpSystemProperties(probe);
             dumpENV(probe);
+            dumpPropertySources(probe);
             section(probe, "\n===== How was it built ===========================");
             dumpBuildProperties(probe);
             section(probe, "\n===== How was it started =========================");
@@ -579,6 +583,44 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
         System.getenv().forEach((key, val) -> probeOut.append("env ").append(key).append(": ").append(val).append(System.lineSeparator()));
     }
 
+    private void dumpPropertySources(StringBuilder probe) {
+        environment.getPropertySources();
+        printProperties();
+    }
+
+    public void printProperties() {
+        for (EnumerablePropertySource propertySource : findPropertiesPropertySources()) {
+            log.info("******* " + propertySource.getName() + " *******");
+            String[] propertyNames = propertySource.getPropertyNames();
+            Arrays.sort(propertyNames);
+            for (String propertyName : propertyNames) {
+                String resolvedProperty = environment.getProperty(propertyName);
+                String sourceProperty = propertySource.getProperty(propertyName).toString();
+                if(resolvedProperty.equals(sourceProperty)) {
+                    log.info("{}={}", propertyName, resolvedProperty);
+                }else {
+                    log.info("{}={} OVERRIDDEN to {}", propertyName, sourceProperty, resolvedProperty);
+                }
+            }
+        }
+    }
+
+    private List<EnumerablePropertySource> findPropertiesPropertySources() {
+        List<EnumerablePropertySource> propertiesPropertySources = new LinkedList<>();
+        for (PropertySource<?> propertySource : environment.getPropertySources()) {
+            log.info("checking property source :           " + propertySource.getName());
+            if (propertySource instanceof EnumerablePropertySource) {
+                log.info("checking property source enumerable: " + propertySource.getName());
+                propertiesPropertySources.add((EnumerablePropertySource) propertySource);
+            }
+        }
+        return propertiesPropertySources;
+    }
+/*
+server.port=4444 OVERRIDES
+   server.port=2344 (from systemProperties)
+      server.port=2345 (from Environment)
+ */
     public void dumpStartupCommandJVMargs(StringBuilder probeOut) {
         probeOut.append("  JVM args/classloader URLs/startup command").append(System.lineSeparator());
         ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arg ->
