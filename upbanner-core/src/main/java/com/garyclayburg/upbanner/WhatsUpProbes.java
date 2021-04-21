@@ -612,12 +612,16 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
             String[] propertyNames = propertySource.getPropertyNames();
             Arrays.sort(propertyNames);
             for (String propertyName : propertyNames) {
-                String resolvedProperty = environment.getProperty(propertyName);
-                String sourceProperty = propertySource.getProperty(propertyName).toString();
-                if(resolvedProperty.equals(sourceProperty)) {
-                    log.info("{}={}", propertyName, resolvedProperty);
-                }else {
-                    log.info("{}={} OVERRIDDEN to {}", propertyName, sourceProperty, resolvedProperty);
+                try {
+                    String resolvedProperty = environment.getProperty(propertyName);
+                    String sourceProperty = propertySource.getProperty(propertyName).toString();
+                    if(resolvedProperty.equals(sourceProperty)) {
+                        log.info("{}={}", propertyName, resolvedProperty);
+                    }else {
+                        log.info("{}={} OVERRIDDEN to {}", propertyName, sourceProperty, resolvedProperty);
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.warn("kaboom", e);
                 }
             }
         }
