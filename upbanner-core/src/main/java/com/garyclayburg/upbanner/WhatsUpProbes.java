@@ -575,12 +575,30 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
 
     public void dumpSystemProperties(StringBuilder probeOut) {
         probeOut.append("  system properties dump").append(System.lineSeparator());
-        System.getProperties().forEach((k, v) -> probeOut.append("prop ").append(k).append(": ").append(v).append(System.lineSeparator()));
+        try {
+            System.getProperties().stringPropertyNames().stream().sorted().forEach(name -> {
+                probeOut.append("prop ").append(name).append(": ")
+                        .append(System.getProperty(name))
+                        .append(System.lineSeparator());
+                    }
+            );
+        } catch (SecurityException ignored) {
+            probeOut.append("WARN - access to properties blocked by Security Manager");
+        }
     }
 
     public void dumpENV(StringBuilder probeOut) {
-        probeOut.append("\n  system environment dump").append(System.lineSeparator());
-        System.getenv().forEach((key, val) -> probeOut.append("env ").append(key).append(": ").append(val).append(System.lineSeparator()));
+        probeOut.append(System.lineSeparator())
+                .append("  system environment dump").append(System.lineSeparator());
+        try {
+            System.getenv().keySet().stream().sorted().forEach(name -> {
+                probeOut.append("env ").append(name).append(": ")
+                        .append(System.getenv(name))
+                        .append(System.lineSeparator());
+            });
+        } catch (SecurityException ignored) {
+            probeOut.append("WARN - access to env blocked by Security Manager");
+        }
     }
 
     private void dumpPropertySources(StringBuilder probe) {
