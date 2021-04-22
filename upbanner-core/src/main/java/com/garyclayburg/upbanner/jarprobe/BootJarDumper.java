@@ -109,10 +109,19 @@ public class BootJarDumper extends JarProbe {
         try {
             URI location = (codeSource == null ? null : codeSource.getLocation().toURI());
             String path = location == null ? null : location.toURL().getPath();
-            if (log.isDebugEnabled()) {
-                log.debug("checking codesource path: " + path);
-                if (BootJarDumper.class.getClassLoader() instanceof URLClassLoader) {
-                    Arrays.stream(((URLClassLoader) BootJarDumper.class.getClassLoader()).getURLs()).forEach(url -> log.debug("URL "+url));
+//            showBootJarUrls(path);
+            return createJarFile(probeOut, createTrimmedPath(probeOut,path));
+        } catch (URISyntaxException | MalformedURLException e) {
+            probeOut.append("WARN - CodeSource is not valid: ").append(codeSource != null ? codeSource.getLocation(): "null");
+            return null;
+        }
+    }
+
+    private static void showBootJarUrls(String path) {
+        if (log.isDebugEnabled()) {
+            log.debug("checking codesource path: " + path);
+            if (BootJarDumper.class.getClassLoader() instanceof URLClassLoader) {
+                Arrays.stream(((URLClassLoader) BootJarDumper.class.getClassLoader()).getURLs()).forEach(url -> log.debug("URL "+url));
 /* java-jar blah.jar:
 codesource path: file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/
 2021-03-26 08:48:48,392 [           main] DEBUG c.g.upbanner.jarprobe.BootJarDumper  - URL jar:file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/classes!/
@@ -131,16 +140,11 @@ synconsole1_1  | 2021-03-26 11:53:25.216 DEBUG 1 [           main] c.g.upbanner.
 synconsole1_1  | 2021-03-26 11:53:25.217 DEBUG 1 [           main] c.g.upbanner.jarprobe.BootJarDumper                    | : URL jar:file:/home/springboot/app/WEB-INF/lib/activation-1.1.1.jar!/
 synconsole1_1  | 2021-03-26 11:53:25.217 DEBUG 1 [           main] c.g.upbanner.jarprobe.BootJarDumper                    | : URL jar:file:/home/springboot/app/WEB-INF/lib/animal-sniffer-annotations-1.14.jar!/
 s
- */
+*/
 
-                } else {
-                    log.info("not URL classloader.");
-                }
+            } else {
+                log.info("not URL classloader.");
             }
-            return createJarFile(probeOut, createTrimmedPath(probeOut,path));
-        } catch (URISyntaxException | MalformedURLException e) {
-            probeOut.append("WARN - CodeSource is not valid: ").append(codeSource != null ? codeSource.getLocation(): "null");
-            return null;
         }
     }
 

@@ -68,7 +68,6 @@ public class DebugDumper {
             JarProbe jarProbe = createJarProbe();
             UpbannerSettings upbannerSettings = createUpbannerSettings();
             BuildProperties buildProperties = createStandInBuildProperties();
-            log.info("dumpALL did NOT blow up");
             this.whatsUpProbes = new WhatsUpProbes(environment, buildProperties, oshiProbe, jarProbe, upbannerSettings, context);
         }
     }

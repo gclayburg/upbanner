@@ -962,6 +962,7 @@ Main: UpbannerdemoApplication
     public boolean isKubernetes() {
         boolean isKubernetes = false;
         try {
+            //todo is this consistent with https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#cloud-deployment-kubernetes ?
             isKubernetes = Files.lines(Paths.get(CGROUP_FILE)).map(line ->
                     line.matches(".*/kubepod.*")).reduce(false, (first, found) -> found || first);
         } catch (IOException e) {
