@@ -22,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.*;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.Environment;
 
 /**
  * <br><br>
@@ -571,11 +573,10 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
     public void dumpSystemProperties(StringBuilder probeOut) {
         probeOut.append("  system properties dump").append(System.lineSeparator());
         try {
-            System.getProperties().stringPropertyNames().stream().sorted().forEach(name -> {
-                        probeOut.append("prop ").append(name).append(": ")
-                                .append(System.getProperty(name))
-                                .append(System.lineSeparator());
-                    }
+            System.getProperties().stringPropertyNames().stream().sorted().forEach(name ->
+                    probeOut.append("prop ").append(name).append(": ")
+                            .append(System.getProperty(name))
+                            .append(System.lineSeparator())
             );
         } catch (SecurityException ignored) {
             probeOut.append("WARN - access to properties blocked by Security Manager");
@@ -586,11 +587,10 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
         probeOut.append(System.lineSeparator())
                 .append("  system environment dump").append(System.lineSeparator());
         try {
-            System.getenv().keySet().stream().sorted().forEach(name -> {
-                probeOut.append("env ").append(name).append(": ")
-                        .append(System.getenv(name))
-                        .append(System.lineSeparator());
-            });
+            System.getenv().keySet().stream().sorted().forEach(name ->
+                    probeOut.append("env ").append(name).append(": ")
+                            .append(System.getenv(name))
+                            .append(System.lineSeparator()));
         } catch (SecurityException ignored) {
             probeOut.append("WARN - access to env blocked by Security Manager");
         }
@@ -613,9 +613,9 @@ upbanner.debug=true
                         .append(System.lineSeparator());
                 EnumerablePropertySource<?> enumerablePropertySource = (EnumerablePropertySource<?>) propertySource;
                 Arrays.stream(enumerablePropertySource.getPropertyNames()).sorted().forEach(propertyName -> {
-                            processPropertyName(enumerablePropertySource,propertyName,probe);
-                            knownPropertyNames.add(propertyName);
-                        });
+                    processPropertyName(enumerablePropertySource, propertyName, probe);
+                    knownPropertyNames.add(propertyName);
+                });
             } else {
                 probe.append("---- ").append(propertySource.getName())
                         .append(" [no enumerable properties] ----")
@@ -667,7 +667,7 @@ server.port=8777 (from configurationProperties)
 
     private void processPropertyName(EnumerablePropertySource<?> propertySource, String propertyName, StringBuilder probe) {
         String sourceProperty = null;
-        String resolvedProperty = null;
+        String resolvedProperty;
         //todo getProperty(string) returns Object sometimes?
         Object property = propertySource.getProperty(propertyName);
         if (property != null) {
@@ -690,7 +690,7 @@ server.port=8777 (from configurationProperties)
         try {
             resolvedProperty = environment.getProperty(propertyName);
             if (resolvedProperty != null) {
-                if (resolvedProperty.equals(sourceProperty) ) {
+                if (resolvedProperty.equals(sourceProperty)) {
                     resolvedProperty = null;
                 }
             }
