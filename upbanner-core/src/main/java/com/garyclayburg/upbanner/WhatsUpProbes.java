@@ -26,7 +26,6 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertySource;
-import org.springframework.stereotype.Component;
 
 /**
  * <br><br>
@@ -89,7 +88,6 @@ public class WhatsUpProbes {
     }
 
     /**
-     *
      * @return "http" if the web app can be access using http, or "https" if the app has been configured to use https protocol
      */
     public String getProtocol() {
@@ -103,7 +101,7 @@ public class WhatsUpProbes {
 
     /**
      * This generates a string to represent the name and version of your app
-     *
+     * <p>
      * For example,
      * <blockquote><pre>
      * My Great App:0.0.1
@@ -120,8 +118,9 @@ public class WhatsUpProbes {
      * git.properties key git.build.version
      * jar file manifest key Implementation-Version
      * </pre>
-     *
+     * <p>
      * If no version is found, only the {@linkplain #getAppName() name} is returned
+     *
      * @return name:version of the running application
      * @see #getAppName()
      */
@@ -225,7 +224,7 @@ public class WhatsUpProbes {
             if (log.isDebugEnabled()) {
                 StringBuilder stringBuilder = new StringBuilder();
                 jarProbe.showManifest(stringBuilder, manifest);
-                log.debug("root manifest found is: " +System.lineSeparator() + stringBuilder);
+                log.debug("root manifest found is: " + System.lineSeparator() + stringBuilder);
             }
             String startClassName = mainAttributes.getValue("Start-Class");
             log.debug(" start class is " + startClassName);
@@ -273,7 +272,6 @@ public class WhatsUpProbes {
     }
 
     /**
-     *
      * @param key the name of the Spring property key, e.g. "server.port" or "spring.application.name"
      * @return a String value from the Spring {@link Environment} or "" if the key does not exist or the value is corrupt
      * @see #getEnvironmentProperty(String)
@@ -291,7 +289,6 @@ public class WhatsUpProbes {
     }
 
     /**
-     *
      * @param key the name of the Spring property key, e.g. "server.port" or "spring.application.name"
      * @return a String value from the Spring {@link Environment} or null if the key does not exist
      * @see #getEnvironmentPropertyPrintable(String)
@@ -310,7 +307,8 @@ public class WhatsUpProbes {
      * We attempt to print this information as soon as possible during application startup
      */
     public void dumpAll() {
-        dumpAll(stringBuilder -> {});
+        dumpAll(stringBuilder -> {
+        });
     }
 
     public void dumpAll(ExtraLinePrinter extraLinePrinter) {
@@ -577,9 +575,9 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
         probeOut.append("  system properties dump").append(System.lineSeparator());
         try {
             System.getProperties().stringPropertyNames().stream().sorted().forEach(name -> {
-                probeOut.append("prop ").append(name).append(": ")
-                        .append(System.getProperty(name))
-                        .append(System.lineSeparator());
+                        probeOut.append("prop ").append(name).append(": ")
+                                .append(System.getProperty(name))
+                                .append(System.lineSeparator());
                     }
             );
         } catch (SecurityException ignored) {
@@ -763,7 +761,6 @@ Main: UpbannerdemoApplication
     }
 
     /**
-     *
      * @return The name of the running spring boot application.  Normally this is the name of the class passed
      * to {@link org.springframework.boot.SpringApplication}
      */
@@ -776,7 +773,6 @@ Main: UpbannerdemoApplication
     }
 
     /**
-     *
      * @return the number of the TCP port the app is listening to, or 0 if the app is not (yet) listening on any port
      */
     public int getListeningPort() {
@@ -799,7 +795,7 @@ Main: UpbannerdemoApplication
      *       Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
      * ----------------------------------------------------------------------------------------------------
      * </pre>
-     *
+     * <p>
      * This is another basic app that is also configured to use Spring Data MongoDB
      * <pre>
      * ----------------------------------------------------------------------------------------------------
@@ -811,7 +807,7 @@ Main: UpbannerdemoApplication
      *       Using MongoClient mongodb://localhost:27017/test
      * ----------------------------------------------------------------------------------------------------
      * </pre>
-     *
+     * <p>
      * This app creates a git.properties file during the build, uses a custom mongo uri and a version number
      * <pre>
      * ----------------------------------------------------------------------------------------------------
@@ -822,7 +818,7 @@ Main: UpbannerdemoApplication
      *       Running on JVM: Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 1.8.0_201
      *       Using mongodb uri: mongodb://localhost:27017
      * ----------------------------------------------------------------------------------------------------
-     *</pre>
+     * </pre>
      * This one is from an app that uses https.  There is no version number since the app is running in an IDE.
      * <pre>
      * ----------------------------------------------------------------------------------------------------
@@ -862,18 +858,20 @@ Main: UpbannerdemoApplication
      * need to map this port to a port available on the host if you want to access this application from another
      * host.  Since upbanner runs as a dependency of your application, it has no visibility of what or any ports
      * are mapped this way.
+     *
      * @see <a href="https://docs.docker.com/">docker documentation</a>
      */
     public void printDefaultBanner() {
         extraLinePrinterList.add(0, new MongoUpContributor(this, context));
-        extraLinePrinterList.add(0,stringBuilder -> stringBuilder.append("      Running on JVM: ")
+        extraLinePrinterList.add(0, stringBuilder -> stringBuilder.append("      Running on JVM: ")
                 .append(getEnvironmentPropertyPrintable("java.vm.vendor"))
                 .append(" ")
                 .append(getEnvironmentPropertyPrintable("java.vm.name"))
                 .append(" ")
                 .append(getEnvironmentPropertyPrintable("java.version"))
                 .append(System.lineSeparator()));
-        printHostPortVersionGitBanner(stringBuilder -> {});
+        printHostPortVersionGitBanner(stringBuilder -> {
+        });
     }
 
     public void printHostPortVersionGitBanner(ExtraLinePrinter extraLinePrinter) {
@@ -883,8 +881,9 @@ Main: UpbannerdemoApplication
         }
     }
 
-    StringBuilder buildBanner(){
-        return buildBanner(extraLinePrinter -> {});
+    StringBuilder buildBanner() {
+        return buildBanner(extraLinePrinter -> {
+        });
     }
 
     StringBuilder buildBanner(ExtraLinePrinter lastExtraLinePrinter) {
@@ -949,7 +948,6 @@ Main: UpbannerdemoApplication
     }
 
     /**
-     *
      * @return true, if we are running as a web app AND the lifecycle of the app has reached the point where it is listening on a TCP port
      */
     public boolean isWebAppUp() {
@@ -967,6 +965,7 @@ Main: UpbannerdemoApplication
      * On some systems, such as debian or ubuntu, this URL generated might also be
      * usable on the host outside of a docker container without needing to explicitly map
      * the TCP ports when launching the docker container.
+     *
      * @return A URL to be used in a browser to access the web app from any host on the
      * network
      */
@@ -981,6 +980,7 @@ Main: UpbannerdemoApplication
 
     /**
      * Returns values from the git.properties file found in the classpath
+     *
      * @param gitPropertyName the name of the property contained in git.properties file
      * @return The value, or null if the key does not exist
      */
@@ -993,7 +993,6 @@ Main: UpbannerdemoApplication
     }
 
     /**
-     *
      * @param name the name of the property in build-info.properties
      * @return the property value, or null if it does not exist
      */
@@ -1005,7 +1004,6 @@ Main: UpbannerdemoApplication
     }
 
     /**
-     *
      * @return true if the app is running within a docker container, false otherwise
      */
     public boolean isDocker() {
@@ -1020,7 +1018,6 @@ Main: UpbannerdemoApplication
     }
 
     /**
-     *
      * @return true if the app is running within a kubernetes environment, false otherwise
      */
     public boolean isKubernetes() {
@@ -1037,6 +1034,7 @@ Main: UpbannerdemoApplication
 
     /**
      * This is the value of the external property "upbanner.show-banner"
+     *
      * @return true if the the banner is enabled, false otherwise
      */
     public boolean isShowBanner() {
@@ -1045,6 +1043,7 @@ Main: UpbannerdemoApplication
 
     /**
      * This is the value of the external property "upbanner.debug"
+     *
      * @return true if the debug banner is to be shown, false otherwise
      */
     public boolean isDebug() {
@@ -1054,11 +1053,12 @@ Main: UpbannerdemoApplication
     /**
      * Registers an implementation of {@link ExtraLinePrinter} to print extra
      * lines as part of the up banner.  e.g.:
-     *<br>
+     * <br>
      * <pre>{@code
      * whatsUpProbes.registerUpContributor(stringBuilder -> stringBuilder.append("live long and prosper"));
      * }
      * </pre>
+     *
      * @param upContributor an implementation of {@link ExtraLinePrinter}
      */
     public void registerUpContributor(ExtraLinePrinter upContributor) {
