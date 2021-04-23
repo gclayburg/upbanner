@@ -672,7 +672,6 @@ server.port=8777 (from configurationProperties)
     private void processPropertyName(EnumerablePropertySource<?> propertySource, String propertyName, StringBuilder probe) {
         String sourceProperty = null;
         String resolvedProperty;
-        //todo getProperty(string) returns Object sometimes?
         Object property = propertySource.getProperty(propertyName);
         if (property != null) {
             sourceProperty = property.toString();

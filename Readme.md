@@ -225,8 +225,6 @@ If this dependency is present in your classpath, debug will use this to show you
 If you want to override the banner produced with your own, create a Spring @Component that implements WhatsUpBanner.  For example:
 
 ```java
-import javax.annotation.PostConstruct;
-
 import com.garyclayburg.upbanner.WhatsUpBanner;
 import com.garyclayburg.upbanner.WhatsUpProbes;
 import org.springframework.stereotype.Component;
@@ -238,11 +236,6 @@ public class CustomWhatsUp implements WhatsUpBanner {
 
     public CustomWhatsUp(WhatsUpProbes whatsUpProbes) {
         this.whatsUpProbes = whatsUpProbes;
-    }
-
-    @PostConstruct
-    public void printDebugOnStartup() {
-        whatsUpProbes.dumpAll();
     }
 
     @Override
@@ -263,7 +256,7 @@ public class CustomWhatsUp implements WhatsUpBanner {
 This app tries to do things automatically with a minimum of configuration.  Many applications can use upbanner-starter by simply dropping in a dependency into pom.xml or build.gradle.
 
 ## Overhead
-This app is designed to have very little overhead.  It only does its work during application startup and does nothing when it is disabled.  By default upbanner.show-banner is enabled and  upbanner.debug is disabled.  The intention here is that you only need to enable upbanner.debug when there is some question or problem with your application startup.
+This app is designed to have very little overhead.  It only does its work during application startup and does nothing when it is disabled.  By default `upbanner.show-banner` is enabled and  `upbanner.debug` is disabled.  The intention here is that you only need to enable `upbanner.debug` when there is some question or problem with your application startup.
 
 ## Don't break anything
 Upbanner is intended to provide helpful information during the startup of any Spring Boot Application.  It should not throw exceptions.  It is no fun when a troubleshooting tool like this adds another startup problem.
@@ -271,16 +264,16 @@ Upbanner is intended to provide helpful information during the startup of any Sp
 ## Compatibililty
 This project is designed to work with any Spring Boot 1.x or 2.x application.  If the app is also a web app it will print an upbanner on successful startup.  
 
-Any Spring Boot app can use the debug flag to troubleshoot application startup.
+Any Spring Boot app can use the `upbanner.debug` flag to troubleshoot application startup.
 
 ## Security and secret masking
 
 The upbanner portion prints a summary of what has successfully started up.  As such, it is intended to be enabled permanently.  Items added to this banner should have any secrets masked out.  As an example, the MongoUpContributor will show what mongo database your app is using, but will not show the password.
 
-The debug portion dumps out many things about the environment to the console.  In its current form, it does not attempt to mask or hide any secrets that might exist in the environment.  Because of this, the debug flag is not enabled by default.  It is intended to be used by enabling it manually to troubleshoot specific cases. 
+The debug portion dumps out many things about the environment to the console.  In its current form, it does not attempt to mask or hide any secrets that might exist in the environment.  Because of this, the `upanner.debug` flag is not enabled by default.  It is intended to be used by enabling it manually to troubleshoot specific cases. 
 
 # Contributing
 
-There are many other properties available at runtime from the runtime environment, spring build properties, spring externalized properties and more.  Maybe we need a  template mechanism for overriding the default layout?
+There are many other properties available at runtime from the runtime environment that are not shown in the default banner such as spring build properties, spring externalized properties and more.  Maybe we need a  template mechanism for overriding the default layout?
 
 Pull requests are welcome

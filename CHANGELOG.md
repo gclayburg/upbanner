@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.3.0] - 2021-4-23
+upbanner.debug phase improvements
+
+### Added
+
+- debug: now show all enumerable properties available to the application and their source location
+- debug: new comprehensive external property override report.  For example, this application has `server.port` defined in 2 places:
+
+```
+--- properties OVERRIDDEN report ---
+java.home=/usr/lib/jvm/java-8-oracle/jre (from environment)
+  java.home=/usr/lib/jvm/java-8-oracle/jre (from configurationProperties)
+    java.home=/usr/lib/jvm/java-8-oracle/jre (from systemProperties)
+      java.home=/usr/lib/jvm/java-8-oracle (from systemEnvironment)
+server.port=8040 (from environment)
+  server.port=8040 (from configurationProperties)
+    server.port=8040 (from systemProperties)
+      server.port=8050 (from applicationConfig: [classpath:/config/application-dev.yml])
+
+```
+
+### Changes
+
+- debug: phase now occurs before any beans are constructed during startup sequence
+- debug: system environment and properties are now printed alongside other properties, with their source location
+- debug: all property names are now printed in sorted order
+- debug: @PostConstruct method is no longer needed if you want to customize upbanner.  The debug phase is now invoked automatically before application beans are even constructed. See [Readme.md Customizing](Readme.md#customizing)
+
 ## [2.2.5] - 2021-4-14
 
 Startup fail bug fix release
