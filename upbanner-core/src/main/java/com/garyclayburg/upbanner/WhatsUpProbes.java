@@ -322,8 +322,8 @@ public class WhatsUpProbes {
             dumpCPUlimits(probe);
             dumpMemoryLimits(probe);
             section(probe, "\n===== What environment are we running with =======");
-            dumpSystemProperties(probe);
-            dumpENV(probe);
+//            dumpSystemProperties(probe);
+//            dumpENV(probe);
             dumpPropertySources(probe);
             section(probe, "\n===== How was it built ===========================");
             dumpBuildProperties(probe);
@@ -601,30 +601,86 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
         }
     }
 
-    private void dumpPropertySources(StringBuilder probe) {
-        environment.getPropertySources();
-        printProperties();
+    public void dumpPropertySources(StringBuilder probe) {
+        List<String> overriddenProperties = new ArrayList<>();
+        environment.getPropertySources().forEach(propertySource -> {
+            if (propertySource instanceof EnumerablePropertySource) {
+                probe.append("---- ").append(propertySource.getName())
+                        .append(" ----")
+                        .append(System.lineSeparator());
+                EnumerablePropertySource<?> enumerablePropertySource = (EnumerablePropertySource<?>) propertySource;
+                Arrays.stream(enumerablePropertySource.getPropertyNames()).sorted().forEach(propertyName ->
+                        processPropertyName(enumerablePropertySource,propertyName,probe,overriddenProperties));
+            } else {
+                probe.append("---- ").append(propertySource.getName())
+                        .append(" [no listable properties] ----")
+                        .append(System.lineSeparator());
+            }
+        });
+
+        if (overriddenProperties.size() > 0) {
+            probe.append(System.lineSeparator());
+            probe.append("--- OVERRIDDEN properties ---").append(System.lineSeparator());
+            overriddenProperties.stream().sorted().distinct().forEach( propertyName -> {
+//            overriddenProperties.forEach(propertyName -> {
+                probe.append(System.lineSeparator());
+                probe.append(propertyName).append(System.lineSeparator());
+                final String[] indent = {""};
+                environment.getPropertySources().forEach(propertySource -> {
+                    if (propertySource.getProperty(propertyName) != null) {
+                        probe.append(indent[0]);
+                        probe.append(propertyName).append("=")
+                                .append(propertySource.getProperty(propertyName))
+                                .append(" (from ").append(propertySource.getName())
+                                .append(")").append(System.lineSeparator());
+                        indent[0] = indent[0] + "  ";
+                    }
+                });
+            });
+        }
+    }
+
+    private void processPropertyName(EnumerablePropertySource<?> propertySource, String propertyName, StringBuilder probe,List<String> overriddenProperties) {
+        String sourceProperty = null;
+        String resolvedProperty = null;
+        //todo getProperty(string) returns Object sometimes?
+        Object property = propertySource.getProperty(propertyName);
+        if (property != null) {
+            sourceProperty = property.toString();
+        }
+        try {
+            resolvedProperty = environment.getProperty(propertyName);
+            if (resolvedProperty != null && resolvedProperty.equals(sourceProperty)) {
+                probe.append(propertyName).append("=").append(sourceProperty)
+                        .append(System.lineSeparator());
+            } else {
+                probe.append(propertyName).append("=").append(sourceProperty)
+                        .append(" OVERRIDDEN to ").append(resolvedProperty)
+                        .append(System.lineSeparator());
+                overriddenProperties.add(propertyName);
+            }
+        } catch (IllegalArgumentException e) {
+            /*
+            We can't resolve the property from environment.
+            This can occur if the ENV has a complex but valid bash env variable
+            In that case we don't care to check if the value was overridden.
+            e.g.  see Webwar244ApplicationTests.java
+             */
+            probe.append(propertyName).append("=").append(sourceProperty)
+                    .append(System.lineSeparator());
+        }
     }
 
     public void printProperties() {
-        for (EnumerablePropertySource propertySource : findPropertiesPropertySources()) {
+        StringBuilder builder = new StringBuilder();
+        findPropertiesPropertySources().forEach(propertySource -> {
             log.info("******* " + propertySource.getName() + " *******");
             String[] propertyNames = propertySource.getPropertyNames();
             Arrays.sort(propertyNames);
             for (String propertyName : propertyNames) {
-                try {
-                    String resolvedProperty = environment.getProperty(propertyName);
-                    String sourceProperty = propertySource.getProperty(propertyName).toString();
-                    if(resolvedProperty.equals(sourceProperty)) {
-                        log.info("{}={}", propertyName, resolvedProperty);
-                    }else {
-                        log.info("{}={} OVERRIDDEN to {}", propertyName, sourceProperty, resolvedProperty);
-                    }
-                } catch (IllegalArgumentException e) {
-                    log.warn("kaboom", e);
-                }
+                processPropertyName(propertySource, propertyName, builder, new ArrayList<String>());
             }
-        }
+        });
     }
 
     private List<EnumerablePropertySource> findPropertiesPropertySources() {
@@ -638,11 +694,19 @@ mem_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
         }
         return propertiesPropertySources;
     }
-/*
-server.port=4444 OVERRIDES
-   server.port=2344 (from systemProperties)
-      server.port=2345 (from Environment)
- */
+
+    /*
+===== What environment are we running with =======
+----- configurationProperties [no listable properties]-----
+----- commandLineArgs -----
+server.port=2345
+upbanner.debug=true
+----- servletConfigInitParams [no listable properties] -----
+server.port=4444 (from commandLineArgs) OVERRIDES
+  server.port=2344 (from systemProperties)
+    server.port=2345 (from systemEnvironment)
+      server.port=1234 (from Config resource 'class path resource [application.properties]' via location 'optional:classpath:/')
+     */
     public void dumpStartupCommandJVMargs(StringBuilder probeOut) {
         probeOut.append("  JVM args/classloader URLs/startup command").append(System.lineSeparator());
         ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arg ->
