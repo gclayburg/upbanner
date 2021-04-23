@@ -642,8 +642,12 @@ server.port=8777 (from configurationProperties)
             try {
                 String resolvedValue = environment.getProperty(propertyName);
                 StringBuilder possiblyOverriddenBuilder = new StringBuilder();
-                final String[] indent = {""};
+                final String[] indent = {"  "};
                 final boolean[] propertyNameIsOverridden = {false};
+                possiblyOverriddenBuilder.append(propertyName).append("=")
+                        .append(resolvedValue)
+                        .append(" (from environment)")
+                        .append(System.lineSeparator());
                 environment.getPropertySources().forEach(propertySource -> {
                     if (propertySource.getProperty(propertyName) != null) {
                         possiblyOverriddenBuilder.append(indent[0])
