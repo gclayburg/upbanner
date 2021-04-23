@@ -652,7 +652,7 @@ server.port=8777 (from configurationProperties)
                                 .append(" (from ").append(propertySource.getName())
                                 .append(")").append(System.lineSeparator());
                         indent[0] = indent[0] + "  ";
-                        propertyNameIsOverridden[0] = !propertySource.getProperty(propertyName).equals(resolvedValue);
+                        propertyNameIsOverridden[0] = !propertySource.getProperty(propertyName).toString().equals(resolvedValue);
                     }
                 });
                 if (propertyNameIsOverridden[0]) {
