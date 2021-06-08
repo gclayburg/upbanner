@@ -53,6 +53,8 @@ public class WhatsUpProbes {
     private Properties gitProperties;
     private boolean gitPropertiesLoaded;
     private final List<ExtraLinePrinter> extraLinePrinterList;
+    private StringBuilder banner;
+    private StringBuilder probeResult;
 
     public WhatsUpProbes(ConfigurableEnvironment environment, BuildProperties buildProperties, OshiProbe oshiProbe, JarProbe jarProbe, UpbannerSettings upbannerSettings, ApplicationContext context) {
         this.environment = environment;
@@ -312,26 +314,32 @@ public class WhatsUpProbes {
 
     public void dumpAll(ExtraLinePrinter extraLinePrinter) {
         if (upbannerSettings.isDebug()) {
-            StringBuilder probe = new StringBuilder();
-            section(probe, "\n===== What OS and hardware are we running on =====");
-            oshiProbe.createReport(probe);
-            section(probe, "\n===== What OS resources are limited ==============");
-            dumpCPUlimits(probe);
-            dumpMemoryLimits(probe);
-            section(probe, "\n===== What environment are we running with =======");
+            StringBuilder probe;
+            if (this.probeResult == null || upbannerSettings.isForceRecompute()) {
+                probe = new StringBuilder();
+                section(probe, "\n===== What OS and hardware are we running on =====");
+                oshiProbe.createReport(probe);
+                section(probe, "\n===== What OS resources are limited ==============");
+                dumpCPUlimits(probe);
+                dumpMemoryLimits(probe);
+                section(probe, "\n===== What environment are we running with =======");
 //            dumpSystemProperties(probe);
 //            dumpENV(probe);
-            dumpPropertySources(probe);
-            section(probe, "\n===== How was it built ===========================");
-            dumpBuildProperties(probe);
-            section(probe, "\n===== How was it started =========================");
-            jarProbe.init(probe);
-            dumpStartupCommandJVMargs(probe);
-            section(probe, "\n===== What is running ============================");
-            dumpGitProperties(probe);
-            jarProbe.createRootManifestReport(probe);
-            jarProbe.createSnapshotJarReport(probe);
-            extraLinePrinter.call(probe);
+                dumpPropertySources(probe);
+                section(probe, "\n===== How was it built ===========================");
+                dumpBuildProperties(probe);
+                section(probe, "\n===== How was it started =========================");
+                jarProbe.init(probe);
+                dumpStartupCommandJVMargs(probe);
+                section(probe, "\n===== What is running ============================");
+                dumpGitProperties(probe);
+                jarProbe.createRootManifestReport(probe);
+                jarProbe.createSnapshotJarReport(probe);
+                extraLinePrinter.call(probe);
+                this.probeResult = probe;
+            } else {
+                probe = this.probeResult;
+            }
             if (log.isInfoEnabled()) {
                 log.info("Environment probe:" + System.lineSeparator() + probe);
             } else { // the operator wants to show the information.  Lets not also force them to enable INFO
@@ -772,6 +780,7 @@ Main: UpbannerdemoApplication
     }
 
     void setListeningPort(int listeningPort) {
+        log.debug("set listen port to " + listeningPort);
         this.listeningPort = listeningPort;
     }
 
@@ -879,8 +888,13 @@ Main: UpbannerdemoApplication
 
     public void printHostPortVersionGitBanner(ExtraLinePrinter extraLinePrinter) {
         if (upbannerSettings.isShowBanner() && isWebAppUp()) {
-            StringBuilder stringBuilder = buildBanner(extraLinePrinter);
-            log.info(stringBuilder.toString());
+            if (banner != null && !upbannerSettings.isForceRecompute()) {
+                log.info(banner.toString());
+            } else {
+                StringBuilder stringBuilder = buildBanner(extraLinePrinter);
+                banner = stringBuilder;
+                log.info(stringBuilder.toString());
+            }
         }
     }
 

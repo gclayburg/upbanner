@@ -77,15 +77,7 @@ public class DebugDumper {
     }
 
     public void dumpAll() {
-
-//        context.isActive()
-//        Object upbannerSettings = context.getBean("upbannerSettings");
-//        UpbannerSettings bean = context.getBean(UpbannerSettings.class);
-//        log.debug("debug setting: " + context.isActive() + bean);
-        if (environment.getProperty("upbanner.debug") != null &&
-            environment.getProperty("upbanner.debug").equalsIgnoreCase("true")) {
-            whatsUpProbes.dumpAll();
-        }
+        whatsUpProbes.dumpAll();
     }
 
     private UpbannerSettings createUpbannerSettings() {

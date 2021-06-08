@@ -22,6 +22,7 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
     private final String mainApplicationClassName;
 
     public AppNameSpringApplicationRunListener(SpringApplication application, String[] args) {
+        log.debug("constructing AppNameSpringApplicationRunListener...");
         this.application = application;
         this.mainApplicationClassName = application.getMainApplicationClass().toString();
     }
@@ -53,8 +54,10 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
     }
 
     public void started(ConfigurableApplicationContext context) {
-        try {
-            String[] beanNamesForType = context.getBeanNamesForType(WhatsUpProbes.class);
+        log.debug("started... "+ context.isActive());
+        if (context.isActive()) { // this may not be active when running under devtools AND app was restarted
+            try {
+                String[] beanNamesForType = context.getBeanNamesForType(WhatsUpProbes.class);
                 /*
                 The WhatsUpProbes bean will not be loaded if the application using this starter has not
                 enabled AutoConfiguration.  This would prevent loading ALL of our beans defined in
@@ -62,21 +65,25 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
                 In this case, we don't want to use this library anyway.  We especially don't
                 want a getBean() to prevent app startup.
                  */
-            if (beanNamesForType.length > 0) {
-                WhatsUpProbes whatsUpProb = context.getBean(WhatsUpProbes.class);
-                whatsUpProb.setApplicationName(mainApplicationClassName);
-                String[] whatsUpBeanNames = context.getBeanNamesForType(WhatsUpBanner.class);
-                if (whatsUpBeanNames.length > 0) {
-                    WhatsUpBanner whatsUpBanner = context.getBean(WhatsUpBanner.class);
-                    whatsUpBanner.printBanner();
+                if (beanNamesForType.length > 0) {
+                    WhatsUpProbes whatsUpProb = context.getBean(WhatsUpProbes.class);
+                    whatsUpProb.setApplicationName(mainApplicationClassName);
+                    String[] whatsUpBeanNames = context.getBeanNamesForType(WhatsUpBanner.class);
+                    if (whatsUpBeanNames.length > 0) {
+                        WhatsUpBanner whatsUpBanner = context.getBean(WhatsUpBanner.class);
+                        whatsUpBanner.printBanner();
+                    }
                 }
+            } catch (IllegalStateException illegalStateException) {
+                log.warn("Cannot print upbanner.  Are you using spring devtools?", illegalStateException);
+            } catch (BeansException e) {
+                log.warn("cannot find WhatsUp Bean");
             }
-        } catch (BeansException e) {
-            log.warn("cannot find WhatsUp Bean");
         }
     }
 
     public void running(ConfigurableApplicationContext context) {
+        log.debug("running...");
     }
 
     public void failed(ConfigurableApplicationContext context, Throwable exception) {

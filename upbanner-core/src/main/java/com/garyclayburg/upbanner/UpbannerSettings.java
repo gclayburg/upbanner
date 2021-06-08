@@ -27,6 +27,13 @@ public class UpbannerSettings {
      */
     private boolean showBanner = true;
 
+    /**
+     * If true, force upbanner to re-probe the running environment after Spring DevTools restart.
+     *
+     *
+     */
+    private boolean forceRecompute = false;
+
     public boolean isDebug() {
         return debug;
     }
@@ -56,5 +63,17 @@ public class UpbannerSettings {
     public UpbannerSettings setShowBanner(boolean showBanner) {
         this.showBanner = showBanner;
         return this;
+    }
+
+    public boolean isForceRecompute() {
+        return forceRecompute;
+    }
+
+    /**
+     * If true, force upbanner to re-probe the running environment after Spring DevTools restart.
+     * @param forceRecompute if true, attempt to re-probe the environment after app restart
+     */
+    public void setForceRecompute(boolean forceRecompute) {
+        this.forceRecompute = forceRecompute;
     }
 }
