@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>mongo244</artifactId>
-    <version>2.3.1</version>
+    <version>2.3.2-SNAPSHOT</version>
     <name>mongo244</name>
     <description>Demo project for Spring Boot</description>
     <properties>
@@ -57,8 +57,4 @@
             <url>file:///tmp/devnull.repo</url>
         </repository>
     </distributionManagement>
-
-  <scm>
-    <tag>v2.3.1</tag>
-  </scm>
 </project>
