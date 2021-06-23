@@ -26,7 +26,7 @@ Or to build.gradle:
     compile group: 'com.garyclayburg', name:'upbanner-starter', version: 'x.x.x'
 ```
 
-The recommended version is shown in the badge at the top of this README.md
+Check the [Changelog](CHANGELOG.md) for the latest version number
 
 # example output:
 

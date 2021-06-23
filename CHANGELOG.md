@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.3.1] - 2021-6-23
+Bug fix release for compatibility with Spring Boot Devtools
+
+### Added
+- new flag to force upbanner to re-probe the environment during application restart ([#5][i5])
+
+### Fixed
+- An app could fail to start when it also uses spring-boot-devtools. ([#5][i5])
+
 ## [2.3.0] - 2021-4-23
 upbanner.debug phase improvements
 
@@ -88,3 +97,5 @@ Initial public release
 - Added app name detection based on spring.application.name
 - Added display of git commit information, if present
 - Added display of org.label-schema build labels, if present
+
+[i5]: https://github.com/gclayburg/upbanner/issues/5
