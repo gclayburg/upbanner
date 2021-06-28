@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.3.2] - 2021-6-28
+Bug fix release
+
+### Fixed
+- An app using upbanner-starter would always print debug information ([#6][i6])
+
 ## [2.3.1] - 2021-6-23
 Bug fix release for compatibility with Spring Boot Devtools
 
@@ -99,3 +105,4 @@ Initial public release
 - Added display of org.label-schema build labels, if present
 
 [i5]: https://github.com/gclayburg/upbanner/issues/5
+[i6]: https://github.com/gclayburg/upbanner/issues/6
