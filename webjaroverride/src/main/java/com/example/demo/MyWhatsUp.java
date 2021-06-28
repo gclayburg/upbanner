@@ -32,14 +32,6 @@ public class MyWhatsUp implements WhatsUpBanner {
         this.environment = environment;
     }
 
-    @PostConstruct
-    public void printDebugOnStartup() {
-        whatsUpProbes.dumpAll(stringBuilder -> stringBuilder
-                .append("  working directory: ")
-                .append(whatsUpProbes.getEnvironmentPropertyPrintable("PWD"))
-                .append(System.lineSeparator()));
-    }
-
     @Override
     public void printBanner() {
         //compact banner

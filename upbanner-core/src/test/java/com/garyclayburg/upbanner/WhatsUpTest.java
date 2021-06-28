@@ -41,7 +41,9 @@ public class WhatsUpTest {
         UpbannerSettings upbannerSettings = new UpbannerSettings();
         upbannerSettings.setDebug(true);
         FullOshiProbe fullOshiProbe = new FullOshiProbe();
-        fullOshiProbe.createReport(new StringBuilder());
+        StringBuilder probeOut = new StringBuilder();
+        fullOshiProbe.createReport(probeOut);
+        log.info("osh probe: " + probeOut);
     }
 
     @Test
@@ -53,15 +55,6 @@ public class WhatsUpTest {
         StringBuilder probeOut = new StringBuilder();
         whatsUpProbes.dumpBuildProperties(probeOut);
         log.info(probeOut.toString());
-    }
-
-    @Test
-    public void dumpAll() {
-        Properties p = new Properties();
-        p.setProperty("time", "2020-12-08T00:52:19Z");
-        BuildProperties buildProperties = new BuildProperties(p);
-        WhatsUpProbes whatsUpProbes = new WhatsUpProbes(null,buildProperties,new FullOshiProbe(),new FileJarDumper(),new UpbannerSettings(), null);
-        whatsUpProbes.dumpAll();
     }
 
     @Test

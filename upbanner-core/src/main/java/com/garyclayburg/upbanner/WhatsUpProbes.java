@@ -308,44 +308,36 @@ public class WhatsUpProbes {
      * We attempt to print this information as soon as possible during application startup
      */
     public void dumpAll() {
-        dumpAll(stringBuilder -> {
-        });
-    }
-
-    public void dumpAll(ExtraLinePrinter extraLinePrinter) {
-        if (upbannerSettings.isDebug()) {
-            StringBuilder probe;
-            if (this.probeResult == null || upbannerSettings.isForceRecompute()) {
-                probe = new StringBuilder();
-                section(probe, "\n===== What OS and hardware are we running on =====");
-                oshiProbe.createReport(probe);
-                section(probe, "\n===== What OS resources are limited ==============");
-                dumpCPUlimits(probe);
-                dumpMemoryLimits(probe);
-                section(probe, "\n===== What environment are we running with =======");
+        StringBuilder probe;
+        if (this.probeResult == null || upbannerSettings.isForceRecompute()) {
+            probe = new StringBuilder();
+            section(probe, "\n===== What OS and hardware are we running on =====");
+            oshiProbe.createReport(probe);
+            section(probe, "\n===== What OS resources are limited ==============");
+            dumpCPUlimits(probe);
+            dumpMemoryLimits(probe);
+            section(probe, "\n===== What environment are we running with =======");
 //            dumpSystemProperties(probe);
 //            dumpENV(probe);
-                dumpPropertySources(probe);
-                section(probe, "\n===== How was it built ===========================");
-                dumpBuildProperties(probe);
-                section(probe, "\n===== How was it started =========================");
-                jarProbe.init(probe);
-                dumpStartupCommandJVMargs(probe);
-                section(probe, "\n===== What is running ============================");
-                dumpGitProperties(probe);
-                jarProbe.createRootManifestReport(probe);
-                jarProbe.createSnapshotJarReport(probe);
-                extraLinePrinter.call(probe);
-                this.probeResult = probe;
-            } else {
-                probe = this.probeResult;
-            }
-            if (log.isInfoEnabled()) {
-                log.info("Environment probe:" + System.lineSeparator() + probe);
-            } else { // the operator wants to show the information.  Lets not also force them to enable INFO
-                log.warn("INFO logging is disabled. showing requested debug info as WARN instead");
-                log.warn("Environment probe:" + System.lineSeparator() + probe);
-            }
+            dumpPropertySources(probe);
+            section(probe, "\n===== How was it built ===========================");
+            dumpBuildProperties(probe);
+            section(probe, "\n===== How was it started =========================");
+            jarProbe.init(probe);
+            dumpStartupCommandJVMargs(probe);
+            section(probe, "\n===== What is running ============================");
+            dumpGitProperties(probe);
+            jarProbe.createRootManifestReport(probe);
+            jarProbe.createSnapshotJarReport(probe);
+            this.probeResult = probe;
+        } else {
+            probe = this.probeResult;
+        }
+        if (log.isInfoEnabled()) {
+            log.info("Environment probe:" + System.lineSeparator() + probe);
+        } else { // the operator wants to show the information.  Lets not also force them to enable INFO
+            log.warn("INFO logging is disabled. showing requested debug info as WARN instead");
+            log.warn("Environment probe:" + System.lineSeparator() + probe);
         }
     }
 

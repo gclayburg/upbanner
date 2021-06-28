@@ -57,4 +57,9 @@ public class WebJar1519ApplicationTests {
     public void upbannerApplicationIsUP() {
         assertTrue(outContent.toString().contains("WebJar1519ApplicationTests is UP!"));
     }
+
+    @Test
+    public void upbannerDebugIsOff() {
+        assertFalse(outContent.toString().contains("Environment probe:"));
+    }
 }

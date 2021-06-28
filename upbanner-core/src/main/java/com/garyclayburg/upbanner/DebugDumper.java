@@ -77,7 +77,10 @@ public class DebugDumper {
     }
 
     public void dumpAll() {
-        whatsUpProbes.dumpAll();
+        if (environment.getProperty("upbanner.debug") != null &&
+            environment.getProperty("upbanner.debug").equalsIgnoreCase("true")) {
+            whatsUpProbes.dumpAll();
+        }
     }
 
     private UpbannerSettings createUpbannerSettings() {
