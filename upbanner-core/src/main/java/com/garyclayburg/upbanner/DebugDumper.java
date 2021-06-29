@@ -77,8 +77,14 @@ public class DebugDumper {
     }
 
     public void dumpAll() {
-        if (environment.getProperty("upbanner.debug") != null &&
-            environment.getProperty("upbanner.debug").equalsIgnoreCase("true")) {
+        if ((whatsUpProbes != null && whatsUpProbes.getProbeResult() != null)) {
+            //e.g. after a devtools restart and we already did a probe once, which was saved
+            whatsUpProbes.dumpAll();
+        } else if (environment != null && environment.getProperty("upbanner.debug") != null
+                   && environment.getProperty("upbanner.debug").equalsIgnoreCase("true")) {
+            //e.g. not running under devtools or we are checking for the need to probe for
+            // the first time
+            // environment may not be available after a devtools restart
             whatsUpProbes.dumpAll();
         }
     }

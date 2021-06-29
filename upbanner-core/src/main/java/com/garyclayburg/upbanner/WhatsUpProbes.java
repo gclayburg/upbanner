@@ -1073,4 +1073,8 @@ Main: UpbannerdemoApplication
     public void registerUpContributor(ExtraLinePrinter upContributor) {
         extraLinePrinterList.add(upContributor);
     }
+
+    public StringBuilder getProbeResult() {
+        return probeResult;
+    }
 }
