@@ -38,8 +38,10 @@ public class DebugDumper {
     private ConfigurableEnvironment environment;
     private ConfigurableApplicationContext context;
     private WhatsUpProbes whatsUpProbes;
+    private boolean checkedDebugOnce;
 
     private DebugDumper() {
+        this.checkedDebugOnce = false;
     }
 
     private static class DebugDumperHolder {
@@ -80,11 +82,18 @@ public class DebugDumper {
         if ((whatsUpProbes != null && whatsUpProbes.getProbeResult() != null)) {
             //e.g. after a devtools restart and we already did a probe once, which was saved
             whatsUpProbes.dumpAll();
-        } else if (environment != null && environment.getProperty("upbanner.debug") != null
+        } else if (!this.checkedDebugOnce
+                   && environment != null
+                   && environment.getProperty("upbanner.debug") != null
                    && environment.getProperty("upbanner.debug").equalsIgnoreCase("true")) {
+            this.checkedDebugOnce = true;
             //e.g. not running under devtools or we are checking for the need to probe for
             // the first time
-            // environment may not be available after a devtools restart
+            // environment may be available, but environment.getProperty() can
+            // fail with a NPE when using undertow and spring boot devtools
+            // So this workaround is to avoid checking for upbanner.debug more than once
+            // Instead, we just cache the first result and use that for any subsequent
+            // app restarts like devtools might do
             whatsUpProbes.dumpAll();
         }
     }
