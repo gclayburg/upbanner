@@ -80,21 +80,23 @@ public class DebugDumper {
 
     public void dumpAll() {
         if ((whatsUpProbes != null && whatsUpProbes.getProbeResult() != null)) {
-            //e.g. after a devtools restart and we already did a probe once, which was saved
+            //e.g. after a devtools restart and we already did a upbanner.debug probe
+            //     once, which was saved
             whatsUpProbes.dumpAll();
         } else if (!this.checkedDebugOnce
-                   && environment != null
-                   && environment.getProperty("upbanner.debug") != null
-                   && environment.getProperty("upbanner.debug").equalsIgnoreCase("true")) {
+                   && environment != null) {
             this.checkedDebugOnce = true;
-            //e.g. not running under devtools or we are checking for the need to probe for
-            // the first time
-            // environment may be available, but environment.getProperty() can
-            // fail with a NPE when using undertow and spring boot devtools
-            // So this workaround is to avoid checking for upbanner.debug more than once
-            // Instead, we just cache the first result and use that for any subsequent
-            // app restarts like devtools might do
-            whatsUpProbes.dumpAll();
+            if (environment.getProperty("upbanner.debug") != null
+                && environment.getProperty("upbanner.debug").equalsIgnoreCase("true")) {
+                //e.g. not running under devtools or we are checking for the need to probe for
+                // the first time
+                // environment may be available, but environment.getProperty() can
+                // fail with a NPE when using undertow and spring boot devtools
+                // So this workaround is to avoid checking for upbanner.debug more than once
+                // Instead, we just cache the first result and use that for any subsequent
+                // app restarts like devtools might do
+                whatsUpProbes.dumpAll();
+            }
         }
     }
 
