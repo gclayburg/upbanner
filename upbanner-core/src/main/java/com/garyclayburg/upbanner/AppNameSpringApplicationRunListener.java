@@ -55,7 +55,13 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
 
     public void started(ConfigurableApplicationContext context) {
         log.debug("started... "+ context.isActive());
-        if (context.isActive()) { // this may not be active when running under devtools AND app was restarted
+        if (context.isActive()) {
+            /*
+             this may not be active when running under devtools AND app was restarted
+             it could be inactive if Spring has already found some other issue that
+             prevented app startup.  In this case we don't want to add to the confusion
+             by trying to use our bean - the app isn't really up anyway.
+             */
             try {
                 String[] beanNamesForType = context.getBeanNamesForType(WhatsUpProbes.class);
                 /*
