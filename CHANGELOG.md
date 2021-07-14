@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.3.3] - 2021-7-14
+Bug fix release
+
+### Fixed
+- NullPointerException thrown during application restart when also using Spring devtools ([#7][i7])
+
 ## [2.3.2] - 2021-6-28
 Bug fix release
 
@@ -106,3 +112,4 @@ Initial public release
 
 [i5]: https://github.com/gclayburg/upbanner/issues/5
 [i6]: https://github.com/gclayburg/upbanner/issues/6
+[i7]: https://github.com/gclayburg/upbanner/issues/7
