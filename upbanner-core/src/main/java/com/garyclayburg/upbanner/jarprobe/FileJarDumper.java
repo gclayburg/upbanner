@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.List;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +70,7 @@ public class FileJarDumper extends JarProbe {
         String javaCommand = System.getProperty("sun.java.command");
         if (javaCommand != null) {
             String name = convertSunJavaCommand(javaCommand);
-            if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher")|| (name != null && name.equals("jar"))) {
+            if (javaCommand.contains("JarLauncher") || javaCommand.contains("WarLauncher") || (name != null && name.equals("jar"))) {
                 expandedBootJar = true;
             }
         }
@@ -79,6 +81,7 @@ public class FileJarDumper extends JarProbe {
         String stripped = javaCommand.replaceFirst(" .*$", "");
         return convertStartClass(stripped);
     }
+
     String convertStartClass(String startClassName) {
         if (startClassName != null) {
             String[] split = startClassName.split("\\.");
@@ -87,6 +90,51 @@ public class FileJarDumper extends JarProbe {
         return null;
     }
 
+    @Override
+    public Manifest getManifest(String name) throws IOException {
+        Manifest manifest = null;
+        if (FileJarDumper.class.getClassLoader() instanceof URLClassLoader) {
+            log.debug("find manifest via urlclassloader");
+            List<String> jarNameList = Arrays.stream(((URLClassLoader) FileJarDumper.class.getClassLoader()).getURLs())
+                    .filter(url -> url.getPath().contains(name))
+                    .filter(url -> url.getPath().endsWith(".jar"))
+                    .map(url -> inspectClasspathEntryURL(new StringBuilder(), url))
+                    .collect(Collectors.toList());
+            if (jarNameList.size() > 0) {
+                manifest = loadManifest(jarNameList.get(0)); // manifest from first matching jar wins
+            }
+        } else { // try to get jar names from classpath
+            log.debug("find manifest via classpath");
+            String classpath = System.getProperty("java.class.path");
+            if (classpath != null) {
+                List<String> classpathFileNames = Arrays.stream(classpath.split(getClassPathSeparator()))
+                        .filter(filename -> filename.contains(name))
+                        .filter(filename -> filename.endsWith(".jar"))
+                        .collect(Collectors.toList());
+                if (classpathFileNames.size() > 0) {
+                    manifest = loadManifest(classpathFileNames.get(0));
+                }
+            }
+        }
+        return manifest;
+    }
+
+    private String getClassPathSeparator() {
+        String sep = System.getProperty("path.separator");
+        if (sep == null) {
+            sep = ":"; //assume linux. just because we can.
+        }
+        return sep;
+    }
+
+    private Manifest loadManifest(String jarName) throws IOException {
+        Manifest manifest;
+        try (FileInputStream fileInputStream = new FileInputStream(jarName)) {
+            JarInputStream jarInputStream = new JarInputStream(fileInputStream);
+            manifest = jarInputStream.getManifest();
+        }
+        return manifest;
+    }
 
     @Override
     public void createSnapshotJarReport(StringBuilder probeOut) {
@@ -96,7 +144,6 @@ public class FileJarDumper extends JarProbe {
             // and when running with boot jar (java -jar whateverapp.jar)
             // and when running with "$ UPBANNER_DEBUG=true ./gradlew bootRun" from project using spring devtools
             probeOut.append("\n  Manifest dump for SNAPSHOT jar dependencies via classloader...").append(System.lineSeparator());
-
 
             Arrays.stream(((URLClassLoader) FileJarDumper.class.getClassLoader()).getURLs()).forEach(url -> processEntry(probeOut, inspectClasspathEntryURL(probeOut, url)));
         } else {
@@ -112,6 +159,8 @@ public class FileJarDumper extends JarProbe {
         if (url.getProtocol().equals("file")) {
             // e.g. when running with tomcat inside docker using expanded boot jar:
             // file:/home/springboot/app/BOOT-INF/lib/log4j-api-2.13.3.jar
+            //
+            // this form also occurs when running via gradlew bootRun
             return url.getPath();
         } else {
             if (url.getProtocol().equals("jar")) {
@@ -133,7 +182,10 @@ public class FileJarDumper extends JarProbe {
     public void createSnapshotJarReportFromJavaClassPath(StringBuilder probeOut) {
         probeOut.append("\n  Manifest dump for SNAPSHOT jar dependencies...").append(System.lineSeparator());
         String property = System.getProperty("java.class.path");
-        Arrays.stream(property.split(":")).forEach(entry -> processEntry(probeOut, entry));
+        if (property != null) {
+            Arrays.stream(property.split(getClassPathSeparator()))
+                    .forEach(entry -> processEntry(probeOut, entry));
+        }
     }
 
     private void processEntry(StringBuilder probeOut, String entry) {

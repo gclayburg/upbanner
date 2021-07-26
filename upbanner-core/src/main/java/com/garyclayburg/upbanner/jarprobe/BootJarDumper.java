@@ -2,7 +2,10 @@ package com.garyclayburg.upbanner.jarprobe;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
@@ -76,6 +79,24 @@ public class BootJarDumper extends JarProbe {
     }
 
     @Override
+    public Manifest getManifest(String name) throws IOException {
+        log.debug("find manifest inside boot jar");
+        Manifest manifest = null;
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry jarEntry = entries.nextElement();
+            if (jarEntry.getName().endsWith(".jar")) {
+                if (jarEntry.getName().contains(name)) {
+                    JarFile nestedJarFile = jarFile.getNestedJarFile(jarEntry);
+                    manifest = nestedJarFile.getManifest();
+                    break; // first match wins
+                }
+            }
+        }
+        return manifest;
+    }
+
+    @Override
     public void createSnapshotJarReport(StringBuilder probeOut) {
         probeOut.append("\n  Manifest dump for SNAPSHOT boot jar dependencies...").append(System.lineSeparator());
         if (manifest == null) {
@@ -110,9 +131,9 @@ public class BootJarDumper extends JarProbe {
             URI location = (codeSource == null ? null : codeSource.getLocation().toURI());
             String path = location == null ? null : location.toURL().getPath();
 //            showBootJarUrls(path);
-            return createJarFile(probeOut, createTrimmedPath(probeOut,path));
+            return createJarFile(probeOut, createTrimmedPath(probeOut, path));
         } catch (URISyntaxException | MalformedURLException e) {
-            probeOut.append("WARN - CodeSource is not valid: ").append(codeSource != null ? codeSource.getLocation(): "null");
+            probeOut.append("WARN - CodeSource is not valid: ").append(codeSource != null ? codeSource.getLocation() : "null");
             return null;
         }
     }
@@ -121,7 +142,7 @@ public class BootJarDumper extends JarProbe {
         if (log.isDebugEnabled()) {
             log.debug("checking codesource path: " + path);
             if (BootJarDumper.class.getClassLoader() instanceof URLClassLoader) {
-                Arrays.stream(((URLClassLoader) BootJarDumper.class.getClassLoader()).getURLs()).forEach(url -> log.debug("URL "+url));
+                Arrays.stream(((URLClassLoader) BootJarDumper.class.getClassLoader()).getURLs()).forEach(url -> log.debug("URL " + url));
 /* java-jar blah.jar:
 codesource path: file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/
 2021-03-26 08:48:48,392 [           main] DEBUG c.g.upbanner.jarprobe.BootJarDumper  - URL jar:file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/classes!/
@@ -157,7 +178,7 @@ s
         if (path.lastIndexOf("!/BOOT-INF") > 0) { //we are running from boot jar
             return path.substring(0, path.lastIndexOf("!/BOOT-INF"));
         }
-        if (path.lastIndexOf("!/WEB-INF") >0) { //we are running from boot war
+        if (path.lastIndexOf("!/WEB-INF") > 0) { //we are running from boot war
             return path.substring(0, path.lastIndexOf("!/WEB-INF"));
         }
         log.debug("neither !/BOOT-INF nor !/WEB-INF found in path.  We are not running from a spring boot jar/war");

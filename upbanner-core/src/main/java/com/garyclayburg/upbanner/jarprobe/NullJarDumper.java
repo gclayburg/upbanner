@@ -1,5 +1,6 @@
 package com.garyclayburg.upbanner.jarprobe;
 
+import java.io.IOException;
 import java.util.jar.Manifest;
 
 import org.slf4j.Logger;
@@ -32,5 +33,11 @@ public class NullJarDumper extends JarProbe {
 
     @Override
     public void createRootManifestReport(StringBuilder probe) {
+    }
+
+    @Override
+    public Manifest getManifest(String name) throws IOException {
+        log.warn("cannot get Manifest for " + name + "   is upbanner.debug enabled?");
+        return null;
     }
 }

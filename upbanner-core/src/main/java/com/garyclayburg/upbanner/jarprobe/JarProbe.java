@@ -1,5 +1,6 @@
 package com.garyclayburg.upbanner.jarprobe;
 
+import java.io.IOException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -51,4 +52,6 @@ public abstract class JarProbe {
     public abstract void init(StringBuilder probe);
 
     public abstract void createRootManifestReport(StringBuilder probe);
+
+    public abstract Manifest getManifest(String name) throws IOException;
 }

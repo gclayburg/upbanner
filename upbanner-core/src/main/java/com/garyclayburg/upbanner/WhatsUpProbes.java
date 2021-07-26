@@ -1077,4 +1077,12 @@ Main: UpbannerdemoApplication
     public StringBuilder getProbeResult() {
         return probeResult;
     }
+
+    public Manifest getManifest() {
+        return jarProbe.getManifest();
+    }
+
+    public Manifest getManifest(String name) throws IOException {
+        return jarProbe.getManifest(name);
+    }
 }
