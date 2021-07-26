@@ -1,6 +1,7 @@
 package com.garyclayburg.upbanner.jarprobe;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -54,4 +55,15 @@ public abstract class JarProbe {
     public abstract void createRootManifestReport(StringBuilder probe);
 
     public abstract Manifest getManifest(String name) throws IOException;
+
+    boolean isJar(URL url) {
+        String path = url.getPath();
+        return isJar(path);
+    }
+
+    boolean isJar(String path) {
+        return path.matches(".*\\.jar!*[/\\\\]*");
+    }
+
+
 }

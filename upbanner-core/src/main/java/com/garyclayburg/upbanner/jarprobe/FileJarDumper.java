@@ -94,13 +94,15 @@ public class FileJarDumper extends JarProbe {
     public Manifest getManifest(String name) throws IOException {
         Manifest manifest = null;
         if (FileJarDumper.class.getClassLoader() instanceof URLClassLoader) {
+            // e.g.
+            // file:/home/springboot/app/WEB-INF/lib/spring-cloud-spring-service-connector-1.2.8.RELEASE.jar!/
             log.debug("find manifest via urlclassloader");
             List<String> jarNameList = Arrays.stream(((URLClassLoader) FileJarDumper.class.getClassLoader()).getURLs())
                     .filter(url -> {
                         log.debug("checking urlclassloader entry: " + url.getPath());
                         return url.getPath().contains(name);
                     })
-                    .filter(url -> url.getPath().endsWith(".jar"))
+                    .filter(this::isJar)
                     .map(url -> inspectClasspathEntryURL(new StringBuilder(), url))
                     .collect(Collectors.toList());
             if (jarNameList.size() > 0) {
@@ -112,7 +114,7 @@ public class FileJarDumper extends JarProbe {
             if (classpath != null) {
                 List<String> classpathFileNames = Arrays.stream(classpath.split(getClassPathSeparator()))
                         .filter(filename -> filename.contains(name))
-                        .filter(filename -> filename.endsWith(".jar"))
+                        .filter(this::isJar)
                         .collect(Collectors.toList());
                 if (classpathFileNames.size() > 0) {
                     manifest = loadManifest(classpathFileNames.get(0));

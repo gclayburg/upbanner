@@ -69,4 +69,14 @@ public class FileJarDumperTest {
         assertFalse(fileJarDumper.shouldShowManifest("/home/gclaybur/.m2/repository/org/springframework/spring-jcl/5.3.5/spring-jcl-5.3.5.jar"));
         assertTrue(fileJarDumper.shouldShowManifest("/home/springboot/app/WEB-INF/lib/stepsapi-0.8.1-SNAPSHOT.jar"));
     }
+
+    @Test
+    public void isJar() throws MalformedURLException {
+        FileJarDumper fileJarDumper =new FileJarDumper();
+        assertTrue(fileJarDumper.isJar(new URL("file:/somecrap.jar!/")));
+        assertTrue(fileJarDumper.isJar(new URL("file:/somecrap.jar/")));
+        assertTrue(fileJarDumper.isJar(new URL("file:/somecrap.jar!\\")));
+        assertTrue(fileJarDumper.isJar(new URL("file:/somecrap.jar")));
+        assertTrue(fileJarDumper.isJar(new URL("file:/long/path/somecrap.jar")));
+    }
 }

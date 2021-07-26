@@ -110,7 +110,7 @@ public class BootJarDumper extends JarProbe {
             JarEntry jarEntry = entries.nextElement();
 
             try {
-                if (jarEntry.getName().endsWith(".jar")) {
+                if (isJar(jarEntry.getName())) {
                     if (shouldShowManifest(jarEntry.getName())) {
                         showJarName(probeOut, jarEntry.getName());
                         JarFile nestedJarFile = jarFile.getNestedJarFile(jarEntry);
