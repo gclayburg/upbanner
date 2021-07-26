@@ -78,6 +78,7 @@ public class BootJarDumper extends JarProbe {
         }
     }
 
+    //todo maybe expand api to not be so restrictive.  return list of matches? entire map of jarnames->manifest ?
     @Override
     public Manifest getManifest(String name) throws IOException {
         log.debug("find manifest inside boot jar");

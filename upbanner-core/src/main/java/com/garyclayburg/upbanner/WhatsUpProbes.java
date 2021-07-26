@@ -1082,6 +1082,13 @@ Main: UpbannerdemoApplication
         return jarProbe.getManifest();
     }
 
+    /**
+     * Get the Jar manifest of a dependency
+     * @param name something distinctive in the name of the jar
+     * @return The manifest of the first matching jar file.  Be sure to
+     * supply a name that is restrictive enough to limit the results to one.
+     * @throws IOException if the Jar file cannot be read
+     */
     public Manifest getManifest(String name) throws IOException {
         return jarProbe.getManifest(name);
     }

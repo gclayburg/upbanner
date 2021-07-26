@@ -96,7 +96,10 @@ public class FileJarDumper extends JarProbe {
         if (FileJarDumper.class.getClassLoader() instanceof URLClassLoader) {
             log.debug("find manifest via urlclassloader");
             List<String> jarNameList = Arrays.stream(((URLClassLoader) FileJarDumper.class.getClassLoader()).getURLs())
-                    .filter(url -> url.getPath().contains(name))
+                    .filter(url -> {
+                        log.debug("checking urlclassloader entry: " + url.getPath());
+                        return url.getPath().contains(name);
+                    })
                     .filter(url -> url.getPath().endsWith(".jar"))
                     .map(url -> inspectClasspathEntryURL(new StringBuilder(), url))
                     .collect(Collectors.toList());
