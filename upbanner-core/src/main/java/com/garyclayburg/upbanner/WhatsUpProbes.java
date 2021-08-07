@@ -279,12 +279,14 @@ public class WhatsUpProbes {
      */
     public String getEnvironmentPropertyPrintable(String key) {
         String value = "";
-        try {
-            value = environment.getProperty(key);
-            if (value == null) {
-                value = "";
+        if (environment != null) {  // i.e. after a devtools restart
+            try {
+                value = environment.getProperty(key);
+                if (value == null) {
+                    value = "";
+                }
+            } catch (IllegalArgumentException ignored) { //i.e. it may need to be filtered first through build.gradle
             }
-        } catch (IllegalArgumentException ignored) { //i.e. it may need to be filtered first through build.gradle
         }
         return value;
     }
@@ -296,9 +298,11 @@ public class WhatsUpProbes {
      */
     public String getEnvironmentProperty(String key) {
         String value = null;
-        try {
-            value = environment.getProperty(key);
-        } catch (IllegalArgumentException ignored) {
+        if (environment != null) { // it might be null when devtools is used
+            try {
+                value = environment.getProperty(key);
+            } catch (IllegalArgumentException ignored) {
+            }
         }
         return value;
     }
@@ -606,23 +610,24 @@ upbanner.debug=true
      */
     public void dumpPropertySources(StringBuilder probe) {
         List<String> knownPropertyNames = new ArrayList<>();
-        environment.getPropertySources().forEach(propertySource -> {
-            if (propertySource instanceof EnumerablePropertySource) {
-                probe.append("---- ").append(propertySource.getName())
-                        .append(" ----")
-                        .append(System.lineSeparator());
-                EnumerablePropertySource<?> enumerablePropertySource = (EnumerablePropertySource<?>) propertySource;
-                Arrays.stream(enumerablePropertySource.getPropertyNames()).sorted().forEach(propertyName -> {
-                    processPropertyName(enumerablePropertySource, propertyName, probe);
-                    knownPropertyNames.add(propertyName);
-                });
-            } else {
-                probe.append("---- ").append(propertySource.getName())
-                        .append(" [no enumerable properties] ----")
-                        .append(System.lineSeparator());
-            }
-        });
-
+        if (environment != null) {
+            environment.getPropertySources().forEach(propertySource -> {
+                if (propertySource instanceof EnumerablePropertySource) {
+                    probe.append("---- ").append(propertySource.getName())
+                            .append(" ----")
+                            .append(System.lineSeparator());
+                    EnumerablePropertySource<?> enumerablePropertySource = (EnumerablePropertySource<?>) propertySource;
+                    Arrays.stream(enumerablePropertySource.getPropertyNames()).sorted().forEach(propertyName -> {
+                        processPropertyName(enumerablePropertySource, propertyName, probe);
+                        knownPropertyNames.add(propertyName);
+                    });
+                } else {
+                    probe.append("---- ").append(propertySource.getName())
+                            .append(" [no enumerable properties] ----")
+                            .append(System.lineSeparator());
+                }
+            });
+        }
         showOverriddenProperties(probe, knownPropertyNames);
     }
 
@@ -638,35 +643,40 @@ server.port=8777 (from configurationProperties)
     private void showOverriddenProperties(StringBuilder probe, List<String> knownPropertyNames) {
         probe.append(System.lineSeparator());
         probe.append("--- properties OVERRIDDEN report ---").append(System.lineSeparator());
-        knownPropertyNames.stream().sorted().distinct().forEach(propertyName -> {
-            try {
-                String resolvedValue = environment.getProperty(propertyName);
-                StringBuilder possiblyOverriddenBuilder = new StringBuilder();
-                final String[] indent = {"  "};
-                final boolean[] propertyNameIsOverridden = {false};
-                possiblyOverriddenBuilder.append(propertyName).append("=")
-                        .append(resolvedValue)
-                        .append(" (from environment)")
-                        .append(System.lineSeparator());
-                environment.getPropertySources().forEach(propertySource -> {
-                    if (propertySource.getProperty(propertyName) != null) {
-                        possiblyOverriddenBuilder.append(indent[0])
-                                .append(propertyName).append("=")
-                                .append(propertySource.getProperty(propertyName))
-                                .append(" (from ").append(propertySource.getName())
-                                .append(")").append(System.lineSeparator());
-                        indent[0] = indent[0] + "  ";
-                        propertyNameIsOverridden[0] = !propertySource.getProperty(propertyName).toString().equals(resolvedValue);
+        if (environment != null) {
+            knownPropertyNames.stream().sorted().distinct().forEach(propertyName -> {
+                try {
+                    String resolvedValue = environment.getProperty(propertyName);
+                    StringBuilder possiblyOverriddenBuilder = new StringBuilder();
+                    final String[] indent = {"  "};
+                    final boolean[] propertyNameIsOverridden = {false};
+                    possiblyOverriddenBuilder.append(propertyName).append("=")
+                            .append(resolvedValue)
+                            .append(" (from environment)")
+                            .append(System.lineSeparator());
+                    environment.getPropertySources().forEach(propertySource -> {
+                        if (propertySource.getProperty(propertyName) != null) {
+                            possiblyOverriddenBuilder.append(indent[0])
+                                    .append(propertyName).append("=")
+                                    .append(propertySource.getProperty(propertyName))
+                                    .append(" (from ").append(propertySource.getName())
+                                    .append(")").append(System.lineSeparator());
+                            indent[0] = indent[0] + "  ";
+                            propertyNameIsOverridden[0] = !propertySource.getProperty(propertyName).toString().equals(resolvedValue);
+                        }
+                    });
+                    if (propertyNameIsOverridden[0]) {
+                        probe.append(possiblyOverriddenBuilder);
                     }
-                });
-                if (propertyNameIsOverridden[0]) {
-                    probe.append(possiblyOverriddenBuilder);
+                } catch (IllegalArgumentException ignored) {
+                    //environment.getProperty(String) can cause this with
+                    // complex bash ENV, but unparsable by spring
                 }
-            } catch (IllegalArgumentException ignored) {
-                //environment.getProperty(String) can cause this with
-                // complex bash ENV, but unparsable by spring
-            }
-        });
+            });
+        } else {
+            probe.append("--- cannot compute properties overridden. Please restart. ---")
+                    .append(System.lineSeparator());
+        }
     }
 
     private void processPropertyName(EnumerablePropertySource<?> propertySource, String propertyName, StringBuilder probe) {
@@ -690,20 +700,22 @@ server.port=8777 (from configurationProperties)
 
     private String overriddenPropertyValue(String propertyName, String sourceProperty) {
         String resolvedProperty = null;
-        try {
-            resolvedProperty = environment.getProperty(propertyName);
-            if (resolvedProperty != null) {
-                if (resolvedProperty.equals(sourceProperty)) {
-                    resolvedProperty = null;
+        if (environment != null) { // e.g. after a devtools restart
+            try {
+                resolvedProperty = environment.getProperty(propertyName);
+                if (resolvedProperty != null) {
+                    if (resolvedProperty.equals(sourceProperty)) {
+                        resolvedProperty = null;
+                    }
                 }
-            }
-        } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException ignored) {
             /*
             We can't resolve the property from environment.
             This can occur if the ENV has a complex but valid bash env variable
             In that case we don't care to check if the value was overridden.
             e.g.  see Webwar244ApplicationTests.java
              */
+            }
         }
         return resolvedProperty;
     }
