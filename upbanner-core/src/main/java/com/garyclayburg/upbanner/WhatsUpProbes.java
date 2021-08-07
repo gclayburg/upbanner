@@ -279,13 +279,16 @@ public class WhatsUpProbes {
      */
     public String getEnvironmentPropertyPrintable(String key) {
         String value = "";
-        if (environment != null) {  // i.e. after a devtools restart
+        if (environment != null) {
             try {
                 value = environment.getProperty(key);
                 if (value == null) {
                     value = "";
                 }
             } catch (IllegalArgumentException ignored) { //i.e. it may need to be filtered first through build.gradle
+            } catch (NullPointerException ignored) {
+                // e.g. environment.getProperty() might throw NPE when used
+                // after a devtools restart
             }
         }
         return value;
@@ -302,6 +305,9 @@ public class WhatsUpProbes {
             try {
                 value = environment.getProperty(key);
             } catch (IllegalArgumentException ignored) {
+            } catch (NullPointerException ignored) {
+                // e.g. environment.getProperty() might throw NPE when used
+                // after a devtools restart
             }
         }
         return value;
@@ -671,6 +677,9 @@ server.port=8777 (from configurationProperties)
                 } catch (IllegalArgumentException ignored) {
                     //environment.getProperty(String) can cause this with
                     // complex bash ENV, but unparsable by spring
+                } catch (NullPointerException ignored) {
+                    // e.g. environment.getProperty() might throw NPE when used
+                    // after a devtools restart
                 }
             });
         } else {
@@ -700,7 +709,7 @@ server.port=8777 (from configurationProperties)
 
     private String overriddenPropertyValue(String propertyName, String sourceProperty) {
         String resolvedProperty = null;
-        if (environment != null) { // e.g. after a devtools restart
+        if (environment != null) {
             try {
                 resolvedProperty = environment.getProperty(propertyName);
                 if (resolvedProperty != null) {
@@ -715,6 +724,9 @@ server.port=8777 (from configurationProperties)
             In that case we don't care to check if the value was overridden.
             e.g.  see Webwar244ApplicationTests.java
              */
+            } catch (NullPointerException ignored) {
+                // e.g. environment.getProperty() might throw NPE when used
+                // after a devtools restart
             }
         }
         return resolvedProperty;
