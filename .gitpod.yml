@@ -1,0 +1,11 @@
+# List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
+tasks:
+  - init: mvn clean package
+    command: echo 'start script'
+  - name: memuser run
+    init: docker pull gclayburg/memuser:latest
+    command: docker run gclayburg/memuser:latest
+# List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
+ports:
+  - port: 8080
+    onOpen: open-preview
