@@ -1,5 +1,7 @@
 package com.garyclayburg.upbanner;
 
+import java.time.Duration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -53,6 +55,13 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
         debugDumper.dumpAll();
     }
 
+    public void started(ConfigurableApplicationContext context, Duration timeTaken) {
+        /*
+        This variant of the started method signature seems to be new as of Spring boot 3.x
+         */
+        log.debug("looks like we are starting a Spring boot 2.6+ app here");
+        started(context);
+    }
     public void started(ConfigurableApplicationContext context) {
         log.debug("started... "+ context.isActive());
         if (context.isActive()) {
