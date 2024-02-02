@@ -1,0 +1,4 @@
+com.garyclayburg.upbanner.BuildPropertiesStub
+com.garyclayburg.upbanner.PortListenerSpringBoot2
+com.garyclayburg.upbanner.PortListenerSpringBoot1
+com.garyclayburg.upbanner.MongoClientSyncUpContributor
