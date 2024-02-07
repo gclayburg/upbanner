@@ -18,23 +18,6 @@ public class WhatsUpConfig {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(WhatsUpConfig.class);
 
-    private final Environment environment;
-    private final BuildProperties buildProperties;
-    private final UpbannerSettings upbannerSettings;
-    private final JarProbe jarProbe;
-    private ApplicationContext context;
-    private OshiProbe oshiProbe;
-
-    @Autowired
-    public WhatsUpConfig(Environment environment, BuildProperties buildProperties, UpbannerSettings upbannerSettings, OshiProbe oshiProbe, JarProbe jarProbe, ApplicationContext context) {
-        this.environment = environment;
-        this.buildProperties = buildProperties;
-        this.upbannerSettings = upbannerSettings;
-        this.oshiProbe = oshiProbe;
-        this.jarProbe = jarProbe;
-        this.context = context;
-    }
-
     @Bean
     public WhatsUpProbes whatsUpProbes() {
         DebugDumper debugDumper = DebugDumper.getInstance();
