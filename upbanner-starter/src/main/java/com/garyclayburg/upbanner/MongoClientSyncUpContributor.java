@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
  */
 @Import(value = {
         WhatsUpConfig.class,
-        ContainerVMEnvProbe.class,
         UpbannerSettings.class})
 @ConditionalOnClass(name = "com.mongodb.client.MongoClient")
 @Component("mongoClientSyncUpContributor")
