@@ -42,6 +42,8 @@ pipeline {
                 sh 'id'
                 sh 'pwd'
                 sh 'bash -ic "sdk list java"'
+                sh 'bash -ic "sdk use java 17.0.10-tem"'
+                sh 'bash -ic "sdk list java"'
             }
         }
         stage('main build') {
