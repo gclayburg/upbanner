@@ -37,6 +37,8 @@ pipeline {
                         snapshotRepo: "garyrepo-libs-snapshot"
                 )
                 sh 'java -version'
+                sh 'which java'
+                sh 'uname -a'
                 sh 'sdk list java'
             }
         }
