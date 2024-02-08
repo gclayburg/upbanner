@@ -41,7 +41,7 @@ pipeline {
                 sh 'uname -a'
                 sh 'id'
                 sh 'pwd'
-                sh 'sdk list java'
+                sh 'bash -c "sdk list java"'
             }
         }
         stage('main build') {
