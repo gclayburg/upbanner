@@ -42,9 +42,9 @@ pipeline {
                 sh 'id'
                 sh 'pwd'
                 sh 'bash -ic "java -version"'
-                sh 'bash -ic "sdk list java && java -version"'
-                sh 'bash -ic "sdk use java 17.0.10-tem && java -version"'
-                sh 'bash -ic "sdk list java && java -version"'
+                sh 'bash -ic "sdk list java ; java -version"'
+                sh 'bash -ic "sdk use java 17.0.10-tem ; java -version"'
+                sh 'bash -ic "sdk list java ; java -version"'
             }
         }
         stage('main build') {
