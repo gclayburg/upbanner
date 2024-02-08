@@ -36,6 +36,8 @@ pipeline {
                         releaseRepo: "garyrepo-libs-release",
                         snapshotRepo: "garyrepo-libs-snapshot"
                 )
+                sh 'java -version'
+                sh 'sdk list java'
             }
         }
         stage('main build') {
