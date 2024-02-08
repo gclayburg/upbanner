@@ -36,6 +36,7 @@ pipeline {
                         releaseRepo: "garyrepo-libs-release",
                         snapshotRepo: "garyrepo-libs-snapshot"
                 )
+                sh './build.sh'
                 sh 'java -version'
                 sh 'which java'
                 sh 'uname -a'
