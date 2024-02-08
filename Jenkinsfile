@@ -39,6 +39,8 @@ pipeline {
                 sh 'java -version'
                 sh 'which java'
                 sh 'uname -a'
+                sh 'id'
+                sh 'pwd'
                 sh 'sdk list java'
             }
         }
