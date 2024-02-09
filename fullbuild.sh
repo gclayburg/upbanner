@@ -7,7 +7,7 @@ fi
 source "$SDKMAN_DIR/bin/sdkman-init.sh"
 
 sdk use java 17.0.10-tem
-mvn clean install
+mvn clean install javadoc:jar source:jar
 sdk use java 8.0.402-tem
 mvn install
 
