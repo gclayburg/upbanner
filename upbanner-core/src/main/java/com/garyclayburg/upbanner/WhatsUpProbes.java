@@ -15,6 +15,7 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import com.garyclayburg.upbanner.jarprobe.JarProbe;
 import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
@@ -1042,8 +1043,8 @@ Main: UpbannerdemoApplication
      */
     public boolean isDocker() {
         boolean isDocker = false;
-        try {
-            isDocker = Files.lines(Paths.get(CGROUP_FILE)).map(line ->
+        try (Stream<String> lines = Files.lines(Paths.get(CGROUP_FILE))){
+            isDocker = lines.map(line ->
                     line.matches(".*/docker.*")).reduce(false, (first, found) -> found || first);
         } catch (IOException e) {
             // not linux?
@@ -1056,9 +1057,10 @@ Main: UpbannerdemoApplication
      */
     public boolean isKubernetes() {
         boolean isKubernetes = false;
-        try {
+        try (Stream<String> lines = Files.lines(Paths.get(CGROUP_FILE))){
             //todo is this consistent with https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#cloud-deployment-kubernetes ?
-            isKubernetes = Files.lines(Paths.get(CGROUP_FILE)).map(line ->
+
+            isKubernetes = lines.map(line ->
                     line.matches(".*/kubepod.*")).reduce(false, (first, found) -> found || first);
         } catch (IOException e) {
             // not linux?
