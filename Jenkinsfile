@@ -11,6 +11,7 @@ pipeline {
     environment {
         TZ='America/Denver'
         ARTIFACTORY = credentials('frogbuilder-artifactory')
+        JAVA_HOME ='/usr/local/sdk/.sdkman/candidates/java/17.0.10-tem'  //this is for rtMavenRun to do its part on Java17
     }
     stages {
 
@@ -40,8 +41,6 @@ pipeline {
         }
         stage('main build') {
             steps {
-                sh "./build.sh"
-                sh 'failquick'
                 rtMavenRun (
                         //no tool, assume mvn is found on build agent, i.e. sdkman
                         pom: 'pom.xml',
@@ -49,6 +48,7 @@ pipeline {
                         deployerId: "MAVEN_DEPLOYER",
                         resolverId: "MAVEN_RESOLVER"
                 )
+                sh "./build.sh"
             }
         }
         stage('Publish build info') {

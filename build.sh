@@ -11,8 +11,9 @@ echo "now using sdkman I hope"
 java -version
 echo "JAVA_HOME is $JAVA_HOME"
 #sdk list java
-sdk use java 17.0.10-tem
-java -version
-echo "JAVA_HOME is $JAVA_HOME"
+#sdk use java 17.0.10-tem
+#java -version
+#echo "JAVA_HOME is $JAVA_HOME"
 #sdk list java
-echo "done with versions"
+#echo "done with versions"
+mvn install # should be running on jdk 8 and maven will only only be running those modules that are explicitly activated when running on java 8
