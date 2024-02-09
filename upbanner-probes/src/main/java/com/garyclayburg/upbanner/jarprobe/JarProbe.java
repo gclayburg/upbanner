@@ -61,7 +61,7 @@ public abstract class JarProbe {
         return isJar(path);
     }
 
-    boolean isJar(String path) {
+    public boolean isJar(String path) {
         return path.matches(".*\\.jar!*[/\\\\]*");
     }
 

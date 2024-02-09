@@ -1,4 +1,4 @@
-package com.garyclayburg.upbanner.jarprobe;
+package com.garyclayburg.upbanner.nestedjar;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,24 +11,30 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
+import com.garyclayburg.upbanner.jarprobe.JarProbe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.loader.jar.JarFile;
+import org.springframework.boot.loader.jar.NestedJarFile;
 
 /**
  * <br><br>
  * Created 2021-01-17 11:49
+ * see also com.garyclayburg.upbanner.jarbrobe.BootJarDumper for supporting
+ * Spring Boot versions before 3.2.0
  *
  * @author Gary Clayburg
  */
-public class BootJarDumper extends JarProbe {
+public class BootNestedJarDumper extends JarProbe {
 
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(BootJarDumper.class);
+    private static final Logger log = LoggerFactory.getLogger(BootNestedJarDumper.class);
     private Manifest manifest;
     private JarFile jarFile;
+    private File jarFileFile;
 
     /**
      * was this application started by running from a jar file directly?, e.g.
@@ -56,8 +62,9 @@ public class BootJarDumper extends JarProbe {
     @Override
     public void init(StringBuilder probeOut) {
         try {
-            jarFile = getBootJarFile(probeOut);
-            if (jarFile != null) {
+            jarFileFile = getBootJarFile(probeOut);
+            if (jarFileFile != null) {
+                jarFile = new JarFile(jarFileFile);
                 manifest = jarFile.getManifest();
             } else {
                 probeOut.append("    WARN - Cannot probe boot jar")
@@ -91,8 +98,9 @@ public class BootJarDumper extends JarProbe {
             JarEntry jarEntry = entries.nextElement();
             if (jarEntry.getName().endsWith(".jar")) {
                 if (jarEntry.getName().contains(name)) {
-                    JarFile nestedJarFile = jarFile.getNestedJarFile(jarEntry);
-                    manifest = nestedJarFile.getManifest();
+                    try (NestedJarFile nestedJarFile1 = new NestedJarFile(jarFileFile, jarEntry.getName())) {
+                        manifest = nestedJarFile1.getManifest();
+                    }
                     break; // first match wins
                 }
             }
@@ -106,30 +114,37 @@ public class BootJarDumper extends JarProbe {
         if (manifest == null) {
             init(probeOut);
         }
-        showJarName(probeOut, jarFile.getName());
-        showManifest(probeOut, manifest);
-        Enumeration<JarEntry> entries = jarFile.entries();
-        while (entries.hasMoreElements()) {
-            JarEntry jarEntry = entries.nextElement();
+        if (jarFile != null) {
 
-            try {
-                if (isJar(jarEntry.getName())) {
-                    if (shouldShowManifest(jarEntry.getName())) {
-                        showJarName(probeOut, jarEntry.getName());
-                        JarFile nestedJarFile = jarFile.getNestedJarFile(jarEntry);
-                        Manifest nestedManifest = nestedJarFile.getManifest();
-                        showManifest(probeOut, nestedManifest);
+            showJarName(probeOut, jarFile.getName());
+            showManifest(probeOut, manifest);
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry jarEntry = entries.nextElement();
+
+                try {
+                    if (isJar(jarEntry.getName())) {
+                        if (shouldShowManifest(jarEntry.getName())) {
+                            showJarName(probeOut, jarEntry.getName());
+                            Manifest nestedManifest;
+                            try (NestedJarFile nestedJarFile1 = new NestedJarFile(jarFileFile, jarEntry.getName())) {
+                                nestedManifest = nestedJarFile1.getManifest();
+                                showManifest(probeOut, nestedManifest);
+                            }
+                        }
                     }
+                } catch (IOException e) {
+                    probeOut.append("  WARN - Cannot open ").append(jarEntry.getName())
+                            .append("\n");
                 }
-            } catch (IOException e) {
-                probeOut.append("  WARN - Cannot open ").append(jarEntry.getName())
-                        .append("\n");
             }
+        } else {
+            probeOut.append("  WARN - Cannot examine any jar SNAPSHOT.");
         }
     }
 
-    public static JarFile getBootJarFile(StringBuilder probeOut) throws IOException {
-        ProtectionDomain protectionDomain = BootJarDumper.class.getProtectionDomain();
+    public static File getBootJarFile(StringBuilder probeOut) throws IOException {
+        ProtectionDomain protectionDomain = BootNestedJarDumper.class.getProtectionDomain();
         CodeSource codeSource = protectionDomain.getCodeSource();
         try {
             URI location = (codeSource == null ? null : codeSource.getLocation().toURI());
@@ -145,8 +160,8 @@ public class BootJarDumper extends JarProbe {
     private static void showBootJarUrls(String path) {
         if (log.isDebugEnabled()) {
             log.debug("checking codesource path: " + path);
-            if (BootJarDumper.class.getClassLoader() instanceof URLClassLoader) {
-                Arrays.stream(((URLClassLoader) BootJarDumper.class.getClassLoader()).getURLs()).forEach(url -> log.debug("URL " + url));
+            if (BootNestedJarDumper.class.getClassLoader() instanceof URLClassLoader) {
+                Arrays.stream(((URLClassLoader) BootNestedJarDumper.class.getClassLoader()).getURLs()).forEach(url -> log.debug("URL " + url));
 /* java-jar blah.jar:
 codesource path: file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/lib/legacybanner-2.1.2-SNAPSHOT.jar!/
 2021-03-26 08:48:48,392 [           main] DEBUG c.g.upbanner.jarprobe.BootJarDumper  - URL jar:file:/home/gclaybur/dev/gvsync/upbanner/webjar1519/target/webjar1519-2.1.2-SNAPSHOT.jar!/BOOT-INF/classes!/
@@ -179,23 +194,25 @@ s
             probeOut.append("WARN - Cannot determine CodeSource location\n");
             return null;
         }
-        if (path.lastIndexOf("!/BOOT-INF") > 0) { //we are running from boot jar
-            return path.substring(0, path.lastIndexOf("!/BOOT-INF"));
+        if (path.lastIndexOf("!BOOT-INF") > 0) { //we are running from boot jar
+            return path.substring(0, path.lastIndexOf("!BOOT-INF"));
         }
-        if (path.lastIndexOf("!/WEB-INF") > 0) { //we are running from boot war
-            return path.substring(0, path.lastIndexOf("!/WEB-INF"));
+        if (path.lastIndexOf("!WEB-INF") > 0) { //we are running from boot war
+            return path.substring(0, path.lastIndexOf("!WEB-INF"));
         }
-        log.debug("neither !/BOOT-INF nor !/WEB-INF found in path.  We are not running from a spring boot jar/war");
-        probeOut.append("WARN - neither !/BOOT-INF nor !/WEB-INF found in path ").append(path)
+        log.debug("neither !BOOT-INF nor !WEB-INF found in path.  We are not running from a spring boot jar/war");
+        probeOut.append("WARN - neither !BOOT-INF nor !WEB-INF found in path ").append(path)
                 .append("  Is this not a spring boot executable jar?\n");
         return null;
     }
 
-    private static JarFile createJarFile(StringBuilder probeOut, String path) throws IOException {
+    private static File createJarFile(StringBuilder probeOut, String path) {
         if (path == null) {
             return null;
         }
-        path = path.replace("file:", "");
+        path = path.replace("file:", ""); // spring boot 1 or spring boot 2 style.  Not used in Spring Boot 3?
+        //e.g. nested:/home/gclaybur/dev/playground/demo322/target/demo-0.0.1-SNAPSHOT.jar
+        path = path.replace("nested:", "");  //spring boot 3 style
 
         File root = new File(path);
         if (root.isDirectory()) {
@@ -208,6 +225,6 @@ s
             probeOut.append("WARN - root does not exist.  Is this a valid spring boot jar?\n");
             return null;
         }
-        return new JarFile(root);
+        return root;
     }
 }

@@ -177,9 +177,6 @@ public class FileJarDumper extends JarProbe {
                 }
             }
             probeOut.append("WARN - Cannot decipher url ").append(url).append(System.lineSeparator());
-//            probeOut.append("proto: ").append(url.getProtocol()).append(System.lineSeparator());
-//            probeOut.append("path: ").append(url.getPath()).append(System.lineSeparator());
-//            probeOut.append("file: ").append(url.getFile()).append(System.lineSeparator());
         }
         return null;
     }

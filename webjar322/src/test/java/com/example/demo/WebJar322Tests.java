@@ -45,6 +45,6 @@ class WebJar322Tests {
 
     @Test
     void upbannerisup() {
-        assertTrue(outContent.toString().contains("WebJar322Tests is UP!"));
+        assertTrue(outContent.toString().contains("App322 is UP!"));
     }
 }

@@ -42,7 +42,7 @@ public class WhatsUpProbes {
     private final OshiProbe oshiProbe;
     private final JarProbe jarProbe;
     private final UpbannerSettings upbannerSettings;
-    private ApplicationContext context;
+    private final ApplicationContext context;
     protected ConfigurableEnvironment environment;
     protected BuildProperties buildProperties;
 
@@ -339,6 +339,7 @@ public class WhatsUpProbes {
             dumpGitProperties(probe);
             jarProbe.createRootManifestReport(probe);
             jarProbe.createSnapshotJarReport(probe);
+            probe.append( "\n===== End Probes =================================");
             this.probeResult = probe;
         } else {
             probe = this.probeResult;
@@ -1068,7 +1069,7 @@ Main: UpbannerdemoApplication
     /**
      * This is the value of the external property "upbanner.show-banner"
      *
-     * @return true if the the banner is enabled, false otherwise
+     * @return true if the banner is enabled, false otherwise
      */
     public boolean isShowBanner() {
         return upbannerSettings.isShowBanner();

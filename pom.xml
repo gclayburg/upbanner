@@ -6,19 +6,6 @@
     <artifactId>whatsupbanner</artifactId>
     <version>2.3.4-SNAPSHOT</version>
 
-    <modules>
-        <module>upbanner-starter</module>
-        <module>upbanner-core</module>
-        <module>webjar244</module>
-        <module>webjar27</module>
-        <module>webjar322</module>
-        <module>webjaroverride</module>
-        <module>weboshiwar244</module>
-        <module>webjar1519</module>
-        <module>jaronly15</module>
-        <module>jaronly244</module>
-        <module>mongo244</module>
-    </modules>
     <packaging>pom</packaging>
 
     <name>whatsupbanner</name>
@@ -161,6 +148,39 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <modules>
+                <!-- these modules have a @SpringBootTest that can only be started
+                 under jdk8 -->
+                <module>jaronly15</module>
+                <module>webjar1519</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>jdk17</id>
+            <activation>
+                <jdk>17</jdk>
+            </activation>
+            <modules>
+                <module>upbanner-starter</module>
+                <module>upbanner-core</module>
+                <module>webjar244</module>
+                <module>webjar27</module>
+                <module>webjar322</module>
+                <module>webjaroverride</module>
+                <module>weboshiwar244</module>
+                <module>jaronly244</module>
+                <module>mongo244</module>
+                <module>upbanner-nestedjar</module>
+                <module>upbanner-probes</module>
+            </modules>
+        </profile>
+
     </profiles>
     <distributionManagement>
         <snapshotRepository>

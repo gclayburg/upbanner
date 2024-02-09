@@ -57,9 +57,24 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
 
     public void started(ConfigurableApplicationContext context, Duration timeTaken) {
         /*
-        This variant of the started method signature seems to be new as of Spring boot 3.x
+        This variant of the started method signature seems to be new as of Spring boot 2.6
+        Spring Boot 3.x seems to ONLY have this variant of started()
+
+        So it's a little tricky to determine when our spring boot app is actually started
+        Spring boot 1.x app:
+        - spring boot calls finished(ConfigurableApplicationContext context, Throwable exception)
+        Spring boot 2.0 - 2.5 app:
+        - spring boot calls started(ConfigurableApplicationContext context)
+        Spring boot 2.6
+        - spring boot calls started(ConfigurableApplicationContext context, Duration timeTaken)  IF it exists, otherwise
+        - spring boot calls started(ConfigurableApplicationContext context)
+        Spring boot 3.0
+        - spring boot calls started(ConfigurableApplicationContext context, Duration timeTaken)
+
+        We want the latest version of upbanner-starter to be usable by any version of spring boot.
+        We do not want to create separate versions of upbanner-starter for each version of spring boot.
          */
-        log.debug("looks like we are starting a Spring boot 2.6+ app here");
+        log.debug("starting a Spring boot 2.6+ app");
         started(context);
     }
     public void started(ConfigurableApplicationContext context) {
@@ -112,6 +127,7 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
         But we have it here because we are including this class in the app and it may be running
         under spring boot 1.x or 2.x
          */
+        log.debug("starting Spring Boot 1.x app");
         started(context);
     }
 }

@@ -10,6 +10,7 @@ import java.util.Properties;
 import com.garyclayburg.upbanner.jarprobe.BootJarDumper;
 import com.garyclayburg.upbanner.jarprobe.FileJarDumper;
 import com.garyclayburg.upbanner.jarprobe.JarProbe;
+import com.garyclayburg.upbanner.nestedjar.BootNestedJarDumper;
 import com.garyclayburg.upbanner.oshiprobe.EmptyOshiProbe;
 import com.garyclayburg.upbanner.oshiprobe.FullOshiProbe;
 import com.garyclayburg.upbanner.oshiprobe.OshiProbe;
@@ -114,6 +115,11 @@ public class DebugDumper {
         return upbannerSettings;
     }
 
+    /**
+     * This creates a JarProbe class that can be used before the jarProbe bean is created
+     * by Spring.  We need this so that we can show debug info early on in the boot process.
+     * @return JarProbe
+     */
     private JarProbe createJarProbe() {
         if (conditionalOnClass("org.springframework.boot.loader.jar.JarFile")) {
             if (BootJarDumper.weAreRunningUnderSpringBootExecutableJar()) {
@@ -122,6 +128,15 @@ public class DebugDumper {
                 return new FileJarDumper();
             }
         } else {
+            if (conditionalOnClass("org.springframework.boot.loader.jar.NestedJarFile")){
+                log.debug("Running under spring boot 3");
+                if (BootNestedJarDumper.weAreRunningUnderSpringBootExecutableJar()) {
+                    log.debug("Running under executable jar");
+                    return new BootNestedJarDumper();
+                } else {
+                    return new FileJarDumper();
+                }
+            }
             //avoid probing if we know for sure we can't be running in a JarFile or expanded JarFile
             return new FileJarDumper();
         }
