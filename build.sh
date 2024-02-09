@@ -6,7 +6,7 @@ if [ -f "$HOME/.sdkman" ]; then  #standard SDK install location
 elif [ -f /usr/local/sdk/.sdkman ]; then  #jenkins build agent uses this
 	export SDKMAN_DIR=/usr/local/sdk/.sdkman
 fi
-source "$SDKMAN_DIR/bin/sdkmain-init.sh"
+source "$SDKMAN_DIR/bin/sdkman-init.sh"
 echo "now using sdkman I hope"
 java -version
 #sdk list java
