@@ -9,8 +9,10 @@ fi
 source "$SDKMAN_DIR/bin/sdkman-init.sh"
 echo "now using sdkman I hope"
 java -version
+echo "JAVA_HOME is $JAVA_HOME"
 #sdk list java
 sdk use java 17.0.10-tem
 java -version
+echo "JAVA_HOME is $JAVA_HOME"
 #sdk list java
 echo "done with versions"

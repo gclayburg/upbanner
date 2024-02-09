@@ -36,21 +36,12 @@ pipeline {
                         releaseRepo: "garyrepo-libs-release",
                         snapshotRepo: "garyrepo-libs-snapshot"
                 )
-                sh "./build.sh"
-                sh "all done now"
-                sh 'java -version'
-                sh 'which java'
-                sh 'uname -a'
-                sh 'id'
-                sh 'pwd'
-                sh 'bash -ic "java -version"'
-                sh 'bash -ic "sdk list java ; java -version"'
-                sh 'bash -ic "sdk use java 17.0.10-tem ; java -version"'
-                sh 'bash -ic "sdk list java ; java -version"'
             }
         }
         stage('main build') {
             steps {
+                sh "./build.sh"
+                sh 'failquick'
                 rtMavenRun (
                         //no tool, assume mvn is found on build agent, i.e. sdkman
                         pom: 'pom.xml',
