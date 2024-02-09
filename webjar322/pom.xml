@@ -10,12 +10,12 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>webjar322</artifactId>
-    <version>2.3.4-SNAPSHOT</version>
+    <version>2.3.5-SNAPSHOT</version>
     <name>webjar322</name>
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>8</java.version>
-        <banner.version>2.3.4-SNAPSHOT</banner.version>
+        <banner.version>2.3.5-SNAPSHOT</banner.version>
     </properties>
     <dependencies>
         <dependency>
