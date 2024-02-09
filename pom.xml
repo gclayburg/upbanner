@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.garyclayburg</groupId>
-    <artifactId>whatsupbanner</artifactId>
+    <artifactId>upbanner</artifactId>
     <version>2.3.4-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
-    <name>whatsupbanner</name>
+    <name>upbanner</name>
     <description>Show UP banner for your spring boot app</description>
     <url>https://github.com/gclayburg/upbanner</url>
     <organization>
