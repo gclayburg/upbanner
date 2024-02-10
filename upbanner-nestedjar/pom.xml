@@ -17,6 +17,20 @@
         <version>3.2.2</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
+    <scm>
+        <url>https://github.com/gclayburg/upbanner</url>
+        <tag>HEAD</tag>
+    </scm>
+    <developers>
+        <developer>
+            <id>gclayburg</id>
+            <name>Gary Clayburg</name>
+            <email>@garyclayburg</email>
+            <organization>Clayburg</organization>
+            <organizationUrl>https://github.com/gclayburg</organizationUrl>
+            <url>https://github.com/gclayburg</url>
+        </developer>
+    </developers>
 
     <properties>
         <java.version>8</java.version>
@@ -64,5 +78,16 @@
             </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
+            </url>
+        </repository>
+    </distributionManagement>
 
 </project>
