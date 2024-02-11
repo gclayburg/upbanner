@@ -4,7 +4,7 @@
 
     <groupId>com.garyclayburg</groupId>
     <artifactId>upbanner</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -43,7 +43,7 @@
         <connection>scm:git:git://github.com/gclayburg/upbanner.git</connection>
         <developerConnection>scm:git:git@github.com:gclayburg/upbanner.git</developerConnection>
         <url>https://github.com/gclayburg/upbanner</url>
-        <tag>v3.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
     <build>
         <plugins>
