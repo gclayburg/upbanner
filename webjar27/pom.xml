@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>webjar27</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <name>webjar27</name>
     <description>Demo project for Spring Boot</description>
     <properties>
@@ -51,4 +51,8 @@
             <url>file:///tmp/devnull.repo</url>
         </repository>
     </distributionManagement>
+
+  <scm>
+    <tag>v3.0.0</tag>
+  </scm>
 </project>
