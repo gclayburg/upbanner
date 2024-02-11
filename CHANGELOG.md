@@ -13,12 +13,11 @@ Add support for Spring Boot 3 projects.  With this version we now support Spring
 - Some of the modules have tests that require JDK 8 to execute.  They will not work with a newer JDK. See fullbuild.sh for details.
 - renamed whatsupbanner root level pom to upbanner
 - The module dependencies now look like this:  
-+--- com.garyclayburg:upbanner-starter:2.3.5-SNAPSHOT
-|    \--- com.garyclayburg:upbanner-core:2.3.5-SNAPSHOT
-|         +--- com.garyclayburg:upbanner-nestedjar:2.3.5-SNAPSHOT
-|         |    \--- com.garyclayburg:upbanner-probes:2.3.5-SNAPSHOT
-|         \--- com.garyclayburg:upbanner-probes:2.3.5-SNAPSHOT
-
+  - com.garyclayburg:upbanner-starter:3.0.0
+    - com.garyclayburg:upbanner-core:3.0.0
+      - com.garyclayburg:upbanner-nestedjar:3.0.0
+        - com.garyclayburg:upbanner-probes:3.0.0
+      - com.garyclayburg:upbanner-probes:3.0.0
 
 ### Fixed
 - Sometimes upbanner would print http://localhost:443 when it should have been https: instead
@@ -27,7 +26,6 @@ Add support for Spring Boot 3 projects.  With this version we now support Spring
 ### Removed
 - BuildPropertiesStub is no longer needed
 - some JarFile @Beans are no longer needed since the objects are created much earlier in the startup process.
-- 
 
 ## [2.3.3] - 2021-7-14
 Bug fix release

@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>webjar1519</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.1-SNAPSHOT</version>
     <name>webjar1519</name>
     <description>Demo project for Spring Boot</description>
     <properties>
