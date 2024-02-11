@@ -1,5 +1,34 @@
 # Changelog
 
+## [3.0.0] - 2023-2-11
+Add support for Spring Boot 3 projects.  With this version we now support Spring Boot 1, Spring Boot 2 and Spring Boot 3 projects.  The minimum JDK required is JDK 8.
+
+### Added
+- Several new maven modules were added to support Spring Boot 3
+- upbanner now supports examining jar files using the Spring Boot 3 jar file format
+- added org.springframework.boot.autoconfigure.AutoConfiguration.imports
+
+### Changes
+- Building this project now requires jdk 17, but the resulting artifacts can still be used by a project that is using JDK 8.
+- Some of the modules have tests that require JDK 8 to execute.  They will not work with a newer JDK. See fullbuild.sh for details.
+- renamed whatsupbanner root level pom to upbanner
+- The module dependencies now look like this:  
++--- com.garyclayburg:upbanner-starter:2.3.5-SNAPSHOT
+|    \--- com.garyclayburg:upbanner-core:2.3.5-SNAPSHOT
+|         +--- com.garyclayburg:upbanner-nestedjar:2.3.5-SNAPSHOT
+|         |    \--- com.garyclayburg:upbanner-probes:2.3.5-SNAPSHOT
+|         \--- com.garyclayburg:upbanner-probes:2.3.5-SNAPSHOT
+
+
+### Fixed
+- Sometimes upbanner would print http://localhost:443 when it should have been https: instead
+- docker detection now works with modern docker engines
+
+### Removed
+- BuildPropertiesStub is no longer needed
+- some JarFile @Beans are no longer needed since the objects are created much earlier in the startup process.
+- 
+
 ## [2.3.3] - 2021-7-14
 Bug fix release
 

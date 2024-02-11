@@ -1,5 +1,4 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.garyclayburg/upbanner-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.garyclayburg/upbanner-starter)
-[![Build Status](https://travis-ci.org/gclayburg/upbanner.svg?branch=master)](https://travis-ci.org/gclayburg/upbanner)
 [![javadoc](https://javadoc.io/badge2/com.garyclayburg/upbanner-starter/javadoc.svg)](https://javadoc.io/doc/com.garyclayburg/upbanner-starter)
 # upbanner-starter
 
@@ -262,7 +261,7 @@ This app is designed to have very little overhead.  It only does its work during
 Upbanner is intended to provide helpful information during the startup of any Spring Boot Application.  It should not throw exceptions.  It is no fun when a troubleshooting tool like this adds another startup problem.
 
 ## Compatibililty
-This project is designed to work with any Spring Boot 1.x or 2.x application.  If the app is also a web app it will print an upbanner on successful startup.  
+This project is designed to work with any Spring Boot 1.x, 2.x or 3.x application.  If the app is also a web app it will print an upbanner on successful startup.  
 
 Any Spring Boot app can use the `upbanner.debug` flag to troubleshoot application startup.
 
