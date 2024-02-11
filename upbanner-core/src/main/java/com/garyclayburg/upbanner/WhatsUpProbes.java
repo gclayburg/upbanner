@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.URLClassLoader;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
@@ -1046,11 +1047,24 @@ Main: UpbannerdemoApplication
      */
     public boolean isDocker() {
         boolean isDocker = false;
-        try (Stream<String> lines = Files.lines(Paths.get(CGROUP_FILE))){
-            isDocker = lines.map(line ->
-                    line.matches(".*/docker.*")).reduce(false, (first, found) -> found || first);
-        } catch (IOException e) {
-            // not linux?
+        try {
+            // e.g. from running mongodb docker container
+            //# head -1 /proc/1/sched
+            //mongod (1, #threads: 37)
+
+            // from a normal linux system
+            //$ head -1 /proc/1/sched
+            //systemd (1, #threads: 1)
+            Path schedPath = Paths.get("/proc/1/sched");
+            try (BufferedReader br = Files.newBufferedReader(schedPath)) {
+                String firstLine = br.readLine();
+                String firstword = firstLine != null ? firstLine.split("\\s+")[0] : null;
+                isDocker = !"init".equals(firstword) && !"systemd".equals(firstword);
+            } catch (IOException ioException) {
+                // obviously, not docker
+            }
+        } catch (SecurityException securityException) {
+            log.warn("SecurityException - Cannot open /proc/1/sched to check for docker");
         }
         return isDocker;
     }
