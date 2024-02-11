@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.garyclayburg</groupId>
     <artifactId>upbanner-nestedjar</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
     <url>https://github.com/gclayburg/upbanner</url>
     <organization>
         <name>com.garyclayburg</name>
@@ -17,7 +17,7 @@
     </parent>
     <scm>
         <url>https://github.com/gclayburg/upbanner</url>
-        <tag>v3.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
     <developers>
         <developer>
@@ -34,7 +34,7 @@
         <java.version>8</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <banner.version>3.0.0</banner.version>
+        <banner.version>3.0.1-SNAPSHOT</banner.version>
     </properties>
     <dependencies>
         <dependency>

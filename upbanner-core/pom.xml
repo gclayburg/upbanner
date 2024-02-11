@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.garyclayburg</groupId>
     <artifactId>upbanner-core</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
     <url>https://github.com/gclayburg/upbanner</url>
     <organization>
         <name>com.garyclayburg</name>
@@ -23,7 +23,7 @@
         <!-- necessary for intellij to import the project without defaulting to Java 5 -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <banner.version>3.0.0</banner.version>
+        <banner.version>3.0.1-SNAPSHOT</banner.version>
     </properties>
 
     <dependencies>
@@ -142,6 +142,6 @@
         </repository>
     </distributionManagement>
     <scm>
-        <tag>v3.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
