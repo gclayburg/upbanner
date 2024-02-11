@@ -93,14 +93,16 @@ public class WhatsUpProbes {
      * @return "http" if the web app can be access using http, or "https" if the app has been configured to use https protocol
      */
     public String getProtocol() {
-        String retval = "http";
+        String protocolInUse = "http";
         String requiressl = getEnvironmentProperty("security.require-ssl");
         String sslEnabled = getEnvironmentProperty("server.ssl.enabled");
-        if (sslEnabled != null && sslEnabled.equals("true") ||
+        String keystoreUsed = getEnvironmentProperty("server.ssl.key-store");
+        if (keystoreUsed != null ||
+            sslEnabled != null && sslEnabled.equals("true") ||
             requiressl != null && requiressl.equals("true")) {
-            retval = "https";
+            protocolInUse = "https";
         }
-        return retval;
+        return protocolInUse;
     }
 
     /**
