@@ -19,10 +19,23 @@ public abstract class JarProbe {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(JarProbe.class);
 
+    /**
+     * Shows all manifest entries for all dependencies that are marked as -SNAPSHOT
+     * @param stringBuilder StringBuilder to append data to
+     */
     public abstract void createSnapshotJarReport(StringBuilder stringBuilder);
 
+    /**
+     *
+     * @return the Manifest of the boot jar we are running under, or the Manifest that represents values in the file from classpath: META-INF/MANIFEST.MF
+     */
     public abstract Manifest getManifest();
 
+    /**
+     * display the main manifest entries appended to probeOut
+     * @param probeOut the StringBuilder to use
+     * @param manifest the Manifest
+     */
     public void showManifest(StringBuilder probeOut, Manifest manifest) {
         Attributes mainAttributes = manifest.getMainAttributes();
         formatAttributes(probeOut, mainAttributes);
@@ -32,6 +45,11 @@ public abstract class JarProbe {
         mainAttributes.forEach((name, value) -> probeOut.append("  ").append(name).append(":").append(value).append("\n"));
     }
 
+    /**
+     *
+     * @param entry name of a dependency
+     * @return true if the dependency is a SNAPSHOT
+     */
     protected boolean shouldShowManifest(String entry) {
         /*
         ex of jar loaded from gradle cache:
@@ -52,6 +70,10 @@ public abstract class JarProbe {
 
     public abstract void init(StringBuilder probe);
 
+    /**
+     * Shows the Manifest entries of the jar file we are running under
+     * @param probe the StringBuilder to append the results to
+     */
     public abstract void createRootManifestReport(StringBuilder probe);
 
     public abstract Manifest getManifest(String name) throws IOException;

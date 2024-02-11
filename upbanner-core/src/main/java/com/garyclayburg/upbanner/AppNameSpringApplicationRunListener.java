@@ -78,7 +78,6 @@ public class AppNameSpringApplicationRunListener implements SpringApplicationRun
         started(context);
     }
     public void started(ConfigurableApplicationContext context) {
-        log.debug("started... "+ context.isActive());
         if (context.isActive()) {
             /*
              this may not be active when running under devtools AND app was restarted
