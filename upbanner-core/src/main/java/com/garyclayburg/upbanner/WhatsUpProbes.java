@@ -94,8 +94,10 @@ public class WhatsUpProbes {
      */
     public String getProtocol() {
         String retval = "http";
-        String secure = getEnvironmentProperty("security.require-ssl");
-        if (secure != null && secure.equals("true")) {
+        String requiressl = getEnvironmentProperty("security.require-ssl");
+        String sslEnabled = getEnvironmentProperty("server.ssl.enabled");
+        if (sslEnabled != null && sslEnabled.equals("true") ||
+            requiressl != null && requiressl.equals("true")) {
             retval = "https";
         }
         return retval;
@@ -798,7 +800,6 @@ Main: UpbannerdemoApplication
     }
 
     void setListeningPort(int listeningPort) {
-        log.debug("set listen port to " + listeningPort);
         this.listeningPort = listeningPort;
     }
 
